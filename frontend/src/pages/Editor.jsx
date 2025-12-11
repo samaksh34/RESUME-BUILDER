@@ -5,13 +5,25 @@ import FormSection from '../components/FormSection';
 import InputField from '../components/InputField';
 import Navbar from '../components/Navbar';
 import HorizontalSectionsNav from '../components/HorizontalSectionsNav';
-import { Plus, Trash2, Github, Linkedin, Globe, Mail, Phone, MapPin, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 const Editor = () => {
     const { resumeData, updateResumeData } = useResumeData();
     const [activeSection, setActiveSection] = useState('personal');
     const [zoom, setZoom] = useState(100);
     const [template, setTemplate] = useState('ats');
+
+    const {
+        personalInfo = {},
+        education = [],
+        technicalSkills = [],
+        internships = [],
+        projects = [],
+        achievements = [],
+        certificates = [],
+        extracurricular = [],
+        languages = [],
+    } = resumeData || {};
 
     // Refs for scrolling to sections
     const sectionRefs = {
@@ -34,27 +46,53 @@ const Editor = () => {
     }, [activeSection]);
 
     const handleInputChange = (section, field, value) => {
-        updateResumeData(section, { ...resumeData[section], [field]: value });
+        const existing = (resumeData && resumeData[section]) || {};
+        updateResumeData(section, { ...existing, [field]: value });
     };
 
     const handleArrayChange = (section, index, field, value) => {
-        const newArray = [...resumeData[section]];
+        const currentArray = Array.isArray(resumeData?.[section]) ? resumeData[section] : [];
+        const newArray = [...currentArray];
         newArray[index] = { ...newArray[index], [field]: value };
         updateResumeData(section, newArray);
     };
 
     const addItem = (section, initialData) => {
-        updateResumeData(section, [...resumeData[section], initialData]);
+        const currentArray = Array.isArray(resumeData?.[section]) ? resumeData[section] : [];
+        updateResumeData(section, [...currentArray, initialData]);
     };
 
     const removeItem = (section, index) => {
-        const newArray = resumeData[section].filter((_, i) => i !== index);
+        const currentArray = Array.isArray(resumeData?.[section]) ? resumeData[section] : [];
+        const newArray = currentArray.filter((_, i) => i !== index);
         updateResumeData(section, newArray);
     };
 
     const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 150));
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
     const handleResetZoom = () => setZoom(100);
+
+    useEffect(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'debug-session',
+                runId: 'pre-fix',
+                hypothesisId: 'A',
+                location: 'Editor.jsx:mount',
+                message: 'Editor mounted with context snapshot',
+                data: {
+                    hasResumeData: Boolean(resumeData),
+                    personalInfoKeys: resumeData ? Object.keys(resumeData.personalInfo || {}) : null,
+                    updateResumeDataType: typeof updateResumeData
+                },
+                timestamp: Date.now()
+            })
+        }).catch(() => { });
+        // #endregion
+    }, []);
 
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden">
@@ -76,20 +114,20 @@ const Editor = () => {
                                 <div ref={sectionRefs.personal} className="scroll-mt-4">
                                     <FormSection title="Personal Information" icon={null} isOpen={true}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <InputField label="Full Name" value={resumeData.personalInfo.fullName} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="John Doe" />
-                                            <InputField label="Job Title" value={resumeData.personalInfo.jobTitle} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="Software Engineer" />
-                                            <InputField label="Email" value={resumeData.personalInfo.email} onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)} placeholder="john@example.com" />
-                                            <InputField label="Phone" value={resumeData.personalInfo.phone} onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)} placeholder="+1 234 567 890" />
-                                            <InputField label="Address" value={resumeData.personalInfo.address} onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)} placeholder="City, Country" />
-                                            <InputField label="LinkedIn" value={resumeData.personalInfo.linkedin} onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)} placeholder="linkedin.com/in/johndoe" />
-                                            <InputField label="GitHub" value={resumeData.personalInfo.github} onChange={(e) => handleInputChange('personalInfo', 'github', e.target.value)} placeholder="github.com/johndoe" />
-                                            <InputField label="Portfolio" value={resumeData.personalInfo.portfolio} onChange={(e) => handleInputChange('personalInfo', 'portfolio', e.target.value)} placeholder="johndoe.com" />
+                                            <InputField label="Full Name" value={personalInfo.fullName || ''} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="John Doe" />
+                                            <InputField label="Job Title" value={personalInfo.jobTitle || ''} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="Software Engineer" />
+                                            <InputField label="Email" value={personalInfo.email || ''} onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)} placeholder="john@example.com" />
+                                            <InputField label="Phone" value={personalInfo.phone || ''} onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)} placeholder="+1 234 567 890" />
+                                            <InputField label="Address" value={personalInfo.address || ''} onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)} placeholder="City, Country" />
+                                            <InputField label="LinkedIn" value={personalInfo.linkedin || ''} onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)} placeholder="linkedin.com/in/johndoe" />
+                                            <InputField label="GitHub" value={personalInfo.github || ''} onChange={(e) => handleInputChange('personalInfo', 'github', e.target.value)} placeholder="github.com/johndoe" />
+                                            <InputField label="Portfolio" value={personalInfo.portfolio || ''} onChange={(e) => handleInputChange('personalInfo', 'portfolio', e.target.value)} placeholder="johndoe.com" />
                                         </div>
                                         <div className="mt-4">
                                             <label className="block text-xs font-medium text-subtext mb-1.5">Professional Summary</label>
                                             <textarea
                                                 className="input-base min-h-[100px] resize-y"
-                                                value={resumeData.personalInfo.summary}
+                                                value={personalInfo.summary || ''}
                                                 onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)}
                                                 placeholder="Briefly describe your professional background and key achievements..."
                                             />
@@ -100,7 +138,7 @@ const Editor = () => {
                                 {/* Education */}
                                 <div ref={sectionRefs.education} className="scroll-mt-4">
                                     <FormSection title="Education" icon={null} isOpen={true}>
-                                        {resumeData.education.map((edu, index) => (
+                                        {education.map((edu, index) => (
                                             <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
                                                 <button onClick={() => removeItem('education', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
                                                     <Trash2 size={16} />
@@ -125,28 +163,28 @@ const Editor = () => {
                                 <div ref={sectionRefs.skills} className="scroll-mt-4">
                                     <FormSection title="Technical Skills" icon={null} isOpen={true}>
                                         <div className="space-y-3">
-                                            {resumeData.technicalSkills.map((skill, index) => (
+                                            {technicalSkills.map((skill, index) => (
                                                 <div key={index} className="flex gap-2">
                                                     <input
                                                         type="text"
                                                         className="input-base"
                                                         value={skill}
                                                         onChange={(e) => {
-                                                            const newSkills = [...resumeData.technicalSkills];
+                                                            const newSkills = [...technicalSkills];
                                                             newSkills[index] = e.target.value;
                                                             updateResumeData('technicalSkills', newSkills);
                                                         }}
                                                         placeholder="e.g. JavaScript, React, Node.js"
                                                     />
                                                     <button onClick={() => {
-                                                        const newSkills = resumeData.technicalSkills.filter((_, i) => i !== index);
+                                                        const newSkills = technicalSkills.filter((_, i) => i !== index);
                                                         updateResumeData('technicalSkills', newSkills);
                                                     }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('technicalSkills', [...resumeData.technicalSkills, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('technicalSkills', [...technicalSkills, ''])} className="btn-secondary w-full py-2 text-sm">
                                                 <Plus size={16} /> Add Skill
                                             </button>
                                         </div>
@@ -156,7 +194,7 @@ const Editor = () => {
                                 {/* Experience / Internships */}
                                 <div ref={sectionRefs.experience} className="scroll-mt-4">
                                     <FormSection title="Internships & Experience" icon={null} isOpen={true}>
-                                        {resumeData.internships.map((intern, index) => (
+                                        {internships.map((intern, index) => (
                                             <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
                                                 <button onClick={() => removeItem('internships', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
                                                     <Trash2 size={16} />
@@ -177,14 +215,14 @@ const Editor = () => {
                                                                 className="input-base text-sm"
                                                                 value={desc}
                                                                 onChange={(e) => {
-                                                                    const newInterns = [...resumeData.internships];
+                                                                    const newInterns = [...internships];
                                                                     newInterns[index].description[i] = e.target.value;
                                                                     updateResumeData('internships', newInterns);
                                                                 }}
                                                                 placeholder="• Achieved X by doing Y..."
                                                             />
                                                             <button onClick={() => {
-                                                                const newInterns = [...resumeData.internships];
+                                                                const newInterns = [...internships];
                                                                 newInterns[index].description = newInterns[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('internships', newInterns);
                                                             }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
@@ -193,7 +231,7 @@ const Editor = () => {
                                                         </div>
                                                     ))}
                                                     <button onClick={() => {
-                                                        const newInterns = [...resumeData.internships];
+                                                        const newInterns = [...internships];
                                                         if (!newInterns[index].description) newInterns[index].description = [];
                                                         newInterns[index].description.push('');
                                                         updateResumeData('internships', newInterns);
@@ -212,7 +250,7 @@ const Editor = () => {
                                 {/* Projects */}
                                 <div ref={sectionRefs.projects} className="scroll-mt-4">
                                     <FormSection title="Projects" icon={null} isOpen={true}>
-                                        {resumeData.projects.map((proj, index) => (
+                                        {projects.map((proj, index) => (
                                             <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
                                                 <button onClick={() => removeItem('projects', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
                                                     <Trash2 size={16} />
@@ -231,14 +269,14 @@ const Editor = () => {
                                                                 className="input-base text-sm"
                                                                 value={desc}
                                                                 onChange={(e) => {
-                                                                    const newProjects = [...resumeData.projects];
+                                                                    const newProjects = [...projects];
                                                                     newProjects[index].description[i] = e.target.value;
                                                                     updateResumeData('projects', newProjects);
                                                                 }}
                                                                 placeholder="• Key feature or technology used..."
                                                             />
                                                             <button onClick={() => {
-                                                                const newProjects = [...resumeData.projects];
+                                                                const newProjects = [...projects];
                                                                 newProjects[index].description = newProjects[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('projects', newProjects);
                                                             }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
@@ -247,7 +285,7 @@ const Editor = () => {
                                                         </div>
                                                     ))}
                                                     <button onClick={() => {
-                                                        const newProjects = [...resumeData.projects];
+                                                        const newProjects = [...projects];
                                                         if (!newProjects[index].description) newProjects[index].description = [];
                                                         newProjects[index].description.push('');
                                                         updateResumeData('projects', newProjects);
@@ -267,28 +305,28 @@ const Editor = () => {
                                 <div ref={sectionRefs.achievements} className="scroll-mt-4">
                                     <FormSection title="Achievements" icon={null} isOpen={true}>
                                         <div className="space-y-3">
-                                            {resumeData.achievements.map((ach, index) => (
+                                            {achievements.map((ach, index) => (
                                                 <div key={index} className="flex gap-2">
                                                     <input
                                                         type="text"
                                                         className="input-base"
                                                         value={ach}
                                                         onChange={(e) => {
-                                                            const newAch = [...resumeData.achievements];
+                                                            const newAch = [...achievements];
                                                             newAch[index] = e.target.value;
                                                             updateResumeData('achievements', newAch);
                                                         }}
                                                         placeholder="e.g. 1st Place in Hackathon"
                                                     />
                                                     <button onClick={() => {
-                                                        const newAch = resumeData.achievements.filter((_, i) => i !== index);
+                                                        const newAch = achievements.filter((_, i) => i !== index);
                                                         updateResumeData('achievements', newAch);
                                                     }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('achievements', [...resumeData.achievements, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('achievements', [...achievements, ''])} className="btn-secondary w-full py-2 text-sm">
                                                 <Plus size={16} /> Add Achievement
                                             </button>
                                         </div>
@@ -298,7 +336,7 @@ const Editor = () => {
                                 {/* Certificates */}
                                 <div ref={sectionRefs.certificates} className="scroll-mt-4">
                                     <FormSection title="Certificates" icon={null} isOpen={true}>
-                                        {resumeData.certificates.map((cert, index) => (
+                                        {certificates.map((cert, index) => (
                                             <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
                                                 <button onClick={() => removeItem('certificates', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
                                                     <Trash2 size={16} />
@@ -319,7 +357,7 @@ const Editor = () => {
                                 {/* Extracurricular */}
                                 <div ref={sectionRefs.extracurricular} className="scroll-mt-4">
                                     <FormSection title="Extracurricular" icon={null} isOpen={true}>
-                                        {resumeData.extracurricular.map((extra, index) => (
+                                        {extracurricular.map((extra, index) => (
                                             <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
                                                 <button onClick={() => removeItem('extracurricular', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
                                                     <Trash2 size={16} />
@@ -338,14 +376,14 @@ const Editor = () => {
                                                                 className="input-base text-sm"
                                                                 value={desc}
                                                                 onChange={(e) => {
-                                                                    const newExtra = [...resumeData.extracurricular];
+                                                                    const newExtra = [...extracurricular];
                                                                     newExtra[index].description[i] = e.target.value;
                                                                     updateResumeData('extracurricular', newExtra);
                                                                 }}
                                                                 placeholder="• Description..."
                                                             />
                                                             <button onClick={() => {
-                                                                const newExtra = [...resumeData.extracurricular];
+                                                                const newExtra = [...extracurricular];
                                                                 newExtra[index].description = newExtra[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('extracurricular', newExtra);
                                                             }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
@@ -354,7 +392,7 @@ const Editor = () => {
                                                         </div>
                                                     ))}
                                                     <button onClick={() => {
-                                                        const newExtra = [...resumeData.extracurricular];
+                                                        const newExtra = [...extracurricular];
                                                         if (!newExtra[index].description) newExtra[index].description = [];
                                                         newExtra[index].description.push('');
                                                         updateResumeData('extracurricular', newExtra);
@@ -374,28 +412,28 @@ const Editor = () => {
                                 <div ref={sectionRefs.languages} className="scroll-mt-4">
                                     <FormSection title="Languages" icon={null} isOpen={true}>
                                         <div className="space-y-3">
-                                            {resumeData.languages.map((lang, index) => (
+                                            {languages.map((lang, index) => (
                                                 <div key={index} className="flex gap-2">
                                                     <input
                                                         type="text"
                                                         className="input-base"
                                                         value={lang}
                                                         onChange={(e) => {
-                                                            const newLangs = [...resumeData.languages];
+                                                            const newLangs = [...languages];
                                                             newLangs[index] = e.target.value;
                                                             updateResumeData('languages', newLangs);
                                                         }}
                                                         placeholder="e.g. English (Native)"
                                                     />
                                                     <button onClick={() => {
-                                                        const newLangs = resumeData.languages.filter((_, i) => i !== index);
+                                                        const newLangs = languages.filter((_, i) => i !== index);
                                                         updateResumeData('languages', newLangs);
                                                     }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('languages', [...resumeData.languages, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('languages', [...languages, ''])} className="btn-secondary w-full py-2 text-sm">
                                                 <Plus size={16} /> Add Language
                                             </button>
                                         </div>

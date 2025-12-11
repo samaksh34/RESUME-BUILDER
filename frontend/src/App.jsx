@@ -4,6 +4,7 @@ import { ResumeProvider } from './context/ResumeContext';
 import Home from './pages/Home';
 import Editor from './pages/Editor';
 import NotFound from './pages/NotFound';
+import Templates from './pages/Templates';
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/templates" element={<Templates />} />
                     <Route path="/editor" element={<Editor />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -20,4 +22,6 @@ function App() {
 }
 
 export default App;
+
+
 

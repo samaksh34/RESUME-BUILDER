@@ -4,14 +4,90 @@ import { generateId } from '../utils/helpers';
 
 export const ResumeContext = createContext();
 
+const createSafeResumeData = (data) => {
+    // Ensure we always return a fully-shaped object so the Editor never crashes
+    // even if localStorage gets corrupted or contains null/invalid payloads.
+    const fallback = JSON.parse(JSON.stringify(sampleData));
+
+    if (!data || typeof data !== 'object') return fallback;
+
+    return {
+        ...fallback,
+        ...data,
+        personalInfo: { ...fallback.personalInfo, ...(data.personalInfo || {}) },
+        education: Array.isArray(data.education) ? data.education : fallback.education,
+        technicalSkills: Array.isArray(data.technicalSkills) ? data.technicalSkills : fallback.technicalSkills,
+        internships: Array.isArray(data.internships) ? data.internships : fallback.internships,
+        projects: Array.isArray(data.projects) ? data.projects : fallback.projects,
+        achievements: Array.isArray(data.achievements) ? data.achievements : fallback.achievements,
+        certificates: Array.isArray(data.certificates) ? data.certificates : fallback.certificates,
+        extracurricular: Array.isArray(data.extracurricular) ? data.extracurricular : fallback.extracurricular,
+        languages: Array.isArray(data.languages) ? data.languages : fallback.languages,
+    };
+};
+
 export const ResumeProvider = ({ children }) => {
     const [resumeData, setResumeData] = useState(() => {
         const saved = localStorage.getItem('resumeData');
-        return saved ? JSON.parse(saved) : sampleData;
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: 'debug-session',
+                        runId: 'pre-fix',
+                        hypothesisId: 'B',
+                        location: 'ResumeContext.jsx:init',
+                        message: 'Loaded resumeData from localStorage',
+                        data: { savedLength: saved.length },
+                        timestamp: Date.now()
+                    })
+                }).catch(() => { });
+                // #endregion
+                return createSafeResumeData(parsed);
+            } catch (error) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: 'debug-session',
+                        runId: 'pre-fix',
+                        hypothesisId: 'B',
+                        location: 'ResumeContext.jsx:init',
+                        message: 'Failed to parse localStorage resumeData',
+                        data: { error: String(error) },
+                        timestamp: Date.now()
+                    })
+                }).catch(() => { });
+                // #endregion
+                return createSafeResumeData(null);
+            }
+        }
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'debug-session',
+                runId: 'pre-fix',
+                hypothesisId: 'B',
+                location: 'ResumeContext.jsx:init',
+                message: 'No saved resumeData, using sampleData',
+                data: {},
+                timestamp: Date.now()
+            })
+        }).catch(() => { });
+        // #endregion
+        return createSafeResumeData(null);
     });
 
     useEffect(() => {
-        localStorage.setItem('resumeData', JSON.stringify(resumeData));
+        const safeData = createSafeResumeData(resumeData);
+        localStorage.setItem('resumeData', JSON.stringify(safeData));
     }, [resumeData]);
 
     const updatePersonalInfo = (field, value) => {
@@ -65,6 +141,46 @@ export const ResumeProvider = ({ children }) => {
         });
     };
 
+    const updateResumeData = (section, value) => {
+        setResumeData(prev => ({
+            ...prev,
+            [section]: value
+        }));
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'debug-session',
+                runId: 'pre-fix',
+                hypothesisId: 'A',
+                location: 'ResumeContext.jsx:updateResumeData',
+                message: 'updateResumeData invoked',
+                data: { section, hasValue: value !== undefined },
+                timestamp: Date.now()
+            })
+        }).catch(() => { });
+        // #endregion
+    };
+
+    useEffect(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'debug-session',
+                runId: 'pre-fix',
+                hypothesisId: 'D',
+                location: 'ResumeContext.jsx:provider',
+                message: 'Provider value keys snapshot',
+                data: { valueKeys: ['resumeData', 'updatePersonalInfo', 'updateSectionItem', 'addSectionItem', 'removeSectionItem', 'updateSkills', 'updateListSection', 'setResumeData', 'updateResumeData'] },
+                timestamp: Date.now()
+            })
+        }).catch(() => { });
+        // #endregion
+    }, []);
+
     return (
         <ResumeContext.Provider value={{
             resumeData,
@@ -74,11 +190,14 @@ export const ResumeProvider = ({ children }) => {
             removeSectionItem,
             updateSkills,
             updateListSection,
-            setResumeData
+            setResumeData,
+            updateResumeData
         }}>
             {children}
         </ResumeContext.Provider>
     );
 };
+
+
 
 

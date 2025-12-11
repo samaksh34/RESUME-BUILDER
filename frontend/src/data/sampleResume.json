@@ -1,86 +1,92 @@
 {
-    "personalInfo": {
-        "fullName": "ABC XYZ",
-        "email": "email@gmail.com",
-        "phone": "1234567890",
-        "address": "Ghaziabad, Uttar Pradesh",
-        "linkedin": "linkedin.com/in/username",
-        "github": "github.com/username",
-        "portfolio": "Portfolio Link"
+  "personalInfo": {
+    "fullName": "ABC XYZ",
+    "jobTitle": "",
+    "email": "email@gmail.com",
+    "phone": "1234567890",
+    "address": "Ghaziabad, Uttar Pradesh",
+    "linkedin": "linkedin.com/in/username",
+    "github": "github.com/username",
+    "portfolio": "Portfolio Link",
+    "summary": ""
+  },
+  "education": [
+    {
+      "id": "edu_1",
+      "degree": "B.Tech in ECE (AKTU)",
+      "school": "ABES Engineering College",
+      "startDate": "Nov 2022",
+      "endDate": "July 2026",
+      "score": "CGPA 7.0",
+      "location": ""
     },
-    "education": [
-        {
-            "id": "edu_1",
-            "degree": "B.Tech in ECE (AKTU)",
-            "school": "ABES Engineering College",
-            "startDate": "Nov 2022",
-            "endDate": "July 2026",
-            "score": "CGPA 7.0"
-        },
-        {
-            "id": "edu_2",
-            "degree": "Class 12th (CBSE)",
-            "school": "Ch. Chhabil Dass Public School",
-            "startDate": "",
-            "endDate": "2022",
-            "score": "76.2%"
-        }
-    ],
-    "technicalSkills": [
-        "Developer Tools: Arduino IDE, BLYNK IOT, Firebase, MATLAB, Proteus, LT Spice",
-        "Skills: Embedded Programming & Firmware, Hardware Integration, C language, Circuit simulation"
-    ],
-    "internships": [
-        {
-            "id": "int_1",
-            "role": "Embedded Intern",
-            "company": "Humble Bee @ Buzzworthy",
-            "startDate": "March 2025",
-            "endDate": "Present",
-            "location": "Hybrid",
-            "description": [
-                "Developing real-time signal processing solutions using ESP32 for embedded applications",
-                "Implementing audio signal acquisition and preprocessing using ADC and filtering techniques"
-            ]
-        }
-    ],
-    "projects": [
-        {
-            "id": "proj_1",
-            "title": "ARDUMIST (Portable Humidifier)",
-            "date": "May 2024",
-            "description": [
-                "Developed a portable humidifier using an Arduino UNO microcontroller to maintain room humidity levels above 75%",
-                "Integrated a DHT sensor for real-time humidity monitoring and an ultrasonic vibration mechanism for water spray"
-            ]
-        }
-    ],
-    "achievements": [
-        "GATE 2025 - Qualified in Electronics & Communication"
-    ],
-    "certificates": [
-        {
-            "id": "cert_1",
-            "name": "The Complete Python Developer",
-            "issuer": "Udemy",
-            "date": "Oct 2023-Nov 2023"
-        }
-    ],
-    "extracurricular": [
-        {
-            "id": "extra_1",
-            "role": "Camp Coordinator",
-            "organization": "Light De Literacy (NGO Initiative)",
-            "date": "Dec 2022 - Present",
-            "description": [
-                "Educating 50+ underprivileged students in slum areas on STEM subjects"
-            ]
-        }
-    ],
-    "languages": [
-        "English",
-        "Hindi"
-    ]
+    {
+      "id": "edu_2",
+      "degree": "Class 12th (CBSE)",
+      "school": "Ch. Chhabil Dass Public School",
+      "startDate": "",
+      "endDate": "2022",
+      "score": "76.2%",
+      "location": ""
+    }
+  ],
+  "technicalSkills": [
+    "Developer Tools: Arduino IDE, BLYNK IOT, Firebase, MATLAB, Proteus, LT Spice",
+    "Skills: Embedded Programming & Firmware, Hardware Integration, C language, Circuit simulation"
+  ],
+  "internships": [
+    {
+      "id": "int_1",
+      "role": "Embedded Intern",
+      "company": "Humble Bee @ Buzzworthy",
+      "startDate": "March 2025",
+      "endDate": "Present",
+      "location": "Hybrid",
+      "description": [
+        "Developing real-time signal processing solutions using ESP32 for embedded applications",
+        "Implementing audio signal acquisition and preprocessing using ADC and filtering techniques"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_1",
+      "title": "ARDUMIST (Portable Humidifier)",
+      "date": "May 2024",
+      "link": "",
+      "description": [
+        "Developed a portable humidifier using an Arduino UNO microcontroller to maintain room humidity levels above 75%",
+        "Integrated a DHT sensor for real-time humidity monitoring and an ultrasonic vibration mechanism for water spray"
+      ]
+    }
+  ],
+  "achievements": [
+    "GATE 2025 - Qualified in Electronics & Communication"
+  ],
+  "certificates": [
+    {
+      "id": "cert_1",
+      "name": "The Complete Python Developer",
+      "issuer": "Udemy",
+      "date": "Oct 2023-Nov 2023"
+    }
+  ],
+  "extracurricular": [
+    {
+      "id": "extra_1",
+      "role": "Camp Coordinator",
+      "organization": "Light De Literacy (NGO Initiative)",
+      "date": "Dec 2022 - Present",
+      "description": [
+        "Educating 50+ underprivileged students in slum areas on STEM subjects"
+      ]
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi"
+  ]
 }
+
 
 

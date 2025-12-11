@@ -17,24 +17,8 @@ const Navbar = () => {
                     </div>
                 </Link>
 
-                {/* Center Search */}
-                <div className="flex-1 max-w-md mx-8 hidden md:block">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Quick fill features..."
-                            className="w-full px-4 py-2 pl-10 bg-gray-50 border border-border rounded-lg text-sm 
-                                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary 
-                                     transition-all hover:border-gray-300"
-                        />
-                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtext" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                </div>
-
                 {/* Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ml-auto">
                     {/* Theme Toggle */}
                     <button className="hidden sm:flex items-center justify-center w-10 h-10 text-subtext hover:text-heading hover:bg-gray-100 rounded-lg transition-all">
                         <Sun size={20} />

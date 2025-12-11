@@ -16,6 +16,29 @@ const ResumePreview = ({ template = 'classic' }) => {
         languages = [],
     } = resumeData || {};
 
+    React.useEffect(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'debug-session',
+                runId: 'pre-fix',
+                hypothesisId: 'C',
+                location: 'ResumePreview.jsx:mount',
+                message: 'ResumePreview data snapshot',
+                data: {
+                    hasResumeData: Boolean(resumeData),
+                    educationCount: education.length,
+                    skillsCount: technicalSkills.length,
+                    internshipsCount: internships.length
+                },
+                timestamp: Date.now()
+            })
+        }).catch(() => { });
+        // #endregion
+    }, []);
+
     const HeaderBlock = ({ align = 'center' }) => (
         <div className={`${align === 'left' ? 'text-left' : 'text-center'} mb-6`}>
             <h1 className="text-3xl font-bold uppercase tracking-wide mb-2 font-sans">
