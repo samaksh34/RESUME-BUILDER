@@ -95,7 +95,7 @@ const Editor = () => {
     }, []);
 
     return (
-        <div className="h-screen bg-background flex flex-col overflow-hidden">
+        <div className="h-screen bg-background flex flex-col overflow-hidden text-text">
             <Navbar />
             <HorizontalSectionsNav activeSection={activeSection} onSectionChange={setActiveSection} />
 
@@ -139,8 +139,8 @@ const Editor = () => {
                                 <div ref={sectionRefs.education} className="scroll-mt-4">
                                     <FormSection title="Education" icon={null} isOpen={true}>
                                         {education.map((edu, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
-                                                <button onClick={() => removeItem('education', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
+                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
+                                                <button onClick={() => removeItem('education', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -153,7 +153,7 @@ const Editor = () => {
                                                 </div>
                                             </div>
                                         ))}
-                                        <button onClick={() => addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' })} className="btn-secondary w-full py-2 text-sm">
+                                        <button onClick={() => addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                             <Plus size={16} /> Add Education
                                         </button>
                                     </FormSection>
@@ -179,12 +179,12 @@ const Editor = () => {
                                                     <button onClick={() => {
                                                         const newSkills = technicalSkills.filter((_, i) => i !== index);
                                                         updateResumeData('technicalSkills', newSkills);
-                                                    }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('technicalSkills', [...technicalSkills, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('technicalSkills', [...technicalSkills, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                                 <Plus size={16} /> Add Skill
                                             </button>
                                         </div>
@@ -195,8 +195,8 @@ const Editor = () => {
                                 <div ref={sectionRefs.experience} className="scroll-mt-4">
                                     <FormSection title="Internships & Experience" icon={null} isOpen={true}>
                                         {internships.map((intern, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
-                                                <button onClick={() => removeItem('internships', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
+                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
+                                                <button onClick={() => removeItem('internships', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -225,7 +225,7 @@ const Editor = () => {
                                                                 const newInterns = [...internships];
                                                                 newInterns[index].description = newInterns[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('internships', newInterns);
-                                                            }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
                                                                 <Trash2 size={16} />
                                                             </button>
                                                         </div>
@@ -235,13 +235,13 @@ const Editor = () => {
                                                         if (!newInterns[index].description) newInterns[index].description = [];
                                                         newInterns[index].description.push('');
                                                         updateResumeData('internships', newInterns);
-                                                    }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1 mt-2">
+                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
                                                         <Plus size={12} /> Add Bullet Point
                                                     </button>
                                                 </div>
                                             </div>
                                         ))}
-                                        <button onClick={() => addItem('internships', { role: '', company: '', startDate: '', endDate: '', location: '', description: [''] })} className="btn-secondary w-full py-2 text-sm">
+                                        <button onClick={() => addItem('internships', { role: '', company: '', startDate: '', endDate: '', location: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                             <Plus size={16} /> Add Experience
                                         </button>
                                     </FormSection>
@@ -251,8 +251,8 @@ const Editor = () => {
                                 <div ref={sectionRefs.projects} className="scroll-mt-4">
                                     <FormSection title="Projects" icon={null} isOpen={true}>
                                         {projects.map((proj, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
-                                                <button onClick={() => removeItem('projects', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
+                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
+                                                <button onClick={() => removeItem('projects', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -279,7 +279,7 @@ const Editor = () => {
                                                                 const newProjects = [...projects];
                                                                 newProjects[index].description = newProjects[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('projects', newProjects);
-                                                            }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
                                                                 <Trash2 size={16} />
                                                             </button>
                                                         </div>
@@ -289,13 +289,13 @@ const Editor = () => {
                                                         if (!newProjects[index].description) newProjects[index].description = [];
                                                         newProjects[index].description.push('');
                                                         updateResumeData('projects', newProjects);
-                                                    }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1 mt-2">
+                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
                                                         <Plus size={12} /> Add Bullet Point
                                                     </button>
                                                 </div>
                                             </div>
                                         ))}
-                                        <button onClick={() => addItem('projects', { title: '', date: '', link: '', description: [''] })} className="btn-secondary w-full py-2 text-sm">
+                                        <button onClick={() => addItem('projects', { title: '', date: '', link: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                             <Plus size={16} /> Add Project
                                         </button>
                                     </FormSection>
@@ -321,12 +321,12 @@ const Editor = () => {
                                                     <button onClick={() => {
                                                         const newAch = achievements.filter((_, i) => i !== index);
                                                         updateResumeData('achievements', newAch);
-                                                    }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('achievements', [...achievements, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('achievements', [...achievements, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                                 <Plus size={16} /> Add Achievement
                                             </button>
                                         </div>
@@ -337,8 +337,8 @@ const Editor = () => {
                                 <div ref={sectionRefs.certificates} className="scroll-mt-4">
                                     <FormSection title="Certificates" icon={null} isOpen={true}>
                                         {certificates.map((cert, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
-                                                <button onClick={() => removeItem('certificates', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
+                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
+                                                <button onClick={() => removeItem('certificates', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,7 +348,7 @@ const Editor = () => {
                                                 </div>
                                             </div>
                                         ))}
-                                        <button onClick={() => addItem('certificates', { name: '', issuer: '', date: '' })} className="btn-secondary w-full py-2 text-sm">
+                                        <button onClick={() => addItem('certificates', { name: '', issuer: '', date: '' })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                             <Plus size={16} /> Add Certificate
                                         </button>
                                     </FormSection>
@@ -358,8 +358,8 @@ const Editor = () => {
                                 <div ref={sectionRefs.extracurricular} className="scroll-mt-4">
                                     <FormSection title="Extracurricular" icon={null} isOpen={true}>
                                         {extracurricular.map((extra, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg border border-border relative group">
-                                                <button onClick={() => removeItem('extracurricular', index)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded">
+                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
+                                                <button onClick={() => removeItem('extracurricular', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -386,7 +386,7 @@ const Editor = () => {
                                                                 const newExtra = [...extracurricular];
                                                                 newExtra[index].description = newExtra[index].description.filter((_, dIndex) => dIndex !== i);
                                                                 updateResumeData('extracurricular', newExtra);
-                                                            }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
                                                                 <Trash2 size={16} />
                                                             </button>
                                                         </div>
@@ -396,13 +396,13 @@ const Editor = () => {
                                                         if (!newExtra[index].description) newExtra[index].description = [];
                                                         newExtra[index].description.push('');
                                                         updateResumeData('extracurricular', newExtra);
-                                                    }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1 mt-2">
+                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
                                                         <Plus size={12} /> Add Bullet Point
                                                     </button>
                                                 </div>
                                             </div>
                                         ))}
-                                        <button onClick={() => addItem('extracurricular', { role: '', organization: '', date: '', description: [''] })} className="btn-secondary w-full py-2 text-sm">
+                                        <button onClick={() => addItem('extracurricular', { role: '', organization: '', date: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                             <Plus size={16} /> Add Activity
                                         </button>
                                     </FormSection>
@@ -428,12 +428,12 @@ const Editor = () => {
                                                     <button onClick={() => {
                                                         const newLangs = languages.filter((_, i) => i !== index);
                                                         updateResumeData('languages', newLangs);
-                                                    }} className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button onClick={() => updateResumeData('languages', [...languages, ''])} className="btn-secondary w-full py-2 text-sm">
+                                            <button onClick={() => updateResumeData('languages', [...languages, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
                                                 <Plus size={16} /> Add Language
                                             </button>
                                         </div>
@@ -451,68 +451,68 @@ const Editor = () => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {/* Template Selector */}
-                                    <div className="inline-flex items-center rounded-lg bg-gray-100 p-0.5 text-xs">
+                                    <div className="inline-flex items-center rounded-lg bg-gray-100 dark:bg-surface-highlight p-0.5 text-xs border border-border">
                                         <button
                                             onClick={() => setTemplate('ats')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'ats' ? 'bg-white text-heading shadow-sm' : 'text-subtext hover:text-heading'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'ats' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
                                                 }`}
                                         >
                                             ATS
                                         </button>
                                         <button
                                             onClick={() => setTemplate('classic')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'classic' ? 'bg-white text-heading shadow-sm' : 'text-subtext hover:text-heading'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'classic' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
                                                 }`}
                                         >
                                             Classic
                                         </button>
                                         <button
                                             onClick={() => setTemplate('accent')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'accent' ? 'bg-white text-heading shadow-sm' : 'text-subtext hover:text-heading'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'accent' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
                                                 }`}
                                         >
                                             Accent
                                         </button>
                                         <button
                                             onClick={() => setTemplate('boxed')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'boxed' ? 'bg-white text-heading shadow-sm' : 'text-subtext hover:text-heading'
+                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'boxed' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
                                                 }`}
                                         >
                                             Boxed
                                         </button>
                                     </div>
                                     {/* Zoom Controls */}
-                                    <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-surface-highlight rounded-lg p-0.5 border border-border">
                                         <button
                                             onClick={handleZoomOut}
-                                            className="p-1.5 hover:bg-white rounded-md transition-all"
+                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
                                             disabled={zoom <= 50}
                                         >
-                                            <ZoomOut size={16} className="text-subtext" />
+                                            <ZoomOut size={16} />
                                         </button>
                                         <span className="text-xs font-medium text-heading min-w-[2.5rem] text-center">{zoom}%</span>
                                         <button
                                             onClick={handleZoomIn}
-                                            className="p-1.5 hover:bg-white rounded-md transition-all"
+                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
                                             disabled={zoom >= 150}
                                         >
-                                            <ZoomIn size={16} className="text-subtext" />
+                                            <ZoomIn size={16} />
                                         </button>
-                                        <div className="w-px h-4 bg-gray-300 mx-0.5"></div>
+                                        <div className="w-px h-4 bg-border mx-0.5"></div>
                                         <button
                                             onClick={handleResetZoom}
-                                            className="p-1.5 hover:bg-white rounded-md transition-all"
+                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
                                             title="Reset to 100%"
                                         >
-                                            <RotateCcw size={16} className="text-subtext" />
+                                            <RotateCcw size={16} />
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar bg-gray-50 rounded-xl border border-border p-6 flex justify-center items-start">
+                            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar flex justify-center items-start pt-6">
                                 <div
-                                    className="origin-top transition-transform duration-200"
+                                    className="origin-top transition-transform duration-200 shadow-2xl"
                                     style={{ transform: `scale(${zoom / 100})` }}
                                 >
                                     <ResumePreview template={template} />

@@ -40,12 +40,12 @@ const FormSection = ({
                             {items.length > 0 && (
                                 <div className="space-y-4">
                                     {items.map((item, index) => (
-                                        <div key={item.id || index} className="relative group bg-gray-50 p-5 rounded-lg border border-border hover:border-gray-300 transition-all">
+                                        <div key={item.id || index} className="relative group bg-input-bg p-5 rounded-lg border border-border hover:border-primary/30 transition-all">
                                             {renderItem(item, index)}
                                             {onAdd && (
                                                 <button
                                                     onClick={() => onAdd('remove', item.id)}
-                                                    className="absolute top-3 right-3 p-2 text-subtext hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                                    className="absolute top-3 right-3 p-2 text-subtext hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

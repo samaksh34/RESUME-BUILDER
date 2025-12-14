@@ -3,38 +3,85 @@
 @tailwind utilities;
 
 @layer base {
+    :root {
+        /* Light mode colors (Updated) */
+        --color-background: #F3F5F8;
+        --color-surface: #FFFFFF;
+        --color-surface-highlight: #FFFFFF;
+        --color-heading: #000000;
+        --color-text: #1a1a1a;
+        --color-subtext: #4a4a4a;
+        --color-border: #E2E8F0;
+        --color-input-bg: #FFFFFF;
+
+        /* CTA Button Background (Orange Gradient for Light Mode) */
+        --btn-cta-bg: linear-gradient(135deg, #FF6B00 0%, #FF9500 100%);
+    }
+
+    .dark {
+        /* Dark mode colors (Unchanged) */
+        --color-background: #0F0F11;
+        --color-surface: #18181B;
+        --color-surface-highlight: #1E1F23;
+        --color-heading: #FFFFFF;
+        --color-text: #D4D4D8;
+        --color-subtext: #A1A1AA;
+        --color-border: #2F2F36;
+        --color-input-bg: #1B1B1F;
+
+        /* CTA Button Background (Purple Gradient for Dark Mode - matches btn-primary) */
+        --btn-cta-bg: linear-gradient(to right, #6D4BFF, #8A63FF);
+    }
+
+    * {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+    }
+
     body {
-        @apply bg-background text-slate-900 font-sans antialiased;
+        @apply bg-background text-text font-sans antialiased selection:bg-primary/30 dark:selection:text-white;
     }
 }
 
+@layer utilities {
+    /* Custom utilities if needed */
+}
+
+
 @layer components {
     .glass {
-        @apply bg-white/95 backdrop-blur-md border border-border shadow-soft;
+        @apply bg-white/80 dark:bg-white/[0.03] backdrop-blur-md border border-gray-200 dark:border-white/[0.06];
     }
 
     .glass-card {
-        @apply bg-surface border border-border shadow-card rounded-xl;
+        @apply bg-surface border border-border dark:border-white/[0.06] shadow-card dark:shadow-card-dark rounded-xl;
     }
 
     .input-base {
-        @apply w-full px-4 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-subtext text-sm hover:border-gray-300;
+        @apply w-full px-4 py-3 rounded-lg border border-border bg-input-bg text-heading focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-subtext text-sm hover:border-gray-400 dark:hover:border-gray-600;
     }
 
     .btn-primary {
-        @apply bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-indigo-700 active:scale-[0.98] transition-all duration-200 shadow-button flex items-center justify-center gap-2;
+        @apply bg-gradient-to-r from-primary-dark to-primary-light text-white px-6 py-3 rounded-lg font-medium hover:shadow-glow-cyan transition-all duration-300 shadow-button flex items-center justify-center gap-2 border border-transparent hover:scale-[1.02];
+    }
+
+    /* New CTA Button Class */
+    .btn-cta {
+        background: var(--btn-cta-bg);
+        @apply text-white px-6 py-3 rounded-lg font-medium hover:shadow-glow transition-all duration-300 shadow-button flex items-center justify-center gap-2 border border-transparent hover:scale-[1.02];
     }
 
     .btn-secondary {
-        @apply bg-white text-heading border border-border px-5 py-2.5 rounded-lg font-medium hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2;
+        @apply bg-transparent text-heading border border-border px-6 py-3 rounded-lg font-medium hover:text-primary hover:border-primary/50 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2;
     }
 
     .btn-accent {
-        @apply bg-accent text-white px-5 py-2.5 rounded-lg font-medium hover:bg-orange-700 active:scale-[0.98] transition-all duration-200 shadow-button flex items-center justify-center gap-2;
+        @apply bg-secondary text-background px-6 py-3 rounded-lg font-bold hover:shadow-glow-cyan hover:bg-white transition-all duration-200 shadow-button flex items-center justify-center gap-2;
     }
 
     .section-card {
-        @apply bg-surface border border-border rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md;
+        @apply bg-surface border border-border dark:border-white/[0.04] rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-glow hover:border-primary/20;
     }
 
     .nav-pill {
@@ -42,11 +89,11 @@
     }
 
     .nav-pill-active {
-        @apply bg-primary text-white shadow-sm;
+        @apply bg-primary/10 text-primary border border-primary/20;
     }
 
     .nav-pill-inactive {
-        @apply text-subtext hover:bg-gray-100 hover:text-heading;
+        @apply text-subtext hover:bg-gray-100 dark:hover:bg-white/5 hover:text-heading;
     }
 
     /* Scrollbar Styles */
@@ -56,11 +103,11 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-track {
-        @apply bg-gray-100 rounded-full;
+        @apply bg-gray-100 dark:bg-gray-800 rounded-full;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        @apply bg-gray-300 rounded-full hover:bg-gray-400;
+        @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
     }
 
     /* Animations */

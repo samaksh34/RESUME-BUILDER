@@ -89,40 +89,35 @@ const Templates = () => {
     }, [activeCategory]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#eef2ff] via-[#f8f9ff] to-white">
+        <div className="min-h-screen bg-background font-sans selection:bg-primary/30 dark:selection:text-white text-text">
             <Navbar />
 
             <main className="max-w-screen-xl mx-auto px-4 pt-14 pb-16 space-y-12">
-                <section className="relative overflow-hidden rounded-4xl bg-white/85 backdrop-blur-xl border border-slate-200 shadow-[0_25px_80px_rgba(15,23,42,0.14)] px-6 md:px-12 py-14">
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute w-80 h-80 bg-primary/12 blur-3xl top-[-90px] right-[-70px]" />
-                        <div className="absolute w-72 h-72 bg-indigo-300/15 blur-3xl bottom-[-70px] left-[-50px]" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/50 to-white/80" />
-                    </div>
+                <section className="relative overflow-hidden rounded-4xl bg-white dark:bg-[rgba(255,255,255,0.02)] backdrop-blur-xl border border-border shadow-2xl px-6 md:px-12 py-14">
                     <div className="relative space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm w-fit border border-primary/15 shadow-sm">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm w-fit border border-primary/20">
                             <Sparkles size={16} />
                             <span>Premium Gallery</span>
                         </div>
                         <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-slate-900">
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-heading drop-shadow-sm">
                                 Browse Premium Resume Templates
                             </h1>
-                            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl">
+                            <p className="text-lg sm:text-xl text-subtext max-w-3xl font-light">
                                 Pick a design, customize instantly, and export in minutes. Minimal, ATS-friendly layouts with clean typography and balanced spacing.
                             </p>
                         </div>
-                        <div className="grid sm:grid-cols-3 gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 shadow-inner p-4 text-sm text-slate-700">
+                        <div className="grid sm:grid-cols-3 gap-3 rounded-2xl bg-surface-highlight border border-border shadow-inner p-4 text-sm text-text">
                             <div className="flex items-center gap-2">
                                 <ShieldCheck size={18} className="text-primary" />
                                 20+ ATS-ready designs
                             </div>
                             <div className="flex items-center gap-2">
-                                <Download size={18} className="text-indigo-500" />
+                                <Download size={18} className="text-secondary" />
                                 PDF / DOCX export
                             </div>
                             <div className="flex items-center gap-2">
-                                <Wand2 size={18} className="text-indigo-500" />
+                                <Wand2 size={18} className="text-secondary" />
                                 AI-optimized formatting
                             </div>
                         </div>
@@ -132,8 +127,8 @@ const Templates = () => {
                 <section className="space-y-6">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary/70">Filters</p>
-                            <h2 className="text-2xl font-bold text-slate-900">Find the perfect template</h2>
+                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary">Filters</p>
+                            <h2 className="text-2xl font-bold text-heading">Find the perfect template</h2>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 overflow-x-auto custom-scrollbar pb-2">
@@ -143,11 +138,10 @@ const Templates = () => {
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                                        isActive
-                                            ? 'bg-primary text-white border-primary shadow-sm shadow-primary/30'
-                                            : 'bg-white/80 border-slate-200 text-slate-700 hover:border-primary/30 hover:text-primary'
-                                    }`}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${isActive
+                                        ? 'bg-primary text-white border-primary'
+                                        : 'bg-surface border-border text-subtext hover:border-primary/30 hover:text-heading hover:bg-surface-highlight'
+                                        }`}
                                 >
                                     {cat}
                                 </button>
@@ -161,18 +155,17 @@ const Templates = () => {
                         {filteredTemplates.map((tpl) => (
                             <div
                                 key={tpl.id}
-                                className="group relative overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-[0_18px_60px_rgba(15,23,42,0.12)] hover:-translate-y-1 transition-all duration-200"
+                                className="group relative overflow-hidden rounded-3xl bg-surface-highlight border border-border shadow-lg hover:-translate-y-1 transition-all duration-300 hover:shadow-glow hover:border-primary/20"
                             >
-                                <div className="relative h-52 bg-slate-100 overflow-hidden">
+                                <div className="relative h-52 bg-gray-100 dark:bg-[#131315] overflow-hidden">
                                     <img
                                         src={tpl.image}
                                         alt={tpl.name}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
                                         {tpl.badges.map((badge) => (
-                                            <span key={badge} className="text-[11px] px-2 py-1 rounded-full bg-white/80 text-slate-700 border border-white/70 shadow-sm">
+                                            <span key={badge} className="text-[10px] px-2 py-1 rounded-full bg-background/90 text-text border border-[rgba(255,255,255,0.1)] backdrop-blur-sm">
                                                 {badge}
                                             </span>
                                         ))}
@@ -181,14 +174,14 @@ const Templates = () => {
                                 <div className="p-4 space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-900">{tpl.name}</p>
-                                            <p className="text-xs text-slate-500">{tpl.description}</p>
+                                            <p className="text-sm font-semibold text-heading">{tpl.name}</p>
+                                            <p className="text-xs text-subtext">{tpl.description}</p>
                                         </div>
-                                        <span className="text-[11px] px-2 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">{tpl.category}</span>
+                                        <span className="text-[10px] px-2 py-1 rounded-full bg-surface border border-border text-subtext">{tpl.category}</span>
                                     </div>
                                     <Link
                                         to="/editor"
-                                        className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-indigo-600 transition"
+                                        className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-light transition-colors"
                                     >
                                         Use Template
                                         <ArrowRight size={16} />
@@ -199,24 +192,24 @@ const Templates = () => {
                     </div>
                 </section>
 
-                <section className="rounded-3xl bg-white/85 border border-slate-200 shadow-[0_18px_60px_rgba(15,23,42,0.1)] p-8 space-y-6">
+                <section className="rounded-3xl bg-white dark:bg-[rgba(255,255,255,0.02)] border border-border shadow-xl p-8 space-y-6">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary/70">Need help?</p>
-                            <h3 className="text-2xl font-bold text-slate-900">Not sure which template to choose?</h3>
-                            <p className="text-sm text-slate-600">Pick a recommended style and start editing in one click.</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary">Need help?</p>
+                            <h3 className="text-2xl font-bold text-heading">Not sure which template to choose?</h3>
+                            <p className="text-sm text-subtext">Pick a recommended style and start editing in one click.</p>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
                         {[
-                            { title: 'Best for Freshers', name: 'Student Launch', color: 'from-emerald-50 to-white' },
-                            { title: 'Best for Corporate Jobs', name: 'Corporate Blue', color: 'from-blue-50 to-white' },
-                            { title: 'Most Popular', name: 'Modern ATS', color: 'from-indigo-50 to-white' },
+                            { title: 'Best for Freshers', name: 'Student Launch', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-emerald-500/20', text: 'text-emerald-400' },
+                            { title: 'Best for Corporate Jobs', name: 'Corporate Blue', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-blue-500/20', text: 'text-blue-400' },
+                            { title: 'Most Popular', name: 'Modern ATS', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-indigo-500/20', text: 'text-indigo-400' },
                         ].map((rec) => (
-                            <div key={rec.title} className={`p-5 rounded-2xl border border-slate-200 bg-gradient-to-br ${rec.color} shadow-sm flex flex-col gap-3`}>
-                                <div className="text-xs font-semibold text-primary uppercase tracking-[0.1rem]">{rec.title}</div>
-                                <div className="text-lg font-semibold text-slate-900">{rec.name}</div>
-                                <Link to="/editor" className="text-sm font-semibold text-primary hover:text-indigo-600 inline-flex items-center gap-1">
+                            <div key={rec.title} className={`p-5 rounded-2xl border ${rec.border} ${rec.bg} shadow-sm flex flex-col gap-3 hover:bg-gray-100 dark:hover:bg-[rgba(255,255,255,0.03)] transition-colors`}>
+                                <div className={`text-xs font-semibold uppercase tracking-[0.1rem] ${rec.text}`}>{rec.title}</div>
+                                <div className="text-lg font-semibold text-heading">{rec.name}</div>
+                                <Link to="/editor" className="text-sm font-semibold text-primary hover:text-primary-light inline-flex items-center gap-1">
                                     Use Template <ArrowRight size={14} />
                                 </Link>
                             </div>
@@ -224,7 +217,7 @@ const Templates = () => {
                     </div>
                 </section>
 
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary/85 via-indigo-600 to-indigo-700 text-white px-8 py-10 shadow-[0_20px_70px_rgba(79,70,229,0.35)]">
+                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-primary-dark to-[#4f46e5] text-white px-8 py-10 shadow-glow">
                     <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_left,_#ffffff33,_transparent_45%),_radial-gradient(circle_at_bottom_right,_#ffffff22,_transparent_45%)]" />
                     <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6">
                         <div className="space-y-2">
@@ -233,7 +226,7 @@ const Templates = () => {
                         </div>
                         <Link
                             to="/editor"
-                            className="btn-secondary bg-white text-primary border-white text-base px-6 py-3 font-semibold shadow-lg hover:bg-slate-50"
+                            className="btn-secondary bg-white text-primary border-white text-base px-6 py-3 font-semibold shadow-lg hover:bg-gray-100 hover:text-primary-dark"
                         >
                             Start Editing →
                         </Link>
@@ -245,6 +238,7 @@ const Templates = () => {
 };
 
 export default Templates;
+
 
 
 
