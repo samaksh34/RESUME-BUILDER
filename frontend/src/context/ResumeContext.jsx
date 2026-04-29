@@ -56,6 +56,10 @@ export const ResumeProvider = ({ children }) => {
                     const { data } = await resumeAPI.get();
                     if (data?.data?.data) {
                         setResumeData(createSafeResumeData(data.data.data));
+                    } else {
+                        // If user is logged in but has no backend data, 
+                        // reset to sample data to avoid showing previous user's localStorage
+                        setResumeData(createSafeResumeData(null));
                     }
                 } catch (error) {
                     console.error('Failed to load resume from backend:', error);

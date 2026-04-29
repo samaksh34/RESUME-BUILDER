@@ -1,12 +1,12 @@
 {
   "personalInfo": {
-    "fullName": "ABC XYZ",
+    "fullName": "John Doe",
     "jobTitle": "Your Professional Role",
-    "email": "email@example.com",
-    "phone": "1234567890",
+    "email": "john.doe@example.com",
+    "phone": "123-456-7890",
     "address": "City, Country",
-    "linkedin": "linkedin.com/in/username",
-    "github": "github.com/username",
+    "linkedin": "linkedin.com/in/johndoe",
+    "github": "github.com/johndoe",
     "portfolio": "portfolio.com",
     "summary": "Brief professional summary about yourself."
   },

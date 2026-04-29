@@ -96,18 +96,36 @@ const Editor = () => {
             // Ensure the element is visible and has a white background for the capture
             const originalBoxShadow = element.style.boxShadow;
             element.style.boxShadow = 'none';
+
+            // Inject print-specific styles to force consistency
+            const style = document.createElement('style');
+            style.innerHTML = `
+                * {
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                #resume-preview {
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    margin: 0 !important;
+                    padding: 0.5in !important;
+                }
+            `;
+            document.head.appendChild(style);
             
             const opt = {
                 margin: 0,
                 filename,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
-                    scale: 3, // High resolution
+                    scale: 2, // 2 is very stable and sharp enough for A4
                     useCORS: true,
                     letterRendering: true,
                     backgroundColor: '#FFFFFF',
-                    windowWidth: element.scrollWidth,
-                    windowHeight: element.scrollHeight
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 794, // Approx 210mm in pixels at 96dpi
                 },
                 jsPDF: {
                     unit: 'mm',
@@ -115,13 +133,14 @@ const Editor = () => {
                     orientation: 'portrait',
                     compress: true
                 },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                pagebreak: { mode: ['avoid-all'] },
             };
 
-            await html2pdf().set(opt).from(element).save();
+            await html2pdf().from(element).set(opt).save();
 
             // Restore styles
             element.style.boxShadow = originalBoxShadow;
+            document.head.removeChild(style);
 
             setExportSuccess(true);
             setTimeout(() => {
@@ -151,17 +170,48 @@ const Editor = () => {
             const originalBoxShadow = element.style.boxShadow;
             element.style.boxShadow = 'none';
 
+            // Inject print-specific styles
+            const style = document.createElement('style');
+            style.innerHTML = `
+                * {
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                #resume-preview {
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    margin: 0 !important;
+                    padding: 0.5in !important;
+                }
+            `;
+            document.head.appendChild(style);
+
             const opt = {
                 margin: 0,
                 filename,
                 image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true, backgroundColor: '#FFFFFF' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    backgroundColor: '#FFFFFF',
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 794,
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { mode: ['avoid-all'] },
             };
 
-            await html2pdf().set(opt).from(element).save();
+            await html2pdf().from(element).set(opt).save();
             element.style.boxShadow = originalBoxShadow;
+            document.head.removeChild(style);
         } catch (error) {
             console.error('PDF export failed:', error);
         } finally {
