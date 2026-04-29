@@ -1,17 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useResumeData } from '../hooks/useResumeData';
 import ResumePreview from '../components/ResumePreview';
 import FormSection from '../components/FormSection';
 import InputField from '../components/InputField';
 import Navbar from '../components/Navbar';
 import HorizontalSectionsNav from '../components/HorizontalSectionsNav';
-import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw, Download, FileText, Loader2, X, CheckCircle2 } from 'lucide-react';
+
+import ATSWarningsPanel from '../components/ATSWarningsPanel';
 
 const Editor = () => {
     const { resumeData, updateResumeData } = useResumeData();
     const [activeSection, setActiveSection] = useState('personal');
     const [zoom, setZoom] = useState(100);
     const [template, setTemplate] = useState('ats');
+    const resumeRef = useRef(null);
+    const [exporting, setExporting] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportSuccess, setExportSuccess] = useState(false);
+    const [exportFilename, setExportFilename] = useState('my-resume');
+    const [exportQuality, setExportQuality] = useState(2); // 1 = fast, 2 = high, 3 = ultra
+    const [showAnalysis, setShowAnalysis] = useState(true);
 
     const {
         personalInfo = {},
@@ -72,27 +81,171 @@ const Editor = () => {
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
     const handleResetZoom = () => setZoom(100);
 
-    useEffect(() => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sessionId: 'debug-session',
-                runId: 'pre-fix',
-                hypothesisId: 'A',
-                location: 'Editor.jsx:mount',
-                message: 'Editor mounted with context snapshot',
-                data: {
-                    hasResumeData: Boolean(resumeData),
-                    personalInfoKeys: resumeData ? Object.keys(resumeData.personalInfo || {}) : null,
-                    updateResumeDataType: typeof updateResumeData
+    // ── PDF Export ──────────────────────────────────────────────────
+    const handleExportPDF = useCallback(async () => {
+        if (!resumeRef.current || exporting) return;
+
+        setExporting(true);
+        setExportSuccess(false);
+
+        try {
+            // Dynamically import html2pdf to avoid SSR issues
+            const html2pdf = (await import('html2pdf.js')).default;
+
+            const element = resumeRef.current;
+            const filename = (exportFilename.trim() || 'my-resume') + '.pdf';
+
+            // Force light mode colors for PDF export
+            const originalBg = element.style.backgroundColor;
+            const originalColor = element.style.color;
+            element.style.backgroundColor = '#FFFFFF';
+            element.style.color = '#1a1a1a';
+
+            // Apply light mode to all text elements inside the preview
+            const allElements = element.querySelectorAll('*');
+            const originalStyles = [];
+            allElements.forEach((el) => {
+                originalStyles.push({
+                    el,
+                    color: el.style.color,
+                    bg: el.style.backgroundColor,
+                    borderColor: el.style.borderColor,
+                });
+                const computed = window.getComputedStyle(el);
+                // Force dark text for PDF readability
+                if (computed.color === 'rgb(212, 212, 216)' || computed.color === 'rgb(161, 161, 170)') {
+                    el.style.color = computed.color === 'rgb(161, 161, 170)' ? '#4a4a4a' : '#1a1a1a';
+                }
+                if (computed.color === 'rgb(255, 255, 255)') {
+                    el.style.color = '#000000';
+                }
+                // Force white backgrounds
+                if (computed.backgroundColor === 'rgb(24, 24, 27)' || computed.backgroundColor === 'rgb(15, 15, 17)') {
+                    el.style.backgroundColor = '#FFFFFF';
+                }
+                if (computed.backgroundColor === 'rgb(19, 19, 21)') {
+                    el.style.backgroundColor = '#F9FAFB';
+                }
+                // Fix borders
+                if (computed.borderColor === 'rgb(47, 47, 54)') {
+                    el.style.borderColor = '#E2E8F0';
+                }
+            });
+
+            const opt = {
+                margin: 0,
+                filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: exportQuality,
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true,
+                    backgroundColor: '#FFFFFF',
                 },
-                timestamp: Date.now()
-            })
-        }).catch(() => { });
-        // #endregion
-    }, []);
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait',
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+            };
+
+            await html2pdf().set(opt).from(element).save();
+
+            // Restore original styles
+            element.style.backgroundColor = originalBg;
+            element.style.color = originalColor;
+            originalStyles.forEach(({ el, color, bg, borderColor }) => {
+                el.style.color = color;
+                el.style.backgroundColor = bg;
+                el.style.borderColor = borderColor;
+            });
+
+            setExportSuccess(true);
+            setTimeout(() => {
+                setExportSuccess(false);
+                setShowExportModal(false);
+            }, 2000);
+        } catch (error) {
+            console.error('PDF export failed:', error);
+            alert('Failed to export PDF. Please try again.');
+        } finally {
+            setExporting(false);
+        }
+    }, [exporting, exportFilename, exportQuality]);
+
+    // Quick export with default settings
+    const handleQuickExport = useCallback(async () => {
+        if (!resumeRef.current || exporting) return;
+        setExportFilename(personalInfo?.fullName?.replace(/\s+/g, '_') || 'my-resume');
+        // trigger export directly
+        setExporting(true);
+        setExportSuccess(false);
+        try {
+            const html2pdf = (await import('html2pdf.js')).default;
+            const element = resumeRef.current;
+            const filename = (personalInfo?.fullName?.replace(/\s+/g, '_') || 'my-resume') + '_resume.pdf';
+
+            // Force light mode for PDF
+            const originalBg = element.style.backgroundColor;
+            const originalColor = element.style.color;
+            element.style.backgroundColor = '#FFFFFF';
+            element.style.color = '#1a1a1a';
+
+            const allElements = element.querySelectorAll('*');
+            const originalStyles = [];
+            allElements.forEach((el) => {
+                originalStyles.push({
+                    el,
+                    color: el.style.color,
+                    bg: el.style.backgroundColor,
+                    borderColor: el.style.borderColor,
+                });
+                const computed = window.getComputedStyle(el);
+                if (computed.color === 'rgb(212, 212, 216)' || computed.color === 'rgb(161, 161, 170)') {
+                    el.style.color = computed.color === 'rgb(161, 161, 170)' ? '#4a4a4a' : '#1a1a1a';
+                }
+                if (computed.color === 'rgb(255, 255, 255)') {
+                    el.style.color = '#000000';
+                }
+                if (computed.backgroundColor === 'rgb(24, 24, 27)' || computed.backgroundColor === 'rgb(15, 15, 17)') {
+                    el.style.backgroundColor = '#FFFFFF';
+                }
+                if (computed.backgroundColor === 'rgb(19, 19, 21)') {
+                    el.style.backgroundColor = '#F9FAFB';
+                }
+                if (computed.borderColor === 'rgb(47, 47, 54)') {
+                    el.style.borderColor = '#E2E8F0';
+                }
+            });
+
+            const opt = {
+                margin: 0,
+                filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true, backgroundColor: '#FFFFFF' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+            };
+
+            await html2pdf().set(opt).from(element).save();
+
+            element.style.backgroundColor = originalBg;
+            element.style.color = originalColor;
+            originalStyles.forEach(({ el, color, bg, borderColor }) => {
+                el.style.color = color;
+                el.style.backgroundColor = bg;
+                el.style.borderColor = borderColor;
+            });
+        } catch (error) {
+            console.error('PDF export failed:', error);
+        } finally {
+            setExporting(false);
+        }
+    }, [exporting, personalInfo?.fullName]);
+
+
 
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden text-text">
@@ -102,8 +255,8 @@ const Editor = () => {
             <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="max-w-8xl mx-auto px-6 py-4 h-full">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-                        {/* Left: Editor Form - 40% - ALL SECTIONS STACKED */}
-                        <div className="lg:col-span-5 flex flex-col h-full min-h-0">
+                        {/* Left: Editor Form - ALL SECTIONS STACKED */}
+                        <div className={`${showAnalysis ? 'lg:col-span-4' : 'lg:col-span-5'} flex flex-col h-full min-h-0 transition-all duration-300`}>
                             <div className="mb-4 flex-shrink-0">
                                 <h2 className="text-xl font-bold text-heading">Editor</h2>
                                 <p className="text-xs text-subtext mt-0.5">Build your perfect resume</p>
@@ -442,8 +595,8 @@ const Editor = () => {
                             </div>
                         </div>
 
-                        {/* Right: Live Preview - 60% */}
-                        <div className="lg:col-span-7 flex flex-col h-full min-h-0">
+                        {/* Right: Live Preview */}
+                        <div className={`${showAnalysis ? 'lg:col-span-5' : 'lg:col-span-7'} flex flex-col h-full min-h-0 transition-all duration-300`}>
                             <div className="mb-4 flex-shrink-0 flex items-center justify-between">
                                 <div>
                                     <h2 className="text-xl font-bold text-heading">Live Preview</h2>
@@ -507,6 +660,37 @@ const Editor = () => {
                                             <RotateCcw size={16} />
                                         </button>
                                     </div>
+
+                                    {/* Analysis Toggle */}
+                                    <button
+                                        onClick={() => setShowAnalysis(!showAnalysis)}
+                                        className={`p-1.5 rounded-lg transition-all border border-border flex items-center gap-2 ${showAnalysis ? 'bg-primary/10 text-primary border-primary/30' : 'text-subtext hover:text-heading'}`}
+                                        title="Analyze ATS Score"
+                                    >
+                                        <ShieldCheck size={16} />
+                                        <span className="text-xs font-semibold hidden xl:inline">Analysis</span>
+                                    </button>
+
+                                    {/* Export Buttons */}
+                                    <button
+                                        onClick={handleQuickExport}
+                                        disabled={exporting}
+                                        className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-primary to-primary-light rounded-lg hover:opacity-90 transition-all shadow-md shadow-primary/20 disabled:opacity-50"
+                                        title="Quick download as PDF"
+                                    >
+                                        {exporting ? <Loader2 className="animate-spin" size={16} /> : <Download size={16} />}
+                                        <span className="hidden xl:inline">{exporting ? 'Exporting...' : 'Export'}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setExportFilename(personalInfo?.fullName?.replace(/\s+/g, '_') || 'my-resume');
+                                            setShowExportModal(true);
+                                        }}
+                                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-all text-subtext hover:text-heading border border-border"
+                                        title="Export options"
+                                    >
+                                        <FileText size={16} />
+                                    </button>
                                 </div>
                             </div>
 
@@ -515,13 +699,122 @@ const Editor = () => {
                                     className="origin-top transition-transform duration-200 shadow-2xl"
                                     style={{ transform: `scale(${zoom / 100})` }}
                                 >
-                                    <ResumePreview template={template} />
+                                    <ResumePreview ref={resumeRef} template={template} />
                                 </div>
                             </div>
                         </div>
+
+                        {/* Right: Analysis Panel */}
+                        {showAnalysis && (
+                            <div className="lg:col-span-3 flex flex-col h-full min-h-0 animate-in slide-in-from-right-10 duration-300">
+                                <ATSWarningsPanel resumeData={resumeData} template={template} />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+            {/* Export Modal */}
+            {showExportModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] animate-fade-in">
+                    <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-md shadow-2xl mx-4">
+                        {exportSuccess ? (
+                            <div className="text-center py-6">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 mb-4">
+                                    <CheckCircle2 className="text-green-500" size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-heading mb-2">PDF Downloaded!</h3>
+                                <p className="text-subtext text-sm">Your resume has been saved successfully.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-heading">Export as PDF</h3>
+                                        <p className="text-subtext text-xs mt-1">Customize your download</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowExportModal(false)}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-subtext hover:text-heading transition-all"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-5">
+                                    {/* Filename */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-subtext mb-2">File Name</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                className="input-base"
+                                                value={exportFilename}
+                                                onChange={(e) => setExportFilename(e.target.value)}
+                                                placeholder="my-resume"
+                                            />
+                                            <span className="text-subtext text-sm font-medium">.pdf</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Quality */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-subtext mb-2">Quality</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { value: 1, label: 'Fast', desc: 'Smaller file' },
+                                                { value: 2, label: 'High', desc: 'Recommended' },
+                                                { value: 3, label: 'Ultra', desc: 'Best quality' },
+                                            ].map((q) => (
+                                                <button
+                                                    key={q.value}
+                                                    onClick={() => setExportQuality(q.value)}
+                                                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                                        exportQuality === q.value
+                                                            ? 'border-primary bg-primary/5 text-primary'
+                                                            : 'border-border hover:border-primary/30 text-text'
+                                                    }`}
+                                                >
+                                                    <div className="font-semibold text-sm">{q.label}</div>
+                                                    <div className="text-[10px] text-subtext mt-0.5">{q.desc}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Template Info */}
+                                    <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-xl">
+                                        <FileText size={18} className="text-primary flex-shrink-0" />
+                                        <div className="text-xs">
+                                            <span className="text-heading font-medium">Template: </span>
+                                            <span className="text-subtext capitalize">{template}</span>
+                                            <span className="text-subtext"> • A4 format • Light mode</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Export Button */}
+                                    <button
+                                        onClick={handleExportPDF}
+                                        disabled={exporting}
+                                        className="w-full py-3 px-4 bg-gradient-to-r from-primary to-primary-light text-white font-semibold rounded-xl hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
+                                    >
+                                        {exporting ? (
+                                            <>
+                                                <Loader2 className="animate-spin" size={20} />
+                                                Generating PDF...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download size={18} />
+                                                Download PDF
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

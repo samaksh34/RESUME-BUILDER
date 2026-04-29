@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useResumeData } from '../hooks/useResumeData';
 import { Mail, Phone, Linkedin, Github, Globe } from 'lucide-react';
 
-const ResumePreview = ({ template = 'classic' }) => {
+const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
     const { resumeData } = useResumeData();
     const {
         personalInfo = {},
@@ -15,29 +15,6 @@ const ResumePreview = ({ template = 'classic' }) => {
         extracurricular = [],
         languages = [],
     } = resumeData || {};
-
-    React.useEffect(() => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e398cb77-0811-4917-a097-f173ee72c7ad', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sessionId: 'debug-session',
-                runId: 'pre-fix',
-                hypothesisId: 'C',
-                location: 'ResumePreview.jsx:mount',
-                message: 'ResumePreview data snapshot',
-                data: {
-                    hasResumeData: Boolean(resumeData),
-                    educationCount: education.length,
-                    skillsCount: technicalSkills.length,
-                    internshipsCount: internships.length
-                },
-                timestamp: Date.now()
-            })
-        }).catch(() => { });
-        // #endregion
-    }, []);
 
     const HeaderBlock = ({ align = 'center' }) => (
         <div className={`${align === 'left' ? 'text-left' : 'text-center'} mb-6`}>
@@ -282,6 +259,8 @@ const ResumePreview = ({ template = 'classic' }) => {
     if (template === 'classic') {
         return (
             <div
+                ref={ref}
+                id="resume-preview"
                 className="bg-surface shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(0,0,0,0.3)] text-text font-serif relative overflow-hidden mx-auto border border-border dark:border-[rgba(255,255,255,0.05)]"
                 style={{ width: '210mm', minHeight: '297mm' }}
             >
@@ -297,6 +276,8 @@ const ResumePreview = ({ template = 'classic' }) => {
     if (template === 'accent') {
         return (
             <div
+                ref={ref}
+                id="resume-preview"
                 className="bg-surface shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(0,0,0,0.3)] text-text font-serif relative overflow-hidden mx-auto flex border border-border dark:border-[rgba(255,255,255,0.05)]"
                 style={{ width: '210mm', minHeight: '297mm' }}
             >
@@ -341,6 +322,8 @@ const ResumePreview = ({ template = 'classic' }) => {
     if (template === 'boxed') {
         return (
             <div
+                ref={ref}
+                id="resume-preview"
                 className="bg-gray-50 dark:bg-[#131315] text-text font-serif relative overflow-hidden mx-auto border border-border dark:border-[rgba(255,255,255,0.05)]"
                 style={{ width: '210mm', minHeight: '297mm' }}
             >
@@ -362,6 +345,8 @@ const ResumePreview = ({ template = 'classic' }) => {
     // ATS template: clean, simple, ATS-friendly format (default)
     return (
         <div
+            ref={ref}
+            id="resume-preview"
             className="bg-surface shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(0,0,0,0.3)] text-text font-sans relative overflow-hidden mx-auto border border-border dark:border-[rgba(255,255,255,0.05)]"
             style={{ width: '210mm', minHeight: '297mm' }}
         >
@@ -548,6 +533,8 @@ const ResumePreview = ({ template = 'classic' }) => {
             </div>
         </div>
     );
-};
+});
+
+ResumePreview.displayName = 'ResumePreview';
 
 export default ResumePreview;
