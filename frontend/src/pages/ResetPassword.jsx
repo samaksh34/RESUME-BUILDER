@@ -86,18 +86,18 @@ const ResetPassword = () => {
 
     if (success) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center px-4">
-                <div className="text-center max-w-md">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-green-500/10 border border-green-500/20 mb-6">
-                        <ShieldCheck className="text-green-500" size={40} />
+            <div className="min-h-screen bg-background flex items-center justify-center px-6">
+                <div className="text-center max-w-sm">
+                    <div className="w-12 h-12 bg-green-50 border border-green-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <ShieldCheck className="text-green-600" size={24} />
                     </div>
-                    <h1 className="text-3xl font-bold text-heading mb-3">Password Reset!</h1>
-                    <p className="text-subtext mb-6">Your password has been reset successfully. Redirecting to login…</p>
+                    <h1 className="text-xl font-bold text-heading tracking-tight mb-2">Password Reset!</h1>
+                    <p className="text-[11px] text-subtext mb-8">Your professional identity has been recovered. Redirecting to sign in...</p>
                     <Link
                         to="/login"
-                        className="inline-flex py-3 px-6 bg-gradient-to-r from-primary to-primary-light text-white font-semibold rounded-xl hover:opacity-90 transition-all"
+                        className="btn-primary w-full py-2.5"
                     >
-                        Go to Login
+                        Return to Sign In
                     </Link>
                 </div>
             </div>
@@ -105,24 +105,27 @@ const ResetPassword = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-                <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-            </div>
-
-            <div className="relative w-full max-w-md">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-heading mb-2">Reset your password</h1>
-                    <p className="text-subtext">
-                        Enter the OTP sent to <span className="text-heading font-medium">{email}</span>
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12 text-text">
+            <div className="w-full max-w-sm">
+                {/* Brand Logo */}
+                <div className="flex flex-col items-center mb-10">
+                    <Link to="/" className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+                            <Lock size={16} />
+                        </div>
+                        <span className="text-xs font-bold text-heading uppercase tracking-widest">ResumeCraft</span>
+                    </Link>
+                    <h1 className="text-xl font-bold text-heading tracking-tight">Identity Recovery</h1>
+                    <p className="text-[11px] text-subtext mt-1 text-center">
+                        Enter the code sent to <span className="text-heading font-bold">{email}</span>.
                     </p>
                 </div>
 
-                <div className="bg-surface border border-border rounded-2xl p-8 shadow-xl shadow-black/5">
+                {/* Form Wrapper */}
+                <div className="space-y-6">
                     {error && (
-                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-start gap-3">
-                            <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
+                        <div className="p-3 bg-red-50 border border-red-100 rounded text-red-600 text-[11px] font-bold uppercase tracking-tight flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
                             {error}
                         </div>
                     )}
@@ -130,8 +133,8 @@ const ResetPassword = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* OTP */}
                         <div>
-                            <label className="block text-xs font-medium text-subtext mb-3">Verification Code</label>
-                            <div className="flex gap-3 justify-center" onPaste={handlePaste}>
+                            <label className="block text-[10px] font-bold text-subtext uppercase tracking-tight mb-3 text-center">Verification Code</label>
+                            <div className="flex gap-2 justify-center" onPaste={handlePaste}>
                                 {otp.map((digit, index) => (
                                     <input
                                         key={index}
@@ -142,7 +145,7 @@ const ResetPassword = () => {
                                         value={digit}
                                         onChange={(e) => handleOtpChange(index, e.target.value)}
                                         onKeyDown={(e) => handleKeyDown(index, e)}
-                                        className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-border bg-input-bg text-heading focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-10 h-12 text-center text-lg font-bold rounded border border-border bg-input-bg text-heading focus:border-primary outline-none transition-all"
                                         autoFocus={index === 0}
                                     />
                                 ))}
@@ -150,62 +153,54 @@ const ResetPassword = () => {
                         </div>
 
                         {/* New Password */}
-                        <div>
-                            <label className="block text-xs font-medium text-subtext mb-2">New Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-subtext" size={18} />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={newPassword}
-                                    onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
-                                    className="input-base pl-11 pr-11"
-                                    placeholder="Min. 6 characters"
-                                    required
-                                    minLength={6}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-subtext hover:text-heading transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-[10px] font-bold text-subtext uppercase tracking-tight mb-2">New Password</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={newPassword}
+                                        onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
+                                        className="input-base pr-10"
+                                        placeholder="Min. 6 characters"
+                                        required
+                                        minLength={6}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-subtext hover:text-heading"
+                                    >
+                                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Confirm Password */}
-                        <div>
-                            <label className="block text-xs font-medium text-subtext mb-2">Confirm New Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-subtext" size={18} />
+                            <div>
+                                <label className="block text-[10px] font-bold text-subtext uppercase tracking-tight mb-2">Confirm Identity</label>
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     value={confirmPassword}
                                     onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
-                                    className="input-base pl-11"
-                                    placeholder="Re-enter new password"
+                                    className="input-base"
+                                    placeholder="••••••••"
                                     required
                                 />
                             </div>
                         </div>
 
-                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 px-4 bg-gradient-to-r from-primary to-primary-light text-white font-semibold rounded-xl hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
+                            className="btn-primary w-full py-2.5 mt-2"
                         >
-                            {loading ? (
-                                <Loader2 className="animate-spin" size={20} />
-                            ) : (
-                                'Reset Password'
-                            )}
+                            {loading ? <Loader2 className="animate-spin" size={16} /> : <span>Update Identity</span>}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <Link to="/login" className="text-sm text-subtext hover:text-heading transition-colors">
-                            ← Back to login
+                    <div className="pt-6 border-t border-border flex items-center justify-center">
+                        <Link to="/login" className="text-[11px] font-bold text-subtext uppercase tracking-tight hover:text-heading">
+                            ← Back to Sign In
                         </Link>
                     </div>
                 </div>

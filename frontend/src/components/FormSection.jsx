@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import SectionHeading from './SectionHeading';
-import { Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 
 const FormSection = ({
     title,
-    icon,
     children,
     onAdd,
     items = [],
@@ -15,60 +12,58 @@ const FormSection = ({
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
-        <div className="section-card">
-            <SectionHeading
-                title={title}
-                icon={icon}
-                isOpen={isOpen}
-                onToggle={() => setIsOpen(!isOpen)}
-            />
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                        className="overflow-hidden"
+        <div className="border-b border-border last:border-0">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full py-4 flex items-center justify-between group"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="text-subtext group-hover:text-heading transition-colors">
+                        {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    </span>
+                    <h3 className="text-sm font-bold uppercase tracking-tight text-heading">
+                        {title}
+                    </h3>
+                </div>
+                {onAdd && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAdd('add');
+                            setIsOpen(true);
+                        }}
+                        className="p-1.5 text-primary hover:bg-primary/5 rounded transition-all"
                     >
-                        <div className="pt-4 space-y-6">
-                            {/* Static Content (like Personal Info) */}
-                            {children}
-
-                            {/* Dynamic List Items */}
-                            {items.length > 0 && (
-                                <div className="space-y-4">
-                                    {items.map((item, index) => (
-                                        <div key={item.id || index} className="relative group bg-input-bg p-5 rounded-lg border border-border hover:border-primary/30 transition-all">
-                                            {renderItem(item, index)}
-                                            {onAdd && (
-                                                <button
-                                                    onClick={() => onAdd('remove', item.id)}
-                                                    className="absolute top-3 right-3 p-2 text-subtext hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Add Button */}
-                            {onAdd && (
-                                <button
-                                    onClick={() => onAdd('add')}
-                                    className="w-full py-3 flex items-center justify-center gap-2 text-primary font-medium text-sm bg-primary/5 hover:bg-primary/10 rounded-lg border border-dashed border-primary/30 hover:border-primary/50 transition-all"
-                                >
-                                    <Plus size={18} />
-                                    Add {title}
-                                </button>
-                            )}
-                        </div>
-                    </motion.div>
+                        <Plus size={18} />
+                    </button>
                 )}
-            </AnimatePresence>
+            </button>
+
+            {isOpen && (
+                <div className="pb-8 space-y-6 animate-fade-in">
+                    {/* Static Content */}
+                    {children}
+
+                    {/* Dynamic List Items */}
+                    {items.length > 0 && (
+                        <div className="space-y-4">
+                            {items.map((item, index) => (
+                                <div key={item.id || index} className="relative bg-surface rounded-md border border-border p-4">
+                                    {renderItem(item, index)}
+                                    {onAdd && (
+                                        <button
+                                            onClick={() => onAdd('remove', item.id)}
+                                            className="absolute top-2 right-2 p-1.5 text-subtext hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

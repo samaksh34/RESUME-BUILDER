@@ -65,6 +65,12 @@ api.interceptors.response.use(
 
 // ── Auth API calls ──────────────────────────────────────────────────
 
+// ── Resume API calls ────────────────────────────────────────────────
+export const resumeAPI = {
+    get: () => api.get('/resumes'),
+    save: (data) => api.post('/resumes', { data }),
+};
+
 export const authAPI = {
     register: (data) => api.post('/auth/register', data),
     verifyOTP: (data) => api.post('/auth/verify-otp', data),

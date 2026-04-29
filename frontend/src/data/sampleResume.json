@@ -1,84 +1,96 @@
 {
   "personalInfo": {
     "fullName": "ABC XYZ",
-    "jobTitle": "",
-    "email": "email@gmail.com",
+    "jobTitle": "Your Professional Role",
+    "email": "email@example.com",
     "phone": "1234567890",
-    "address": "Ghaziabad, Uttar Pradesh",
+    "address": "City, Country",
     "linkedin": "linkedin.com/in/username",
     "github": "github.com/username",
-    "portfolio": "Portfolio Link",
-    "summary": ""
+    "portfolio": "portfolio.com",
+    "summary": "Brief professional summary about yourself."
   },
   "education": [
     {
       "id": "edu_1",
-      "degree": "B.Tech in ECE (AKTU)",
-      "school": "ABES Engineering College",
-      "startDate": "Nov 2022",
-      "endDate": "July 2026",
-      "score": "CGPA 7.0",
-      "location": ""
-    },
-    {
-      "id": "edu_2",
-      "degree": "Class 12th (CBSE)",
-      "school": "Ch. Chhabil Dass Public School",
-      "startDate": "",
-      "endDate": "2022",
-      "score": "76.2%",
-      "location": ""
+      "degree": "Your Degree / Course",
+      "school": "University / School Name",
+      "startDate": "Year",
+      "endDate": "Year",
+      "score": "CGPA / Percentage",
+      "location": "Location"
     }
   ],
   "technicalSkills": [
-    "Developer Tools: Arduino IDE, BLYNK IOT, Firebase, MATLAB, Proteus, LT Spice",
-    "Skills: Embedded Programming & Firmware, Hardware Integration, C language, Circuit simulation"
+    {
+      "id": "ts_1",
+      "category": "Frontend",
+      "skills": "HTML5, CSS3, JavaScript (ES6+), React.js, Tailwind CSS, Bootstrap"
+    },
+    {
+      "id": "ts_2",
+      "category": "Backend",
+      "skills": "Node.js, Express.js, REST APIs, JWT Authentication"
+    },
+    {
+      "id": "ts_3",
+      "category": "Database & Integrations",
+      "skills": "MongoDB, SQL, Firebase, MySQL, PDF Export Tools, Gemini API"
+    },
+    {
+      "id": "ts_4",
+      "category": "Tools & Other",
+      "skills": "Git, GitHub, Postman, npm, VS Code, Responsive Design, NLP Basics, Data Visualization"
+    }
   ],
   "internships": [
     {
       "id": "int_1",
-      "role": "Embedded Intern",
-      "company": "Humble Bee @ Buzzworthy",
-      "startDate": "March 2025",
-      "endDate": "Present",
-      "location": "Hybrid",
+      "role": "Your Role",
+      "company": "Company Name",
+      "startDate": "Month Year",
+      "endDate": "Month Year",
+      "location": "Location",
       "description": [
-        "Developing real-time signal processing solutions using ESP32 for embedded applications",
-        "Implementing audio signal acquisition and preprocessing using ADC and filtering techniques"
+        "Key achievement or responsibility in this role",
+        "Another significant contribution or skill used"
       ]
     }
   ],
   "projects": [
     {
       "id": "proj_1",
-      "title": "ARDUMIST (Portable Humidifier)",
-      "date": "May 2024",
-      "link": "",
+      "title": "Project Title",
+      "date": "Year",
       "description": [
-        "Developed a portable humidifier using an Arduino UNO microcontroller to maintain room humidity levels above 75%",
-        "Integrated a DHT sensor for real-time humidity monitoring and an ultrasonic vibration mechanism for water spray"
+        "Detailed bullet point describing the project goal and technologies used",
+        "Another point highlighting your specific contribution and impact"
       ]
     }
   ],
   "achievements": [
-    "GATE 2025 - Qualified in Electronics & Communication"
+    {
+      "id": "ach_1",
+      "title": "Achievement Title",
+      "description": "Short description of the recognition or accomplishment."
+    }
   ],
   "certificates": [
     {
       "id": "cert_1",
-      "name": "The Complete Python Developer",
-      "issuer": "Udemy",
-      "date": "Oct 2023-Nov 2023"
+      "name": "Certificate Name",
+      "issuer": "Issuing Organization",
+      "date": "Year"
     }
   ],
   "extracurricular": [
     {
       "id": "extra_1",
-      "role": "Camp Coordinator",
-      "organization": "Light De Literacy (NGO Initiative)",
-      "date": "Dec 2022 - Present",
+      "role": "Role / Position",
+      "organization": "Organization Name",
+      "date": "Duration",
       "description": [
-        "Educating 50+ underprivileged students in slum areas on STEM subjects"
+        "Description of your activities and impact"
       ]
     }
   ],
@@ -87,8 +99,3 @@
     "Hindi"
   ]
 }
-
-
-
-
-

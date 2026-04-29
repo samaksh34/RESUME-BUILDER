@@ -12,7 +12,7 @@ export const register = async (req, res, next) => {
         const { name, email, password } = req.body;
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             // If user exists but isn't verified, allow re-registration with new OTP
             if (!existingUser.isVerified) {
@@ -61,7 +61,7 @@ export const verifyOTP = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
 
-        const user = await User.findOne({ email }).select('+otp.code +otp.expiresAt +otp.purpose');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+otp.code +otp.expiresAt +otp.purpose');
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -127,8 +127,10 @@ export const login = async (req, res, next) => {
         const { email, password } = req.body;
 
         // Find user with password field included
-        const user = await User.findOne({ email }).select('+password +refreshTokens');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+password +refreshTokens');
+        console.log(`Login attempt: ${email}`);
         if (!user) {
+            console.log('User not found');
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password',
@@ -137,6 +139,7 @@ export const login = async (req, res, next) => {
 
         // Check password
         const isMatch = await user.comparePassword(password);
+        console.log(`Password match for ${email}: ${isMatch}`);
         if (!isMatch) {
             return res.status(401).json({
                 success: false,
@@ -280,7 +283,7 @@ export const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email }).select('+otp.code +otp.expiresAt +otp.purpose');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+otp.code +otp.expiresAt +otp.purpose');
         if (!user) {
             // Don't reveal if user exists or not (security)
             return res.status(200).json({
@@ -313,7 +316,7 @@ export const resetPassword = async (req, res, next) => {
     try {
         const { email, otp, newPassword } = req.body;
 
-        const user = await User.findOne({ email }).select('+otp.code +otp.expiresAt +otp.purpose +refreshTokens');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+otp.code +otp.expiresAt +otp.purpose +refreshTokens');
         if (!user) {
             return res.status(400).json({
                 success: false,
@@ -355,7 +358,7 @@ export const resendOTP = async (req, res, next) => {
     try {
         const { email, purpose } = req.body;
 
-        const user = await User.findOne({ email }).select('+otp.code +otp.expiresAt +otp.purpose');
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+otp.code +otp.expiresAt +otp.purpose');
         if (!user) {
             return res.status(200).json({
                 success: true,

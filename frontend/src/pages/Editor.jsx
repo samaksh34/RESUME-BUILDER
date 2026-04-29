@@ -7,7 +7,6 @@ import Navbar from '../components/Navbar';
 import HorizontalSectionsNav from '../components/HorizontalSectionsNav';
 import { Plus, Trash2, ZoomIn, ZoomOut, RotateCcw, Download, FileText, Loader2, X, CheckCircle2 } from 'lucide-react';
 
-import ATSWarningsPanel from '../components/ATSWarningsPanel';
 
 const Editor = () => {
     const { resumeData, updateResumeData } = useResumeData();
@@ -20,7 +19,6 @@ const Editor = () => {
     const [exportSuccess, setExportSuccess] = useState(false);
     const [exportFilename, setExportFilename] = useState('my-resume');
     const [exportQuality, setExportQuality] = useState(2); // 1 = fast, 2 = high, 3 = ultra
-    const [showAnalysis, setShowAnalysis] = useState(true);
 
     const {
         personalInfo = {},
@@ -95,72 +93,35 @@ const Editor = () => {
             const element = resumeRef.current;
             const filename = (exportFilename.trim() || 'my-resume') + '.pdf';
 
-            // Force light mode colors for PDF export
-            const originalBg = element.style.backgroundColor;
-            const originalColor = element.style.color;
-            element.style.backgroundColor = '#FFFFFF';
-            element.style.color = '#1a1a1a';
-
-            // Apply light mode to all text elements inside the preview
-            const allElements = element.querySelectorAll('*');
-            const originalStyles = [];
-            allElements.forEach((el) => {
-                originalStyles.push({
-                    el,
-                    color: el.style.color,
-                    bg: el.style.backgroundColor,
-                    borderColor: el.style.borderColor,
-                });
-                const computed = window.getComputedStyle(el);
-                // Force dark text for PDF readability
-                if (computed.color === 'rgb(212, 212, 216)' || computed.color === 'rgb(161, 161, 170)') {
-                    el.style.color = computed.color === 'rgb(161, 161, 170)' ? '#4a4a4a' : '#1a1a1a';
-                }
-                if (computed.color === 'rgb(255, 255, 255)') {
-                    el.style.color = '#000000';
-                }
-                // Force white backgrounds
-                if (computed.backgroundColor === 'rgb(24, 24, 27)' || computed.backgroundColor === 'rgb(15, 15, 17)') {
-                    el.style.backgroundColor = '#FFFFFF';
-                }
-                if (computed.backgroundColor === 'rgb(19, 19, 21)') {
-                    el.style.backgroundColor = '#F9FAFB';
-                }
-                // Fix borders
-                if (computed.borderColor === 'rgb(47, 47, 54)') {
-                    el.style.borderColor = '#E2E8F0';
-                }
-            });
-
+            // Ensure the element is visible and has a white background for the capture
+            const originalBoxShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
+            
             const opt = {
                 margin: 0,
                 filename,
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
-                    scale: exportQuality,
+                    scale: 3, // High resolution
                     useCORS: true,
-                    logging: false,
                     letterRendering: true,
                     backgroundColor: '#FFFFFF',
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait',
+                    compress: true
                 },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
             };
 
             await html2pdf().set(opt).from(element).save();
 
-            // Restore original styles
-            element.style.backgroundColor = originalBg;
-            element.style.color = originalColor;
-            originalStyles.forEach(({ el, color, bg, borderColor }) => {
-                el.style.color = color;
-                el.style.backgroundColor = bg;
-                el.style.borderColor = borderColor;
-            });
+            // Restore styles
+            element.style.boxShadow = originalBoxShadow;
 
             setExportSuccess(true);
             setTimeout(() => {
@@ -187,57 +148,20 @@ const Editor = () => {
             const element = resumeRef.current;
             const filename = (personalInfo?.fullName?.replace(/\s+/g, '_') || 'my-resume') + '_resume.pdf';
 
-            // Force light mode for PDF
-            const originalBg = element.style.backgroundColor;
-            const originalColor = element.style.color;
-            element.style.backgroundColor = '#FFFFFF';
-            element.style.color = '#1a1a1a';
-
-            const allElements = element.querySelectorAll('*');
-            const originalStyles = [];
-            allElements.forEach((el) => {
-                originalStyles.push({
-                    el,
-                    color: el.style.color,
-                    bg: el.style.backgroundColor,
-                    borderColor: el.style.borderColor,
-                });
-                const computed = window.getComputedStyle(el);
-                if (computed.color === 'rgb(212, 212, 216)' || computed.color === 'rgb(161, 161, 170)') {
-                    el.style.color = computed.color === 'rgb(161, 161, 170)' ? '#4a4a4a' : '#1a1a1a';
-                }
-                if (computed.color === 'rgb(255, 255, 255)') {
-                    el.style.color = '#000000';
-                }
-                if (computed.backgroundColor === 'rgb(24, 24, 27)' || computed.backgroundColor === 'rgb(15, 15, 17)') {
-                    el.style.backgroundColor = '#FFFFFF';
-                }
-                if (computed.backgroundColor === 'rgb(19, 19, 21)') {
-                    el.style.backgroundColor = '#F9FAFB';
-                }
-                if (computed.borderColor === 'rgb(47, 47, 54)') {
-                    el.style.borderColor = '#E2E8F0';
-                }
-            });
+            const originalBoxShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
 
             const opt = {
                 margin: 0,
                 filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true, backgroundColor: '#FFFFFF' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true, backgroundColor: '#FFFFFF' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
             };
 
             await html2pdf().set(opt).from(element).save();
-
-            element.style.backgroundColor = originalBg;
-            element.style.color = originalColor;
-            originalStyles.forEach(({ el, color, bg, borderColor }) => {
-                el.style.color = color;
-                el.style.backgroundColor = bg;
-                el.style.borderColor = borderColor;
-            });
+            element.style.boxShadow = originalBoxShadow;
         } catch (error) {
             console.error('PDF export failed:', error);
         } finally {
@@ -250,562 +174,317 @@ const Editor = () => {
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden text-text">
             <Navbar />
-            <HorizontalSectionsNav activeSection={activeSection} onSectionChange={setActiveSection} />
+            
+            {/* Minimalist Progress Strip */}
+            <div className="h-[2px] w-full bg-surface-highlight flex-shrink-0">
+                <div 
+                    className="h-full bg-primary transition-all duration-1000 ease-out" 
+                    style={{ width: '75%' }} 
+                />
+            </div>
 
             <div className="flex-1 min-h-0 overflow-hidden">
-                <div className="max-w-8xl mx-auto px-6 py-4 h-full">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-                        {/* Left: Editor Form - ALL SECTIONS STACKED */}
-                        <div className={`${showAnalysis ? 'lg:col-span-4' : 'lg:col-span-5'} flex flex-col h-full min-h-0 transition-all duration-300`}>
-                            <div className="mb-4 flex-shrink-0">
-                                <h2 className="text-xl font-bold text-heading">Editor</h2>
-                                <p className="text-xs text-subtext mt-0.5">Build your perfect resume</p>
+                <div className="max-w-[1400px] mx-auto px-4 h-full">
+                    <div className="flex flex-col lg:flex-row h-full">
+                        {/* Left: Editor Form */}
+                        <div className="lg:w-[450px] xl:w-[500px] flex-shrink-0 border-r border-border flex flex-col h-full min-h-0 bg-surface">
+                            <div className="p-4 border-b border-border bg-background">
+                                <h2 className="text-xs font-bold text-heading uppercase tracking-widest">Builder</h2>
                             </div>
 
-                            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 space-y-0">
                                 {/* Personal Info */}
-                                <div ref={sectionRefs.personal} className="scroll-mt-4">
-                                    <FormSection title="Personal Information" icon={null} isOpen={true}>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <InputField label="Full Name" value={personalInfo.fullName || ''} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="John Doe" />
-                                            <InputField label="Job Title" value={personalInfo.jobTitle || ''} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="Software Engineer" />
-                                            <InputField label="Email" value={personalInfo.email || ''} onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)} placeholder="john@example.com" />
-                                            <InputField label="Phone" value={personalInfo.phone || ''} onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)} placeholder="+1 234 567 890" />
+                                <div ref={sectionRefs.personal}>
+                                    <FormSection title="Personal Information" defaultOpen={true}>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                                            <InputField label="Full Name" value={personalInfo.fullName || ''} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="Full Name" />
+                                            <InputField label="Job Title" value={personalInfo.jobTitle || ''} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="Job Title" />
+                                            <InputField label="Email" value={personalInfo.email || ''} onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)} placeholder="email@example.com" />
+                                            <InputField label="Phone" value={personalInfo.phone || ''} onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)} placeholder="1234567890" />
                                             <InputField label="Address" value={personalInfo.address || ''} onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)} placeholder="City, Country" />
-                                            <InputField label="LinkedIn" value={personalInfo.linkedin || ''} onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)} placeholder="linkedin.com/in/johndoe" />
-                                            <InputField label="GitHub" value={personalInfo.github || ''} onChange={(e) => handleInputChange('personalInfo', 'github', e.target.value)} placeholder="github.com/johndoe" />
-                                            <InputField label="Portfolio" value={personalInfo.portfolio || ''} onChange={(e) => handleInputChange('personalInfo', 'portfolio', e.target.value)} placeholder="johndoe.com" />
-                                        </div>
-                                        <div className="mt-4">
-                                            <label className="block text-xs font-medium text-subtext mb-1.5">Professional Summary</label>
-                                            <textarea
-                                                className="input-base min-h-[100px] resize-y"
-                                                value={personalInfo.summary || ''}
-                                                onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)}
-                                                placeholder="Briefly describe your professional background and key achievements..."
-                                            />
+                                            <InputField label="LinkedIn" value={personalInfo.linkedin || ''} onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)} placeholder="linkedin.com/in/username" />
+                                            <InputField label="GitHub" value={personalInfo.github || ''} onChange={(e) => handleInputChange('personalInfo', 'github', e.target.value)} placeholder="github.com/username" />
                                         </div>
                                     </FormSection>
                                 </div>
 
                                 {/* Education */}
-                                <div ref={sectionRefs.education} className="scroll-mt-4">
-                                    <FormSection title="Education" icon={null} isOpen={true}>
-                                        {education.map((edu, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
-                                                <button onClick={() => removeItem('education', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
+                                <div ref={sectionRefs.education}>
+                                    <FormSection 
+                                        title="Education" 
+                                        items={education}
+                                        onAdd={(action, id) => {
+                                            if (action === 'add') addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' });
+                                            else removeItem('education', education.findIndex(e => e.id === id));
+                                        }}
+                                        renderItem={(edu, index) => (
+                                            <div className="space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <InputField label="School/University" value={edu.school} onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} />
-                                                    <InputField label="Degree" value={edu.degree} onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} />
-                                                    <InputField label="Start Date" value={edu.startDate} onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)} type="month" />
-                                                    <InputField label="End Date" value={edu.endDate} onChange={(e) => handleArrayChange('education', index, 'endDate', e.target.value)} type="month" />
-                                                    <InputField label="Score/GPA" value={edu.score} onChange={(e) => handleArrayChange('education', index, 'score', e.target.value)} />
-                                                    <InputField label="Location" value={edu.location} onChange={(e) => handleArrayChange('education', index, 'location', e.target.value)} />
+                                                    <InputField label="Degree / Course" value={edu.degree} onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} placeholder="B.Tech in IT" />
+                                                    <InputField label="Institution" value={edu.school} onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} placeholder="ABES Engineering College" />
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    <InputField label="Duration" value={edu.startDate} onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)} placeholder="Duration (e.g. 2023 - 2027)" />
+                                                    <InputField label="Score (CGPA/%)" value={edu.score} onChange={(e) => handleArrayChange('education', index, 'score', e.target.value)} placeholder="Score (e.g. 8.4 CGPA)" />
+                                                    <InputField label="Location" value={edu.location} onChange={(e) => handleArrayChange('education', index, 'location', e.target.value)} placeholder="Location" />
                                                 </div>
                                             </div>
-                                        ))}
-                                        <button onClick={() => addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                            <Plus size={16} /> Add Education
-                                        </button>
-                                    </FormSection>
+                                        )}
+                                    />
                                 </div>
 
-                                {/* Technical Skills */}
-                                <div ref={sectionRefs.skills} className="scroll-mt-4">
-                                    <FormSection title="Technical Skills" icon={null} isOpen={true}>
-                                        <div className="space-y-3">
-                                            {technicalSkills.map((skill, index) => (
-                                                <div key={index} className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        className="input-base"
-                                                        value={skill}
-                                                        onChange={(e) => {
-                                                            const newSkills = [...technicalSkills];
-                                                            newSkills[index] = e.target.value;
-                                                            updateResumeData('technicalSkills', newSkills);
-                                                        }}
-                                                        placeholder="e.g. JavaScript, React, Node.js"
-                                                    />
-                                                    <button onClick={() => {
-                                                        const newSkills = technicalSkills.filter((_, i) => i !== index);
-                                                        updateResumeData('technicalSkills', newSkills);
-                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button onClick={() => updateResumeData('technicalSkills', [...technicalSkills, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                                <Plus size={16} /> Add Skill
-                                            </button>
-                                        </div>
-                                    </FormSection>
-                                </div>
-
-                                {/* Experience / Internships */}
-                                <div ref={sectionRefs.experience} className="scroll-mt-4">
-                                    <FormSection title="Internships & Experience" icon={null} isOpen={true}>
-                                        {internships.map((intern, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
-                                                <button onClick={() => removeItem('internships', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                    <InputField label="Job Title" value={intern.role} onChange={(e) => handleArrayChange('internships', index, 'role', e.target.value)} />
-                                                    <InputField label="Company" value={intern.company} onChange={(e) => handleArrayChange('internships', index, 'company', e.target.value)} />
-                                                    <InputField label="Start Date" value={intern.startDate} onChange={(e) => handleArrayChange('internships', index, 'startDate', e.target.value)} type="month" />
-                                                    <InputField label="End Date" value={intern.endDate} onChange={(e) => handleArrayChange('internships', index, 'endDate', e.target.value)} type="month" />
-                                                    <InputField label="Location" value={intern.location} onChange={(e) => handleArrayChange('internships', index, 'location', e.target.value)} />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-subtext mb-1.5">Description (Bullet points)</label>
-                                                    {(intern.description || []).map((desc, i) => (
-                                                        <div key={i} className="flex gap-2 mb-2">
-                                                            <input
-                                                                type="text"
-                                                                className="input-base text-sm"
-                                                                value={desc}
-                                                                onChange={(e) => {
-                                                                    const newInterns = [...internships];
-                                                                    newInterns[index].description[i] = e.target.value;
-                                                                    updateResumeData('internships', newInterns);
-                                                                }}
-                                                                placeholder="• Achieved X by doing Y..."
-                                                            />
-                                                            <button onClick={() => {
-                                                                const newInterns = [...internships];
-                                                                newInterns[index].description = newInterns[index].description.filter((_, dIndex) => dIndex !== i);
-                                                                updateResumeData('internships', newInterns);
-                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    <button onClick={() => {
-                                                        const newInterns = [...internships];
-                                                        if (!newInterns[index].description) newInterns[index].description = [];
-                                                        newInterns[index].description.push('');
-                                                        updateResumeData('internships', newInterns);
-                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
-                                                        <Plus size={12} /> Add Bullet Point
-                                                    </button>
-                                                </div>
+                                {/* Skills */}
+                                <div ref={sectionRefs.skills}>
+                                    <FormSection 
+                                        title="Technical Skills" 
+                                        items={technicalSkills}
+                                        onAdd={(action, id) => {
+                                            if (action === 'add') addItem('technicalSkills', { category: '', skills: '' });
+                                            else removeItem('technicalSkills', technicalSkills.findIndex(s => s.id === id));
+                                        }}
+                                        renderItem={(skill, index) => (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <InputField label="Category" value={skill.category} onChange={(e) => handleArrayChange('technicalSkills', index, 'category', e.target.value)} placeholder="e.g. Frontend" />
+                                                <InputField label="Skills" value={skill.skills} onChange={(e) => handleArrayChange('technicalSkills', index, 'skills', e.target.value)} placeholder="e.g. React, Tailwind" />
                                             </div>
-                                        ))}
-                                        <button onClick={() => addItem('internships', { role: '', company: '', startDate: '', endDate: '', location: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                            <Plus size={16} /> Add Experience
-                                        </button>
-                                    </FormSection>
+                                        )}
+                                    />
                                 </div>
 
                                 {/* Projects */}
-                                <div ref={sectionRefs.projects} className="scroll-mt-4">
-                                    <FormSection title="Projects" icon={null} isOpen={true}>
-                                        {projects.map((proj, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
-                                                <button onClick={() => removeItem('projects', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                    <InputField label="Project Title" value={proj.title} onChange={(e) => handleArrayChange('projects', index, 'title', e.target.value)} />
-                                                    <InputField label="Date" value={proj.date} onChange={(e) => handleArrayChange('projects', index, 'date', e.target.value)} />
-                                                    <InputField label="Link" value={proj.link} onChange={(e) => handleArrayChange('projects', index, 'link', e.target.value)} />
+                                <div ref={sectionRefs.projects}>
+                                    <FormSection 
+                                        title="Projects" 
+                                        items={projects}
+                                        onAdd={(action, id) => {
+                                            if (action === 'add') addItem('projects', { title: '', date: '', description: [''] });
+                                            else removeItem('projects', projects.findIndex(p => p.id === id));
+                                        }}
+                                        renderItem={(proj, index) => (
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <InputField label="Project Title" value={proj.title} onChange={(e) => handleArrayChange('projects', index, 'title', e.target.value)} placeholder="ATS Resume Builder" />
+                                                    <InputField label="Date/Year" value={proj.date} onChange={(e) => handleArrayChange('projects', index, 'date', e.target.value)} placeholder="2024" />
                                                 </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-subtext mb-1.5">Description</label>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-[10px] font-bold text-subtext uppercase">Description Bullets</label>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newProj = [...projects];
+                                                                newProj[index].description = [...(newProj[index].description || []), ''];
+                                                                updateResumeData('projects', newProj);
+                                                            }}
+                                                            className="text-[10px] font-bold text-primary uppercase"
+                                                        >
+                                                            + Add Bullet
+                                                        </button>
+                                                    </div>
                                                     {(proj.description || []).map((desc, i) => (
-                                                        <div key={i} className="flex gap-2 mb-2">
+                                                        <div key={i} className="flex gap-2">
                                                             <input
                                                                 type="text"
-                                                                className="input-base text-sm"
+                                                                className="input-base text-xs flex-1"
                                                                 value={desc}
                                                                 onChange={(e) => {
-                                                                    const newProjects = [...projects];
-                                                                    newProjects[index].description[i] = e.target.value;
-                                                                    updateResumeData('projects', newProjects);
+                                                                    const newProj = [...projects];
+                                                                    newProj[index].description[i] = e.target.value;
+                                                                    updateResumeData('projects', newProj);
                                                                 }}
-                                                                placeholder="• Key feature or technology used..."
+                                                                placeholder="• Achieved X using Y..."
                                                             />
-                                                            <button onClick={() => {
-                                                                const newProjects = [...projects];
-                                                                newProjects[index].description = newProjects[index].description.filter((_, dIndex) => dIndex !== i);
-                                                                updateResumeData('projects', newProjects);
-                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
-                                                                <Trash2 size={16} />
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const newProj = [...projects];
+                                                                    newProj[index].description = newProj[index].description.filter((_, idx) => idx !== i);
+                                                                    updateResumeData('projects', newProj);
+                                                                }}
+                                                                className="p-2 text-subtext hover:text-red-500"
+                                                            >
+                                                                <Trash2 size={14} />
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    <button onClick={() => {
-                                                        const newProjects = [...projects];
-                                                        if (!newProjects[index].description) newProjects[index].description = [];
-                                                        newProjects[index].description.push('');
-                                                        updateResumeData('projects', newProjects);
-                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
-                                                        <Plus size={12} /> Add Bullet Point
-                                                    </button>
                                                 </div>
                                             </div>
-                                        ))}
-                                        <button onClick={() => addItem('projects', { title: '', date: '', link: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                            <Plus size={16} /> Add Project
-                                        </button>
-                                    </FormSection>
-                                </div>
-
-                                {/* Achievements */}
-                                <div ref={sectionRefs.achievements} className="scroll-mt-4">
-                                    <FormSection title="Achievements" icon={null} isOpen={true}>
-                                        <div className="space-y-3">
-                                            {achievements.map((ach, index) => (
-                                                <div key={index} className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        className="input-base"
-                                                        value={ach}
-                                                        onChange={(e) => {
-                                                            const newAch = [...achievements];
-                                                            newAch[index] = e.target.value;
-                                                            updateResumeData('achievements', newAch);
-                                                        }}
-                                                        placeholder="e.g. 1st Place in Hackathon"
-                                                    />
-                                                    <button onClick={() => {
-                                                        const newAch = achievements.filter((_, i) => i !== index);
-                                                        updateResumeData('achievements', newAch);
-                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button onClick={() => updateResumeData('achievements', [...achievements, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                                <Plus size={16} /> Add Achievement
-                                            </button>
-                                        </div>
-                                    </FormSection>
+                                        )}
+                                    />
                                 </div>
 
                                 {/* Certificates */}
-                                <div ref={sectionRefs.certificates} className="scroll-mt-4">
-                                    <FormSection title="Certificates" icon={null} isOpen={true}>
-                                        {certificates.map((cert, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
-                                                <button onClick={() => removeItem('certificates', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <InputField label="Certificate Name" value={cert.name} onChange={(e) => handleArrayChange('certificates', index, 'name', e.target.value)} />
-                                                    <InputField label="Issuer" value={cert.issuer} onChange={(e) => handleArrayChange('certificates', index, 'issuer', e.target.value)} />
-                                                    <InputField label="Date" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} />
-                                                </div>
+                                <div ref={sectionRefs.certificates}>
+                                    <FormSection 
+                                        title="Certificates" 
+                                        items={certificates}
+                                        onAdd={(action, id) => {
+                                            if (action === 'add') addItem('certificates', { name: '', issuer: '', date: '' });
+                                            else removeItem('certificates', certificates.findIndex(c => c.id === id));
+                                        }}
+                                        renderItem={(cert, index) => (
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <InputField label="Certificate Name" value={cert.name} onChange={(e) => handleArrayChange('certificates', index, 'name', e.target.value)} />
+                                                <InputField label="Issuer" value={cert.issuer} onChange={(e) => handleArrayChange('certificates', index, 'issuer', e.target.value)} />
+                                                <InputField label="Date" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} />
                                             </div>
-                                        ))}
-                                        <button onClick={() => addItem('certificates', { name: '', issuer: '', date: '' })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                            <Plus size={16} /> Add Certificate
-                                        </button>
-                                    </FormSection>
+                                        )}
+                                    />
                                 </div>
 
-                                {/* Extracurricular */}
-                                <div ref={sectionRefs.extracurricular} className="scroll-mt-4">
-                                    <FormSection title="Extracurricular" icon={null} isOpen={true}>
-                                        {extracurricular.map((extra, index) => (
-                                            <div key={index} className="mb-6 p-4 bg-gray-50 dark:bg-input-bg rounded-lg border border-border relative group hover:border-primary/30 transition-all">
-                                                <button onClick={() => removeItem('extracurricular', index)} className="absolute top-2 right-2 text-subtext hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/10 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                    <InputField label="Role" value={extra.role} onChange={(e) => handleArrayChange('extracurricular', index, 'role', e.target.value)} />
-                                                    <InputField label="Organization" value={extra.organization} onChange={(e) => handleArrayChange('extracurricular', index, 'organization', e.target.value)} />
-                                                    <InputField label="Date" value={extra.date} onChange={(e) => handleArrayChange('extracurricular', index, 'date', e.target.value)} />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-subtext mb-1.5">Description</label>
-                                                    {(extra.description || []).map((desc, i) => (
-                                                        <div key={i} className="flex gap-2 mb-2">
-                                                            <input
-                                                                type="text"
-                                                                className="input-base text-sm"
-                                                                value={desc}
-                                                                onChange={(e) => {
-                                                                    const newExtra = [...extracurricular];
-                                                                    newExtra[index].description[i] = e.target.value;
-                                                                    updateResumeData('extracurricular', newExtra);
-                                                                }}
-                                                                placeholder="• Description..."
-                                                            />
-                                                            <button onClick={() => {
-                                                                const newExtra = [...extracurricular];
-                                                                newExtra[index].description = newExtra[index].description.filter((_, dIndex) => dIndex !== i);
-                                                                updateResumeData('extracurricular', newExtra);
-                                                            }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    <button onClick={() => {
-                                                        const newExtra = [...extracurricular];
-                                                        if (!newExtra[index].description) newExtra[index].description = [];
-                                                        newExtra[index].description.push('');
-                                                        updateResumeData('extracurricular', newExtra);
-                                                    }} className="text-xs text-primary font-medium hover:text-primary-light flex items-center gap-1 mt-2">
-                                                        <Plus size={12} /> Add Bullet Point
-                                                    </button>
-                                                </div>
+                                {/* Achievements */}
+                                <div ref={sectionRefs.achievements}>
+                                    <FormSection 
+                                        title="Achievements" 
+                                        items={achievements}
+                                        onAdd={(action, id) => {
+                                            if (action === 'add') addItem('achievements', { title: '', description: '' });
+                                            else removeItem('achievements', achievements.findIndex(a => a.id === id));
+                                        }}
+                                        renderItem={(ach, index) => (
+                                            <div className="space-y-4">
+                                                <InputField label="Achievement Title" value={ach.title} onChange={(e) => handleArrayChange('achievements', index, 'title', e.target.value)} placeholder="Achievement Title" />
+                                                <InputField label="Description" value={ach.description} onChange={(e) => handleArrayChange('achievements', index, 'description', e.target.value)} placeholder="Brief description of achievement..." />
                                             </div>
-                                        ))}
-                                        <button onClick={() => addItem('extracurricular', { role: '', organization: '', date: '', description: [''] })} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                            <Plus size={16} /> Add Activity
-                                        </button>
-                                    </FormSection>
-                                </div>
-
-                                {/* Languages */}
-                                <div ref={sectionRefs.languages} className="scroll-mt-4">
-                                    <FormSection title="Languages" icon={null} isOpen={true}>
-                                        <div className="space-y-3">
-                                            {languages.map((lang, index) => (
-                                                <div key={index} className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        className="input-base"
-                                                        value={lang}
-                                                        onChange={(e) => {
-                                                            const newLangs = [...languages];
-                                                            newLangs[index] = e.target.value;
-                                                            updateResumeData('languages', newLangs);
-                                                        }}
-                                                        placeholder="e.g. English (Native)"
-                                                    />
-                                                    <button onClick={() => {
-                                                        const newLangs = languages.filter((_, i) => i !== index);
-                                                        updateResumeData('languages', newLangs);
-                                                    }} className="text-subtext hover:text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button onClick={() => updateResumeData('languages', [...languages, ''])} className="btn-secondary w-full py-2 text-sm bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary">
-                                                <Plus size={16} /> Add Language
-                                            </button>
-                                        </div>
-                                    </FormSection>
+                                        )}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right: Live Preview */}
-                        <div className={`${showAnalysis ? 'lg:col-span-5' : 'lg:col-span-7'} flex flex-col h-full min-h-0 transition-all duration-300`}>
-                            <div className="mb-4 flex-shrink-0 flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-xl font-bold text-heading">Live Preview</h2>
-                                    <p className="text-xs text-subtext mt-0.5">Real-time resume preview</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    {/* Template Selector */}
-                                    <div className="inline-flex items-center rounded-lg bg-gray-100 dark:bg-surface-highlight p-0.5 text-xs border border-border">
-                                        <button
+                        {/* Right: Preview */}
+                        <div className="flex-1 min-w-0 flex flex-col h-full min-h-0 bg-background">
+                            <div className="p-4 border-b border-border flex items-center justify-between bg-background">
+                                <div className="flex items-center gap-4">
+                                    <h2 className="text-xs font-bold text-heading uppercase tracking-widest">Preview</h2>
+                                    <div className="flex items-center gap-1 bg-surface-highlight border border-border p-0.5 rounded">
+                                        <button 
                                             onClick={() => setTemplate('ats')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'ats' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
-                                                }`}
+                                            className={`px-3 py-1 text-[10px] font-bold uppercase tracking-tight rounded ${template === 'ats' ? 'bg-background shadow-sm text-primary' : 'text-subtext hover:text-heading'}`}
                                         >
                                             ATS
                                         </button>
-                                        <button
+                                        <button 
                                             onClick={() => setTemplate('classic')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'classic' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
-                                                }`}
+                                            className={`px-3 py-1 text-[10px] font-bold uppercase tracking-tight rounded ${template === 'classic' ? 'bg-background shadow-sm text-primary' : 'text-subtext hover:text-heading'}`}
                                         >
                                             Classic
                                         </button>
-                                        <button
-                                            onClick={() => setTemplate('accent')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'accent' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
-                                                }`}
-                                        >
-                                            Accent
-                                        </button>
-                                        <button
-                                            onClick={() => setTemplate('boxed')}
-                                            className={`px-3 py-1.5 rounded-md font-medium transition-all ${template === 'boxed' ? 'bg-white dark:bg-[#0F0F11] text-heading shadow-sm border border-border' : 'text-subtext hover:text-heading'
-                                                }`}
-                                        >
-                                            Boxed
-                                        </button>
                                     </div>
-                                    {/* Zoom Controls */}
-                                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-surface-highlight rounded-lg p-0.5 border border-border">
-                                        <button
-                                            onClick={handleZoomOut}
-                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
-                                            disabled={zoom <= 50}
-                                        >
-                                            <ZoomOut size={16} />
-                                        </button>
-                                        <span className="text-xs font-medium text-heading min-w-[2.5rem] text-center">{zoom}%</span>
-                                        <button
-                                            onClick={handleZoomIn}
-                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
-                                            disabled={zoom >= 150}
-                                        >
-                                            <ZoomIn size={16} />
-                                        </button>
-                                        <div className="w-px h-4 bg-border mx-0.5"></div>
-                                        <button
-                                            onClick={handleResetZoom}
-                                            className="p-1.5 hover:bg-white dark:hover:bg-[#0F0F11] rounded-md transition-all text-subtext hover:text-heading"
-                                            title="Reset to 100%"
-                                        >
-                                            <RotateCcw size={16} />
-                                        </button>
-                                    </div>
-
-                                    {/* Analysis Toggle */}
-                                    <button
-                                        onClick={() => setShowAnalysis(!showAnalysis)}
-                                        className={`p-1.5 rounded-lg transition-all border border-border flex items-center gap-2 ${showAnalysis ? 'bg-primary/10 text-primary border-primary/30' : 'text-subtext hover:text-heading'}`}
-                                        title="Analyze ATS Score"
-                                    >
-                                        <ShieldCheck size={16} />
-                                        <span className="text-xs font-semibold hidden xl:inline">Analysis</span>
-                                    </button>
-
-                                    {/* Export Buttons */}
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
                                     <button
                                         onClick={handleQuickExport}
                                         disabled={exporting}
-                                        className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-primary to-primary-light rounded-lg hover:opacity-90 transition-all shadow-md shadow-primary/20 disabled:opacity-50"
-                                        title="Quick download as PDF"
+                                        className="btn-primary text-xs px-4 py-1.5"
                                     >
-                                        {exporting ? <Loader2 className="animate-spin" size={16} /> : <Download size={16} />}
-                                        <span className="hidden xl:inline">{exporting ? 'Exporting...' : 'Export'}</span>
+                                        {exporting ? <Loader2 className="animate-spin" size={14} /> : <Download size={14} />}
+                                        <span>Download PDF</span>
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            setExportFilename(personalInfo?.fullName?.replace(/\s+/g, '_') || 'my-resume');
-                                            setShowExportModal(true);
-                                        }}
-                                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-all text-subtext hover:text-heading border border-border"
-                                        title="Export options"
+                                        onClick={() => setShowExportModal(true)}
+                                        className="btn-secondary text-xs px-2.5 py-1.5"
                                     >
-                                        <FileText size={16} />
+                                        <FileText size={14} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar flex justify-center items-start pt-6">
+                            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar flex justify-center items-start py-12 bg-surface">
                                 <div
-                                    className="origin-top transition-transform duration-200 shadow-2xl"
+                                    className="origin-top transition-transform duration-300 shadow-md"
                                     style={{ transform: `scale(${zoom / 100})` }}
                                 >
                                     <ResumePreview ref={resumeRef} template={template} />
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Right: Analysis Panel */}
-                        {showAnalysis && (
-                            <div className="lg:col-span-3 flex flex-col h-full min-h-0 animate-in slide-in-from-right-10 duration-300">
-                                <ATSWarningsPanel resumeData={resumeData} template={template} />
+                            {/* Zoom Controls Overlay */}
+                            <div className="absolute bottom-6 right-6 flex items-center gap-1 bg-background border border-border p-1 rounded-md shadow-md">
+                                <button onClick={handleZoomOut} className="p-1.5 hover:bg-surface-highlight rounded text-subtext hover:text-heading">
+                                    <ZoomOut size={14} />
+                                </button>
+                                <span className="text-[10px] font-bold text-heading w-8 text-center">{zoom}%</span>
+                                <button onClick={handleZoomIn} className="p-1.5 hover:bg-surface-highlight rounded text-subtext hover:text-heading">
+                                    <ZoomIn size={14} />
+                                </button>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>
-            {/* Export Modal */}
             {showExportModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] animate-fade-in">
-                    <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-md shadow-2xl mx-4">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-[100] animate-fade-in">
+                    <div className="bg-background border border-border rounded-lg p-6 w-full max-w-sm shadow-md mx-4">
                         {exportSuccess ? (
-                            <div className="text-center py-6">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 mb-4">
-                                    <CheckCircle2 className="text-green-500" size={32} />
+                            <div className="text-center py-4">
+                                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 mb-4 border border-green-100">
+                                    <CheckCircle2 size={24} />
                                 </div>
-                                <h3 className="text-xl font-bold text-heading mb-2">PDF Downloaded!</h3>
-                                <p className="text-subtext text-sm">Your resume has been saved successfully.</p>
+                                <h3 className="text-sm font-bold text-heading mb-1 uppercase tracking-tight">Export Complete</h3>
+                                <p className="text-subtext text-xs">Your file has been saved to your downloads.</p>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between mb-6">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-heading">Export as PDF</h3>
-                                        <p className="text-subtext text-xs mt-1">Customize your download</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowExportModal(false)}
-                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-subtext hover:text-heading transition-all"
-                                    >
-                                        <X size={20} />
+                                    <h3 className="text-xs font-bold text-heading uppercase tracking-widest">Export Options</h3>
+                                    <button onClick={() => setShowExportModal(false)} className="text-subtext hover:text-heading">
+                                        <X size={16} />
                                     </button>
                                 </div>
 
-                                <div className="space-y-5">
-                                    {/* Filename */}
+                                <div className="space-y-6">
                                     <div>
-                                        <label className="block text-xs font-medium text-subtext mb-2">File Name</label>
+                                        <label className="text-[10px] font-bold text-subtext uppercase tracking-tight block mb-2">Filename</label>
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="text"
                                                 className="input-base"
                                                 value={exportFilename}
                                                 onChange={(e) => setExportFilename(e.target.value)}
-                                                placeholder="my-resume"
                                             />
-                                            <span className="text-subtext text-sm font-medium">.pdf</span>
+                                            <span className="text-xs font-medium text-subtext">.pdf</span>
                                         </div>
                                     </div>
 
-                                    {/* Quality */}
                                     <div>
-                                        <label className="block text-xs font-medium text-subtext mb-2">Quality</label>
+                                        <label className="text-[10px] font-bold text-subtext uppercase tracking-tight block mb-2">Export Quality</label>
                                         <div className="grid grid-cols-3 gap-2">
                                             {[
-                                                { value: 1, label: 'Fast', desc: 'Smaller file' },
-                                                { value: 2, label: 'High', desc: 'Recommended' },
-                                                { value: 3, label: 'Ultra', desc: 'Best quality' },
+                                                { value: 1, label: 'Fast' },
+                                                { value: 2, label: 'High' },
+                                                { value: 3, label: 'Ultra' },
                                             ].map((q) => (
                                                 <button
                                                     key={q.value}
                                                     onClick={() => setExportQuality(q.value)}
-                                                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                                    className={`py-2 text-xs font-bold rounded border transition-all ${
                                                         exportQuality === q.value
                                                             ? 'border-primary bg-primary/5 text-primary'
-                                                            : 'border-border hover:border-primary/30 text-text'
+                                                            : 'border-border hover:bg-surface-highlight text-subtext'
                                                     }`}
                                                 >
-                                                    <div className="font-semibold text-sm">{q.label}</div>
-                                                    <div className="text-[10px] text-subtext mt-0.5">{q.desc}</div>
+                                                    {q.label}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
-                                    {/* Template Info */}
-                                    <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-xl">
-                                        <FileText size={18} className="text-primary flex-shrink-0" />
-                                        <div className="text-xs">
-                                            <span className="text-heading font-medium">Template: </span>
-                                            <span className="text-subtext capitalize">{template}</span>
-                                            <span className="text-subtext"> • A4 format • Light mode</span>
-                                        </div>
+                                    <div className="p-3 bg-surface border border-border rounded flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-subtext uppercase">Active Template</span>
+                                        <span className="text-[10px] font-bold text-heading uppercase tracking-widest">{template}</span>
                                     </div>
 
-                                    {/* Export Button */}
                                     <button
                                         onClick={handleExportPDF}
                                         disabled={exporting}
-                                        className="w-full py-3 px-4 bg-gradient-to-r from-primary to-primary-light text-white font-semibold rounded-xl hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
+                                        className="btn-primary w-full py-2.5"
                                     >
                                         {exporting ? (
-                                            <>
-                                                <Loader2 className="animate-spin" size={20} />
-                                                Generating PDF...
-                                            </>
+                                            <Loader2 className="animate-spin" size={16} />
                                         ) : (
                                             <>
-                                                <Download size={18} />
-                                                Download PDF
+                                                <Download size={16} />
+                                                <span>Download PDF</span>
                                             </>
                                         )}
                                     </button>

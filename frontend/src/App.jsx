@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ResumeProvider } from './context/ResumeContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider, AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
 import Editor from './pages/Editor';
 import NotFound from './pages/NotFound';

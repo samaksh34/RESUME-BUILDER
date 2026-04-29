@@ -80,6 +80,47 @@ const categories = [
     'Executive / Senior',
 ];
 
+const TemplateCard = ({ tpl }) => (
+    <div className="group border border-border bg-surface hover:border-primary transition-all duration-200 flex flex-col overflow-hidden">
+        {/* Schematic Mockup */}
+        <div className="h-48 bg-surface-highlight border-b border-border p-4 overflow-hidden">
+            <div className="w-full h-full bg-background border border-border shadow-sm p-3 space-y-2 group-hover:scale-[1.02] transition-transform duration-500">
+                <div className="h-2 w-1/3 bg-heading/10 rounded-full" />
+                <div className="h-1.5 w-full bg-subtext/5 rounded-full" />
+                <div className="h-1.5 w-full bg-subtext/5 rounded-full" />
+                <div className="pt-2 flex gap-1">
+                    <div className="h-1 w-1/4 bg-primary/20 rounded-full" />
+                    <div className="h-1 w-1/4 bg-primary/20 rounded-full" />
+                </div>
+                <div className="pt-2 space-y-1.5">
+                    <div className="h-1 w-full bg-subtext/5 rounded-full" />
+                    <div className="h-1 w-full bg-subtext/5 rounded-full" />
+                    <div className="h-1 w-2/3 bg-subtext/5 rounded-full" />
+                </div>
+            </div>
+        </div>
+        
+        <div className="p-4 flex-1 flex flex-col">
+            <div className="flex items-start justify-between mb-1">
+                <h3 className="text-xs font-bold text-heading uppercase tracking-widest">{tpl.name}</h3>
+                <span className="text-[10px] font-bold text-subtext uppercase tracking-tighter">{tpl.category}</span>
+            </div>
+            <p className="text-[10px] text-subtext/60 font-medium mb-4">{tpl.description}</p>
+            
+            <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
+                <div className="flex gap-1">
+                    {tpl.badges.slice(0, 2).map(b => (
+                        <div key={b} className="w-1 h-1 rounded-full bg-primary/40" title={b} />
+                    ))}
+                </div>
+                <Link to="/editor" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light inline-flex items-center gap-1">
+                    Select <ArrowRight size={10} />
+                </Link>
+            </div>
+        </div>
+    </div>
+);
+
 const Templates = () => {
     const [activeCategory, setActiveCategory] = useState('All Templates');
 
@@ -89,150 +130,81 @@ const Templates = () => {
     }, [activeCategory]);
 
     return (
-        <div className="min-h-screen bg-background font-sans selection:bg-primary/30 dark:selection:text-white text-text">
+        <div className="min-h-screen bg-background font-sans text-text">
             <Navbar />
 
-            <main className="max-w-screen-xl mx-auto px-4 pt-14 pb-16 space-y-12">
-                <section className="relative overflow-hidden rounded-4xl bg-white dark:bg-[rgba(255,255,255,0.02)] backdrop-blur-xl border border-border shadow-2xl px-6 md:px-12 py-14">
-                    <div className="relative space-y-6">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm w-fit border border-primary/20">
-                            <Sparkles size={16} />
-                            <span>Premium Gallery</span>
-                        </div>
-                        <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-heading drop-shadow-sm">
-                                Browse Premium Resume Templates
-                            </h1>
-                            <p className="text-lg sm:text-xl text-subtext max-w-3xl font-light">
-                                Pick a design, customize instantly, and export in minutes. Minimal, ATS-friendly layouts with clean typography and balanced spacing.
-                            </p>
-                        </div>
-                        <div className="grid sm:grid-cols-3 gap-3 rounded-2xl bg-surface-highlight border border-border shadow-inner p-4 text-sm text-text">
-                            <div className="flex items-center gap-2">
-                                <ShieldCheck size={18} className="text-primary" />
-                                20+ ATS-ready designs
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Download size={18} className="text-secondary" />
-                                PDF / DOCX export
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Wand2 size={18} className="text-secondary" />
-                                AI-optimized formatting
-                            </div>
-                        </div>
+            <main className="max-w-[1200px] mx-auto px-6 py-16">
+                <header className="mb-16">
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="w-6 h-[1px] bg-primary" />
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Gallery</span>
                     </div>
-                </section>
+                    <h1 className="text-4xl font-bold text-heading tracking-tight mb-4">Professional Templates.</h1>
+                    <p className="text-sm text-subtext max-w-xl leading-relaxed">
+                        Optimized for ATS systems and human readability. 
+                        Each template is surgically crafted to maximize information density 
+                        while maintaining professional restraint.
+                    </p>
+                </header>
 
-                <section className="space-y-6">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary">Filters</p>
-                            <h2 className="text-2xl font-bold text-heading">Find the perfect template</h2>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3 overflow-x-auto custom-scrollbar pb-2">
-                        {categories.map((cat) => {
-                            const isActive = activeCategory === cat;
-                            return (
-                                <button
-                                    key={cat}
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${isActive
-                                        ? 'bg-primary text-white border-primary'
-                                        : 'bg-surface border-border text-subtext hover:border-primary/30 hover:text-heading hover:bg-surface-highlight'
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                <section className="space-y-6">
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {filteredTemplates.map((tpl) => (
-                            <div
-                                key={tpl.id}
-                                className="group relative overflow-hidden rounded-3xl bg-surface-highlight border border-border shadow-lg hover:-translate-y-1 transition-all duration-300 hover:shadow-glow hover:border-primary/20"
-                            >
-                                <div className="relative h-52 bg-gray-100 dark:bg-[#131315] overflow-hidden">
-                                    <img
-                                        src={tpl.image}
-                                        alt={tpl.name}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                        {tpl.badges.map((badge) => (
-                                            <span key={badge} className="text-[10px] px-2 py-1 rounded-full bg-background/90 text-text border border-[rgba(255,255,255,0.1)] backdrop-blur-sm">
-                                                {badge}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="p-4 space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm font-semibold text-heading">{tpl.name}</p>
-                                            <p className="text-xs text-subtext">{tpl.description}</p>
-                                        </div>
-                                        <span className="text-[10px] px-2 py-1 rounded-full bg-surface border border-border text-subtext">{tpl.category}</span>
-                                    </div>
-                                    <Link
-                                        to="/editor"
-                                        className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-light transition-colors"
-                                    >
-                                        Use Template
-                                        <ArrowRight size={16} />
-                                    </Link>
+                <div className="flex flex-col md:flex-row gap-12">
+                    {/* Sidebar Filters */}
+                    <aside className="w-full md:w-48 flex-shrink-0">
+                        <div className="sticky top-24 space-y-8">
+                            <div>
+                                <h3 className="text-[10px] font-bold text-heading uppercase tracking-widest mb-6">Categories</h3>
+                                <div className="space-y-2">
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setActiveCategory(cat)}
+                                            className={`block w-full text-left text-[11px] font-bold uppercase tracking-widest transition-colors ${
+                                                activeCategory === cat ? 'text-primary' : 'text-subtext hover:text-heading'
+                                            }`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </section>
 
-                <section className="rounded-3xl bg-white dark:bg-[rgba(255,255,255,0.02)] border border-border shadow-xl p-8 space-y-6">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.25rem] text-primary">Need help?</p>
-                            <h3 className="text-2xl font-bold text-heading">Not sure which template to choose?</h3>
-                            <p className="text-sm text-subtext">Pick a recommended style and start editing in one click.</p>
-                        </div>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        {[
-                            { title: 'Best for Freshers', name: 'Student Launch', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-emerald-500/20', text: 'text-emerald-400' },
-                            { title: 'Best for Corporate Jobs', name: 'Corporate Blue', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-blue-500/20', text: 'text-blue-400' },
-                            { title: 'Most Popular', name: 'Modern ATS', bg: 'bg-gray-50 dark:bg-[#1A1B20]', border: 'border-indigo-500/20', text: 'text-indigo-400' },
-                        ].map((rec) => (
-                            <div key={rec.title} className={`p-5 rounded-2xl border ${rec.border} ${rec.bg} shadow-sm flex flex-col gap-3 hover:bg-gray-100 dark:hover:bg-[rgba(255,255,255,0.03)] transition-colors`}>
-                                <div className={`text-xs font-semibold uppercase tracking-[0.1rem] ${rec.text}`}>{rec.title}</div>
-                                <div className="text-lg font-semibold text-heading">{rec.name}</div>
-                                <Link to="/editor" className="text-sm font-semibold text-primary hover:text-primary-light inline-flex items-center gap-1">
-                                    Use Template <ArrowRight size={14} />
-                                </Link>
+                            <div className="pt-8 border-t border-border">
+                                <h3 className="text-[10px] font-bold text-heading uppercase tracking-widest mb-4">Architecture</h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-[10px] text-subtext font-medium">
+                                        <ShieldCheck size={12} /> ATS Compatible
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-subtext font-medium">
+                                        <Download size={12} /> PDF Standard
+                                    </div>
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-primary-dark to-[#4f46e5] text-white px-8 py-10 shadow-glow">
-                    <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_left,_#ffffff33,_transparent_45%),_radial-gradient(circle_at_bottom_right,_#ffffff22,_transparent_45%)]" />
-                    <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6">
-                        <div className="space-y-2">
-                            <h3 className="text-3xl font-bold">Ready to build your perfect resume?</h3>
-                            <p className="text-sm text-white/80">Choose a template, start editing, and export a polished PDF in minutes.</p>
                         </div>
-                        <Link
-                            to="/editor"
-                            className="btn-secondary bg-white text-primary border-white text-base px-6 py-3 font-semibold shadow-lg hover:bg-gray-100 hover:text-primary-dark"
-                        >
-                            Start Editing →
-                        </Link>
+                    </aside>
+
+                    {/* Template Grid */}
+                    <div className="flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border">
+                            {filteredTemplates.map((tpl) => (
+                                <TemplateCard key={tpl.id} tpl={tpl} />
+                            ))}
+                        </div>
+
+                        {/* Empty State */}
+                        {filteredTemplates.length === 0 && (
+                            <div className="py-20 text-center border border-dashed border-border">
+                                <p className="text-xs font-bold text-subtext uppercase tracking-widest">No templates found in this category.</p>
+                            </div>
+                        )}
                     </div>
-                </section>
+                </div>
             </main>
+
+            <footer className="border-t border-border py-12 mt-20">
+                <div className="max-w-[1200px] mx-auto px-6 text-center">
+                    <p className="text-[10px] font-bold text-subtext uppercase tracking-[0.4em]">Optimized for Production</p>
+                </div>
+            </footer>
         </div>
     );
 };

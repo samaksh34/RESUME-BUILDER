@@ -29,117 +29,80 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="h-16 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-            <div className="max-w-8xl mx-auto px-6 h-full flex items-center justify-between">
+        <nav className="h-14 border-b border-border bg-background sticky top-0 z-50">
+            <div className="max-w-[1400px] mx-auto px-4 h-full flex items-center justify-between">
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center text-white shadow-glow group-hover:shadow-glow-cyan transition-all duration-300">
-                        <FileText size={22} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h1 className="font-bold text-lg leading-tight text-heading">ResumeCraft</h1>
-                        <p className="text-xs text-subtext group-hover:text-primary transition-colors">Build. Export. Land.</p>
-                    </div>
+                <Link to="/" className="flex items-center gap-2 group">
+                    <FileText size={20} className="text-primary" strokeWidth={2.5} />
+                    <h1 className="font-bold text-sm tracking-tight text-heading uppercase">ResumeCraft</h1>
                 </Link>
 
                 {/* Actions */}
-                <div className="flex items-center gap-3 ml-auto">
-                    {/* Theme Toggle */}
-                    <button
-                        onClick={toggleTheme}
-                        className="flex items-center justify-center w-10 h-10 text-subtext hover:text-heading hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-all"
-                        aria-label="Toggle theme"
-                    >
-                        {theme === 'light' ? (
-                            <Moon size={20} className="transition-transform duration-200" />
-                        ) : (
-                            <Sun size={20} className="transition-transform duration-200" />
-                        )}
-                    </button>
-
-                    {/* AI Optimize */}
-                    <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-all">
-                        <Sparkles size={16} />
-                        <span>AI Optimize</span>
-                    </button>
-
-                    {/* Export */}
-                    <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-subtext hover:text-heading hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-all">
-                        <Download size={16} />
-                        <span>Export</span>
-                    </button>
-
+                <div className="flex items-center gap-2">
                     {isAuthenticated ? (
-                        /* User Dropdown */
-                        <div className="relative" ref={dropdownRef}>
-                            <button
-                                onClick={() => setShowDropdown(!showDropdown)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
-                            >
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-sm font-bold">
-                                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                                </div>
-                                <span className="hidden md:block text-sm font-medium text-heading max-w-[100px] truncate">
-                                    {user?.name}
-                                </span>
-                                <ChevronDown
-                                    size={14}
-                                    className={`text-subtext transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`}
-                                />
-                            </button>
+                        <div className="flex items-center gap-4">
+                            <Link to="/editor" className="text-xs font-semibold text-subtext hover:text-heading transition-colors uppercase tracking-tight">Editor</Link>
+                            <Link to="/templates" className="text-xs font-semibold text-subtext hover:text-heading transition-colors uppercase tracking-tight">Templates</Link>
+                            
+                            <div className="w-px h-4 bg-border"></div>
+                            
+                            {/* User Dropdown */}
+                            <div className="relative" ref={dropdownRef}>
+                                <button
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-surface-highlight transition-all"
+                                >
+                                    <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-white text-[10px] font-bold">
+                                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                    </div>
+                                    <ChevronDown
+                                        size={12}
+                                        className={`text-subtext transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                                    />
+                                </button>
 
-                            {showDropdown && (
-                                <div className="absolute right-0 mt-2 w-56 bg-surface border border-border rounded-xl shadow-2xl shadow-black/20 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                    <div className="px-4 py-3 border-b border-border">
-                                        <p className="text-sm font-semibold text-heading truncate">{user?.name}</p>
-                                        <p className="text-xs text-subtext truncate">{user?.email}</p>
-                                    </div>
-                                    <div className="py-1">
-                                        <button
-                                            onClick={() => { setShowDropdown(false); navigate('/editor'); }}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-                                        >
-                                            <FileText size={16} className="text-subtext" />
-                                            My Resumes
-                                        </button>
-                                        <button
-                                            onClick={() => { setShowDropdown(false); }}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-                                        >
-                                            <User size={16} className="text-subtext" />
-                                            Profile
-                                        </button>
-                                    </div>
-                                    <div className="border-t border-border py-1">
+                                {showDropdown && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-md shadow-md py-1 z-50">
+                                        <div className="px-3 py-2 border-b border-border">
+                                            <p className="text-xs font-bold text-heading truncate">{user?.name}</p>
+                                            <p className="text-[10px] text-subtext truncate">{user?.email}</p>
+                                        </div>
                                         <button
                                             onClick={handleLogout}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-red-50 transition-colors text-left"
                                         >
-                                            <LogOut size={16} />
+                                            <LogOut size={14} />
                                             Sign Out
                                         </button>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     ) : (
-                        /* Login / Signup Buttons */
                         <div className="flex items-center gap-2">
                             <Link
                                 to="/login"
-                                className="px-4 py-2.5 text-sm font-medium text-heading hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all"
+                                className="px-3 py-1.5 text-xs font-bold text-subtext hover:text-heading transition-all"
                             >
                                 Sign In
                             </Link>
                             <Link
                                 to="/register"
-                                className="btn-cta text-white px-5 py-2.5 text-sm font-semibold"
+                                className="btn-primary px-4 py-1.5 text-xs font-bold"
                             >
-                                <FileText size={16} />
-                                <span>Get Started</span>
+                                Get Started
                             </Link>
                         </div>
                     )}
+                    
+                    <div className="w-px h-4 bg-border mx-2"></div>
+                    
+                    <button
+                        onClick={toggleTheme}
+                        className="p-1.5 text-subtext hover:text-heading hover:bg-surface-highlight rounded-md transition-all"
+                    >
+                        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+                    </button>
                 </div>
             </div>
         </nav>

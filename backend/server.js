@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import resumeRoutes from './routes/resumeRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,8 +15,18 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // ── Global Middleware ───────────────────────────────────────────────
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : ['http://localhost:5173'];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     credentials: true, // Allow cookies
 }));
 
@@ -26,7 +37,7 @@ app.use(cookieParser());
 // ── Rate Limiting (auth routes) ─────────────────────────────────────
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20, // 20 requests per window per IP
+    max: 100, // Increased to 100 requests for smoother development
     message: {
         success: false,
         message: 'Too many requests — please try again after 15 minutes',
@@ -45,6 +56,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/resumes', resumeRoutes);
 
 // ── 404 Handler ─────────────────────────────────────────────────────
 app.use((req, res) => {
@@ -65,4 +77,5 @@ app.listen(PORT, () => {
     console.log(`║  📦 Environment: ${(process.env.NODE_ENV || 'development').padEnd(27)}║`);
     console.log('╚══════════════════════════════════════════════╝');
     console.log('');
+
 });

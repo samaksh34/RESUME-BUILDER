@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ResumeContext } from '../context/ResumeContext';
+import { ResumeContext } from '../context/ResumeContextObject';
 import sampleData from '../data/sampleResume.json';
 
 export const useResumeData = () => {
