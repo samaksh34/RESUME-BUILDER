@@ -320,12 +320,13 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
         <div
             ref={ref}
             id="resume-preview"
-            className="bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] text-black relative overflow-hidden mx-auto"
+            className="bg-white shadow-[0_0_40px_rgba(0,0,0,0.1)] text-black relative overflow-visible mx-auto"
             style={{ 
                 width: '210mm', 
                 minHeight: '297mm', 
                 padding: '0.5in',
-                fontFamily: '"Times New Roman", Times, serif'
+                fontFamily: '"Times New Roman", Times, serif',
+                WebkitFontSmoothing: 'antialiased'
             }}
         >
             <div className="flex flex-col items-center">
@@ -335,17 +336,17 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                 </h1>
                 
                 {/* Contacts - LaTeX \small is ~9pt for 10pt base, but user wants 10pt mostly */}
-                <div className="text-[10pt] text-black mb-4 w-full text-center">
+                <div className="text-[10pt] text-black mb-4 w-full text-center leading-none">
                     <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1.5">
-                            <Phone size={11} style={{ verticalAlign: 'middle' }} />
+                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
+                            <Phone size={11} className="absolute top-0 left-0" />
                         </span>
                         <span className="inline-block align-middle">{personalInfo?.phone || '1234567890'}</span>
                     </div>
                     
                     <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1.5">
-                            <Mail size={11} style={{ verticalAlign: 'middle' }} />
+                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
+                            <Mail size={11} className="absolute top-0 left-0" />
                         </span>
                         <a href={`mailto:${personalInfo?.email || 'email@example.com'}`} className="inline-block align-middle text-black no-underline">
                             {personalInfo?.email || 'email@example.com'}
@@ -353,8 +354,8 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                     </div>
                     
                     <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1.5">
-                            <Linkedin size={11} style={{ verticalAlign: 'middle' }} />
+                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
+                            <Linkedin size={11} className="absolute top-0 left-0" />
                         </span>
                         <a 
                             href={personalInfo?.linkedin ? (personalInfo.linkedin.startsWith('http') ? personalInfo.linkedin : `https://${personalInfo.linkedin}`) : '#'}
@@ -365,8 +366,8 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                     </div>
                     
                     <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1.5">
-                            <Github size={11} style={{ verticalAlign: 'middle' }} />
+                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
+                            <Github size={11} className="absolute top-0 left-0" />
                         </span>
                         <a 
                             href={personalInfo?.github ? (personalInfo.github.startsWith('http') ? personalInfo.github : `https://${personalInfo.github}`) : '#'}
@@ -381,11 +382,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
             <div className="space-y-2">
                 {/* Education */}
                 {education && education.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Education</h2>
-                        <div className="h-[2pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="border-t border-black w-full"></div>
-                        <div className="h-[3pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-1">
                             {education.map((edu) => (
                                 <div key={edu.id} className="relative">
@@ -404,11 +405,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
                 {/* Technical Skills */}
                 {technicalSkills && technicalSkills.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Technical Skills</h2>
-                        <div className="h-[2pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="border-t border-black w-full"></div>
-                        <div className="h-[3pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-1 text-[10pt]">
                             {technicalSkills.map((skill, idx) => (
                                 <div key={idx} className="leading-tight">
@@ -421,11 +422,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
                 {/* Projects */}
                 {projects && projects.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Projects</h2>
-                        <div className="h-[2pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="border-t border-black w-full"></div>
-                        <div className="h-[3pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-2">
                             {projects.map((proj) => (
                                 <div key={proj.id} className="relative">
@@ -451,11 +452,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
                 {/* Experience section */}
                 {internships && internships.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Experience</h2>
-                        <div className="h-[2pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="border-t border-black w-full"></div>
-                        <div className="h-[3pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-2">
                             {internships.map((intern) => (
                                 <div key={intern.id} className="relative">
@@ -481,11 +482,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
                 {/* Certificates */}
                 {certificates && certificates.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Certificates</h2>
-                        <div className="h-[2pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="border-t border-black w-full"></div>
-                        <div className="h-[3pt]"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-1">
                             {certificates.map((cert) => (
                                 <div key={cert.id} className="flex justify-between items-baseline text-[10pt]">
@@ -502,9 +503,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
                 {/* Achievements */}
                 {achievements && achievements.length > 0 && (
-                    <section className="mt-3">
+                    <section className="mt-3 break-inside-avoid">
                         <h2 className="text-[10pt] font-bold uppercase tracking-tight mb-0.5">Achievements</h2>
-                        <div className="border-t border-black mb-1.5 w-full"></div>
+                        <div className="h-[4pt]"></div>
+                        <div className="border-t border-black w-full"></div>
+                        <div className="h-[4pt]"></div>
                         <div className="space-y-1">
                             {achievements.map((ach, idx) => (
                                 <div key={idx} className="text-[10pt]">

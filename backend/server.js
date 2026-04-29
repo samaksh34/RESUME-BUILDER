@@ -70,12 +70,15 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ── Start Server ────────────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log('');
-    console.log('╔══════════════════════════════════════════════╗');
-    console.log(`║  🚀 Server running on http://localhost:${PORT}    ║`);
-    console.log(`║  📦 Environment: ${(process.env.NODE_ENV || 'development').padEnd(27)}║`);
-    console.log('╚══════════════════════════════════════════════╝');
-    console.log('');
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log('');
+        console.log('╔══════════════════════════════════════════════╗');
+        console.log(`║  🚀 Server running on http://localhost:${PORT}    ║`);
+        console.log(`║  📦 Environment: ${(process.env.NODE_ENV || 'development').padEnd(27)}║`);
+        console.log('╚══════════════════════════════════════════════╝');
+        console.log('');
+    });
+}
 
-});
+export default app;
