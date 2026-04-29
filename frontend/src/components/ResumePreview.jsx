@@ -336,46 +336,42 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                 </h1>
                 
                 {/* Contacts - LaTeX \small is ~9pt for 10pt base, but user wants 10pt mostly */}
-                <div className="text-[10pt] text-black mb-4 w-full text-center leading-none">
-                    <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
-                            <Phone size={11} className="absolute top-0 left-0" />
-                        </span>
-                        <span className="inline-block align-middle">{personalInfo?.phone || '1234567890'}</span>
+                <div className="flex flex-wrap justify-center text-[10pt] text-black mb-4 w-full leading-tight">
+                    <div className="flex items-center mx-3 whitespace-nowrap">
+                        <Phone size={11} className="mr-1.5" />
+                        <span>{personalInfo?.phone || '1234567890'}</span>
                     </div>
                     
-                    <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
-                            <Mail size={11} className="absolute top-0 left-0" />
-                        </span>
-                        <a href={`mailto:${personalInfo?.email || 'email@example.com'}`} className="inline-block align-middle text-black no-underline">
+                    <div className="flex items-center mx-3 whitespace-nowrap">
+                        <Mail size={11} className="mr-1.5" />
+                        <a href={`mailto:${personalInfo?.email || 'email@example.com'}`} className="text-black no-underline">
                             {personalInfo?.email || 'email@example.com'}
                         </a>
                     </div>
                     
-                    <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
-                            <Linkedin size={11} className="absolute top-0 left-0" />
-                        </span>
-                        <a 
-                            href={personalInfo?.linkedin ? (personalInfo.linkedin.startsWith('http') ? personalInfo.linkedin : `https://${personalInfo.linkedin}`) : '#'}
-                            className="inline-block align-middle text-black no-underline"
-                        >
-                            {personalInfo?.linkedin ? personalInfo.linkedin.replace(/^https?:\/\/(www\.)?/, '') : 'linkedin.com/in/username'}
-                        </a>
-                    </div>
+                    {personalInfo?.linkedin && (
+                        <div className="flex items-center mx-3 whitespace-nowrap">
+                            <Linkedin size={11} className="mr-1.5" />
+                            <a 
+                                href={personalInfo.linkedin.startsWith('http') ? personalInfo.linkedin : `https://${personalInfo.linkedin}`}
+                                className="text-black no-underline"
+                            >
+                                {personalInfo.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                            </a>
+                        </div>
+                    )}
                     
-                    <div className="inline-block px-3 align-middle">
-                        <span className="inline-block align-middle mr-1 relative w-[11px] h-[11px]">
-                            <Github size={11} className="absolute top-0 left-0" />
-                        </span>
-                        <a 
-                            href={personalInfo?.github ? (personalInfo.github.startsWith('http') ? personalInfo.github : `https://${personalInfo.github}`) : '#'}
-                            className="inline-block align-middle text-black no-underline"
-                        >
-                            {personalInfo?.github ? personalInfo.github.replace(/^https?:\/\/(www\.)?/, '') : 'github.com/username'}
-                        </a>
-                    </div>
+                    {personalInfo?.github && (
+                        <div className="flex items-center mx-3 whitespace-nowrap">
+                            <Github size={11} className="mr-1.5" />
+                            <a 
+                                href={personalInfo.github.startsWith('http') ? personalInfo.github : `https://${personalInfo.github}`}
+                                className="text-black no-underline"
+                            >
+                                {personalInfo.github.replace(/^https?:\/\/(www\.)?/, '')}
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
 

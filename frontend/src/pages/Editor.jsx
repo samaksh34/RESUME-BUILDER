@@ -106,10 +106,10 @@ const Editor = () => {
                     print-color-adjust: exact !important;
                 }
                 #resume-preview {
-                    width: 210mm !important;
-                    min-height: 297mm !important;
+                    width: 794px !important;
+                    min-height: 1123px !important;
                     margin: 0 !important;
-                    padding: 0.5in !important;
+                    padding: 48px !important;
                 }
             `;
             document.head.appendChild(style);
@@ -179,10 +179,10 @@ const Editor = () => {
                     print-color-adjust: exact !important;
                 }
                 #resume-preview {
-                    width: 210mm !important;
-                    min-height: 297mm !important;
+                    width: 794px !important;
+                    min-height: 1123px !important;
                     margin: 0 !important;
-                    padding: 0.5in !important;
+                    padding: 48px !important;
                 }
             `;
             document.head.appendChild(style);
