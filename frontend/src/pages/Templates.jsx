@@ -105,7 +105,7 @@ const TemplateCard = ({ tpl }) => (
                 <h3 className="text-xs font-bold text-heading uppercase tracking-widest">{tpl.name}</h3>
                 <span className="text-[10px] font-bold text-subtext uppercase tracking-tighter">{tpl.category}</span>
             </div>
-            <p className="text-[10px] text-subtext/60 font-medium mb-4">{tpl.description}</p>
+            <p className="text-[10px] text-subtext/80 font-medium mb-4">{tpl.description}</p>
             
             <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
                 <div className="flex gap-1">

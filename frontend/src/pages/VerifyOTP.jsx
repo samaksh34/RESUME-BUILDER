@@ -83,7 +83,8 @@ const VerifyOTP = () => {
         setError('');
         try {
             await verifyOTP(email, otpString);
-            navigate('/editor');
+            const from = location.state?.from || '/editor';
+            navigate(from);
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
         } finally {

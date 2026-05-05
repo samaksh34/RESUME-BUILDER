@@ -45,52 +45,147 @@ export const ResumeProvider = ({ children }) => {
         return createSafeResumeData(null);
     });
 
+    const [activeResumeId, setActiveResumeId] = useState(() => {
+        return localStorage.getItem('activeResumeId') || null;
+    });
+
+    const [activeResumeTitle, setActiveResumeTitle] = useState('Untitled Resume');
+    const [userResumes, setUserResumes] = useState([]);
+    const [isLoadingResumes, setIsLoadingResumes] = useState(false);
+
     const { isAuthenticated } = useContext(AuthContext);
     const saveTimeoutRef = useRef(null);
 
-    // Load from backend on login
-    useEffect(() => {
-        const loadFromBackend = async () => {
-            if (isAuthenticated) {
-                try {
-                    const { data } = await resumeAPI.get();
-                    if (data?.data?.data) {
-                        setResumeData(createSafeResumeData(data.data.data));
-                    } else {
-                        // If user is logged in but has no backend data, 
-                        // reset to sample data to avoid showing previous user's localStorage
-                        setResumeData(createSafeResumeData(null));
-                    }
-                } catch (error) {
-                    console.error('Failed to load resume from backend:', error);
-                }
+    // Fetch all resumes for the user
+    const fetchUserResumes = async () => {
+        if (!isAuthenticated) return;
+        setIsLoadingResumes(true);
+        try {
+            const { data } = await resumeAPI.getAll();
+            const resumes = data.data || [];
+            setUserResumes(resumes);
+            
+            // If we have an active ID, sync the title
+            if (activeResumeId) {
+                const active = resumes.find(r => r._id === activeResumeId);
+                if (active) setActiveResumeTitle(active.title);
             }
-        };
-        loadFromBackend();
+        } catch (error) {
+            console.error('Failed to fetch resumes:', error);
+        } finally {
+            setIsLoadingResumes(false);
+        }
+    };
+
+    // Load from backend on login or when needed
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchUserResumes();
+        } else {
+            setUserResumes([]);
+            setActiveResumeId(null);
+            setActiveResumeTitle('Untitled Resume');
+        }
     }, [isAuthenticated]);
 
     // Save to localStorage AND backend (debounced)
     useEffect(() => {
         const safeData = createSafeResumeData(resumeData);
         localStorage.setItem('resumeData', JSON.stringify(safeData));
+        if (activeResumeId) {
+            localStorage.setItem('activeResumeId', activeResumeId);
+        } else {
+            localStorage.removeItem('activeResumeId');
+        }
 
         if (isAuthenticated) {
-            // Debounce backend save to avoid too many requests
+            // Debounce backend save
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = setTimeout(async () => {
                 try {
-                    await resumeAPI.save(safeData);
-                    console.log('Resume synced to backend');
+                    if (activeResumeId) {
+                        // Update existing
+                        await resumeAPI.update(activeResumeId, safeData);
+                    }
                 } catch (error) {
                     console.error('Failed to sync resume to backend:', error);
                 }
-            }, 2000); // Wait 2 seconds of inactivity
+            }, 2000);
         }
 
         return () => {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
         };
-    }, [resumeData, isAuthenticated]);
+    }, [resumeData, activeResumeId, isAuthenticated]);
+
+    const loadResume = async (id) => {
+        try {
+            const { data } = await resumeAPI.getById(id);
+            if (data?.data) {
+                setResumeData(createSafeResumeData(data.data.data));
+                setActiveResumeId(id);
+                setActiveResumeTitle(data.data.title || 'Untitled Resume');
+                return true;
+            }
+        } catch (error) {
+            console.error('Failed to load resume:', error);
+        }
+        return false;
+    };
+
+    const createNewResume = async (title = 'Untitled Resume') => {
+        const newData = createSafeResumeData(null);
+        if (isAuthenticated) {
+            try {
+                const { data } = await resumeAPI.create({ 
+                    data: newData, 
+                    title 
+                });
+                if (data?.data) {
+                    setResumeData(newData);
+                    setActiveResumeId(data.data._id);
+                    setActiveResumeTitle(data.data.title);
+                    fetchUserResumes(); // Refresh list
+                    return data.data._id;
+                }
+            } catch (error) {
+                console.error('Failed to create resume:', error);
+            }
+        } else {
+            setResumeData(newData);
+            setActiveResumeId(null);
+            setActiveResumeTitle(title);
+        }
+        return null;
+    };
+
+    const updateResumeTitle = async (newTitle) => {
+        setActiveResumeTitle(newTitle);
+        if (isAuthenticated && activeResumeId) {
+            try {
+                await resumeAPI.update(activeResumeId, undefined, newTitle); // Wait, I need to check API service
+                // Actually, let's fix the API service to accept title separately
+                fetchUserResumes();
+            } catch (error) {
+                console.error('Failed to update title:', error);
+            }
+        }
+    };
+
+    const deleteResume = async (id) => {
+        try {
+            await resumeAPI.delete(id);
+            if (activeResumeId === id) {
+                setActiveResumeId(null);
+                setResumeData(createSafeResumeData(null));
+            }
+            fetchUserResumes();
+            return true;
+        } catch (error) {
+            console.error('Failed to delete resume:', error);
+            return false;
+        }
+    };
 
     const updatePersonalInfo = (field, value) => {
         setResumeData(prev => ({
@@ -153,6 +248,15 @@ export const ResumeProvider = ({ children }) => {
     return (
         <ResumeContext.Provider value={{
             resumeData,
+            activeResumeId,
+            activeResumeTitle,
+            userResumes,
+            isLoadingResumes,
+            fetchUserResumes,
+            loadResume,
+            createNewResume,
+            deleteResume,
+            updateResumeTitle,
             updatePersonalInfo,
             updateSectionItem,
             addSectionItem,
@@ -160,7 +264,8 @@ export const ResumeProvider = ({ children }) => {
             updateSkills,
             updateListSection,
             setResumeData,
-            updateResumeData
+            updateResumeData,
+            setActiveResumeId
         }}>
             {children}
         </ResumeContext.Provider>

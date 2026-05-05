@@ -1,11 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, FileText } from 'lucide-react';
 
 const Register = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { register } = useContext(AuthContext);
+
+    const from = location.state?.from || '/editor';
 
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +32,7 @@ const Register = () => {
         setLoading(true);
         try {
             await register(formData.name, formData.email, formData.password);
-            navigate('/verify-otp', { state: { email: formData.email, purpose: 'verification' } });
+            navigate('/verify-otp', { state: { email: formData.email, purpose: 'verification', from } });
         } catch (err) {
             console.error('Registration error:', err);
             const message = err.response?.data?.message || err.message || 'Registration failed. Please try again.';

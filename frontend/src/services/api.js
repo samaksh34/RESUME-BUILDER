@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Ensure it includes /api and doesn't have a trailing slash
+if (API_BASE_URL.endsWith('/')) {
+    API_BASE_URL = API_BASE_URL.slice(0, -1);
+}
+if (!API_BASE_URL.endsWith('/api')) {
+    API_BASE_URL = `${API_BASE_URL}/api`;
+}
 
 // Create axios instance with defaults
 const api = axios.create({
@@ -67,8 +75,11 @@ api.interceptors.response.use(
 
 // ── Resume API calls ────────────────────────────────────────────────
 export const resumeAPI = {
-    get: () => api.get('/resumes'),
-    save: (data) => api.post('/resumes', { data }),
+    getAll: () => api.get('/resumes'),
+    getById: (id) => api.get(`/resumes/${id}`),
+    create: (data) => api.post('/resumes', { data }),
+    update: (id, data, title) => api.put(`/resumes/${id}`, { data, title }),
+    delete: (id) => api.delete(`/resumes/${id}`),
 };
 
 export const authAPI = {

@@ -1,11 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, FileText } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useContext(AuthContext);
+
+    const from = location.state?.from?.pathname || '/editor';
 
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +26,7 @@ const Login = () => {
         setError('');
         try {
             await login(formData.email, formData.password);
-            navigate('/editor');
+            navigate(from, { replace: true });
         } catch (err) {
             const data = err.response?.data;
             if (data?.code === 'NOT_VERIFIED') {

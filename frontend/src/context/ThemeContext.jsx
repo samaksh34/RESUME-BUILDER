@@ -3,10 +3,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    // Default to light mode
+    // Default to dark mode
     const [theme, setTheme] = useState(() => {
         const saved = localStorage.getItem('theme');
-        return saved || 'light';
+        return saved || 'dark';
     });
 
     useEffect(() => {

@@ -5,14 +5,14 @@
 @layer base {
     :root {
         /* B2B SaaS Palette - Clean & Restrained */
-        --color-background: #FFFFFF;
-        --color-surface: #F9FAFB;
-        --color-surface-highlight: #F3F4F6;
-        --color-heading: #111827;
-        --color-text: #374151;
-        --color-subtext: #6B7280;
-        --color-border: #E5E7EB;
-        --color-input-bg: #FFFFFF;
+        --color-background: 255 255 255;
+        --color-surface: 249 250 251;
+        --color-surface-highlight: 243 244 246;
+        --color-heading: 15 23 42; /* Slate 900 */
+        --color-text: 51 65 85;    /* Slate 700 */
+        --color-subtext: 71 85 105; /* Slate 600 */
+        --color-border: 203 213 225; /* Slate 300 */
+        --color-input-bg: 255 255 255;
         --primary: #4F46E5; /* Indigo 600 */
         --primary-light: #6366F1;
         --primary-dark: #4338CA;
@@ -23,14 +23,14 @@
 
     .dark {
         /* Professional Dark Mode - Deep & Utilitarian */
-        --color-background: #09090B;
-        --color-surface: #18181B;
-        --color-surface-highlight: #27272A;
-        --color-heading: #FAFAFA;
-        --color-text: #D4D4D8;
-        --color-subtext: #A1A1AA;
-        --color-border: #27272A;
-        --color-input-bg: #09090B;
+        --color-background: 9 9 11;
+        --color-surface: 24 24 27;
+        --color-surface-highlight: 39 39 42;
+        --color-heading: 250 250 250;
+        --color-text: 212 212 216;
+        --color-subtext: 161 161 170;
+        --color-border: 39 39 42;
+        --color-input-bg: 9 9 11;
         
         --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
@@ -97,4 +97,66 @@
 /* Utilities */
 .text-xxs {
     font-size: 0.65rem;
+}
+
+.glass-card {
+    @apply bg-surface/50 backdrop-blur-md border border-white/10;
+}
+
+.glow-bg {
+    background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);
+    filter: blur(120px);
+    opacity: 0.15;
+}
+
+.bento-item {
+    @apply bg-surface border border-border rounded-xl p-8 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5;
+}
+
+/* Professional Editor Layout */
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: calc(100vh - 3.5rem); /* Adjust based on navbar height */
+    overflow: hidden;
+}
+
+.editor-form-pane {
+    @apply h-full overflow-y-auto bg-surface-highlight p-6 custom-scrollbar;
+}
+
+.editor-preview-pane {
+    @apply h-full overflow-y-auto bg-zinc-200 dark:bg-zinc-900 p-8 flex justify-center custom-scrollbar;
+}
+
+.accordion-card {
+    @apply bg-background border border-border rounded-xl overflow-hidden mb-4 transition-all duration-300;
+}
+
+.accordion-card-header {
+    @apply flex items-center justify-between p-4 cursor-pointer hover:bg-primary/5 transition-colors;
+}
+
+.accordion-card-content {
+    @apply p-6 pt-0 border-t border-border bg-background;
+}
+
+.status-badge {
+    @apply px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider;
+}
+/* Editor Specific Utilities */
+.editor-sidebar-item {
+    @apply w-10 h-10 flex items-center justify-center rounded-lg text-subtext hover:text-heading hover:bg-surface-highlight transition-all relative;
+}
+
+.editor-sidebar-item-active {
+    @apply bg-primary/10 text-primary hover:bg-primary/20;
+}
+
+.editor-section-header {
+    @apply mb-8 pb-4 border-b border-border;
+}
+
+.editor-pane {
+    @apply h-full overflow-y-auto custom-scrollbar bg-background;
 }

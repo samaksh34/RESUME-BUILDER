@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — The Developer's Resume Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg-card: #18181b;
+            --border: #27272a;
+            --purple: #7c3aed;
+            --purple-light: #a78bfa;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --surface-highlight: rgba(124, 58, 237, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.light {
+            --bg: #ffffff;
+            --bg-card: #f4f4f5;
+            --border: #e4e4e7;
+            --text: #09090b;
+            --text-muted: #71717a;
+            --surface-highlight: rgba(124, 58, 237, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* [1] NAVBAR */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(var(--bg), 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px border var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        nav .container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--purple);
+        }
+
+        /* [2] HERO */
+        .hero {
+            padding: 160px 0 80px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .pill-badge {
+            display: inline-flex;
+            padding: 6px 12px;
+            background: var(--surface-highlight);
+            border: 1px solid var(--purple);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 span {
+            color: var(--purple);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 540px;
+            margin-bottom: 40px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-purple {
+            background: var(--purple);
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--purple);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-card);
+            border-color: var(--text-muted);
+        }
+
+        /* Resume Card Mockup */
+        .resume-mockup {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.4);
+            color: #000;
+            transform: perspective(1000px) rotateY(-10deg) rotateX(5deg);
+            transition: var(--transition);
+        }
+
+        .resume-mockup:hover {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+
+        .resume-header h2 { font-size: 1.5rem; margin-bottom: 4px; }
+        .resume-header p { font-size: 0.875rem; color: #666; margin-bottom: 16px; }
+
+        .skills-pills { display: flex; gap: 8px; margin-bottom: 24px; }
+        .skill-pill { padding: 4px 10px; background: #f3f4f6; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+
+        .exp-entry { margin-bottom: 20px; }
+        .exp-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.875rem; }
+        .exp-desc { font-size: 0.8rem; color: #444; margin-top: 4px; border-left: 2px solid #ddd; padding-left: 12px; }
+
+        /* [3] STRIP */
+        .strip {
+            background: var(--bg-card);
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .strip .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .strip-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stack {
+            display: flex;
+            gap: 24px;
+        }
+
+        .stack-item {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        /* [4] FEATURES */
+        .features {
+            padding: 100px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.125rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--purple);
+            box-shadow: 0 0 40px -10px var(--surface-highlight);
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        code {
+            display: block;
+            background: #000;
+            color: #10b981;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .toggle-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: var(--border);
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .toggle-switch.on { background: var(--purple); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .toggle-switch.on::after { left: 22px; }
+
+        .sketch-ui {
+            display: flex;
+            gap: 12px;
+            height: 120px;
+        }
+
+        .sketch-left { width: 40%; background: var(--bg); border-radius: 8px; }
+        .sketch-right { flex: 1; background: white; border-radius: 8px; position: relative; overflow: hidden; }
+        .sketch-right::before { content: ''; position: absolute; top: 10px; left: 10px; right: 10px; height: 10px; background: #eee; }
+        .sketch-right::after { content: ''; position: absolute; top: 30px; left: 10px; right: 30px; height: 60px; background: #f9f9f9; border: 1px solid #eee; }
+
+        /* [5] HOW IT WORKS */
+        .how-it-works {
+            padding: 100px 0;
+            background: var(--surface-highlight);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 32px;
+            border-radius: 24px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .step-card.active {
+            border-color: var(--purple);
+            background: var(--bg-card);
+            transform: scale(1.05);
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            margin: 0 auto 24px;
+        }
+
+        .layout-thumbs { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+        .thumb { width: 40px; height: 50px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; }
+
+        .mini-input { width: 100%; height: 32px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; margin-top: 16px; }
+
+        .badge-p {
+            display: inline-block;
+            font-size: 0.65rem;
+            background: #10b98122;
+            color: #10b981;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* [6] STATS */
+        .stats { padding: 80px 0; border-top: 1px solid var(--border); }
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: center; }
+        .stat-val { font-size: 3rem; font-weight: 800; color: var(--purple); line-height: 1; margin-bottom: 8px; }
+        .stat-label { font-size: 0.875rem; color: var(--text-muted); font-weight: 600; }
+
+        /* [7] CTA */
+        .cta { padding: 100px 0; }
+        .cta-card {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            padding: 80px;
+            border-radius: 40px;
+            text-align: center;
+            color: #1e1b4b;
+        }
+
+        .cta h2 { font-size: 3rem; font-weight: 800; margin-bottom: 16px; }
+        .cta p { font-size: 1.25rem; font-weight: 500; opacity: 0.8; margin-bottom: 40px; }
+
+        /* [8] FOOTER */
+        footer {
+            padding: 80px 0 40px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 64px;
+            margin-bottom: 64px;
+        }
+
+        .footer-logo { margin-bottom: 24px; }
+        .footer-desc { color: var(--text-muted); font-size: 0.875rem; max-width: 240px; }
+
+        .footer-col h4 { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; color: var(--text); }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; font-size: 0.875rem; color: var(--text-muted); }
+        .footer-col ul li:hover { color: var(--text); cursor: pointer; }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .hero { grid-template-columns: 1fr; text-align: center; padding-top: 120px; }
+            .hero h1 { font-size: 3rem; }
+            .hero p { margin: 0 auto 40px; }
+            .btn-row { justify-content: center; }
+            .resume-mockup { transform: none; max-width: 400px; margin: 40px auto 0; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid, .steps, .stats-row { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .cta-card { padding: 40px; }
+            .cta h2 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body id="top">
+
+    <!-- [1] NAVBAR -->
+    <nav>
+        <div class="container">
+            <a href="#top" class="logo">📄 RESUMECRAFT</a>
+            <div class="nav-links">
+                <a href="#features">Editor</a>
+                <a href="#how-it-works">Templates</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- [2] HERO -->
+    <section class="container">
+        <div class="hero">
+            <div class="hero-content">
+                <div class="pill-badge">⚡ OPEN SOURCE · ATS OPTIMIZED</div>
+                <h1>Build résumés that pass the machine, <span>impress the human.</span></h1>
+                <p>Structured JSON schema under the hood. Pixel-perfect PDF on the outside. Built for developers who take their career seriously.</p>
+                <div class="btn-row">
+                    <button class="btn btn-purple">Start Building →</button>
+                    <button class="btn btn-outline">View on GitHub</button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="resume-mockup">
+                    <div class="resume-header">
+                        <h2>Alex Morgan</h2>
+                        <p>Senior Software Engineer</p>
+                    </div>
+                    <div class="skills-pills">
+                        <span class="skill-pill">React</span>
+                        <span class="skill-pill">TypeScript</span>
+                        <span class="skill-pill">Node.js</span>
+                        <span class="skill-pill">AWS</span>
+                    </div>
+                    <div class="exp-entry">
+                        <div class="exp-header">
+                            <span>Stripe</span>
+                            <span>2021 – Present</span>
+                        </div>
+                        <div class="exp-desc">Lead the development of core payment components, improving checkout latency by 40%.</div>
+                    </div>
+                    <div class="exp-entry">
+                        <div class="exp-header">
+                            <span>Vercel</span>
+                            <span>2019 – 2021</span>
+                        </div>
+                        <div class="exp-desc">Optimized edge function execution times and contributed to Next.js core features.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- [3] BUILT WITH STRIP -->
+    <section class="strip">
+        <div class="container">
+            <span class="strip-label">Built With</span>
+            <div class="stack">
+                <span class="stack-item">React</span>
+                <span class="stack-item">TypeScript</span>
+                <span class="stack-item">Tailwind</span>
+                <span class="stack-item">Vite</span>
+                <span class="stack-item">PDF-lib</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- [4] FEATURES GRID -->
+    <section class="container features" id="features">
+        <div class="section-header">
+            <h2>Precision built for performance.</h2>
+            <p>Every decision made for technical hiring pipelines.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>JSON Schema Core</h3>
+                <code>{
+  "basics": { "name": "Alex Morgan" },
+  "skills": ["React", "TypeScript"],
+  "experience": [{ "company": "Stripe", "role": "SWE II" }]
+}</code>
+            </div>
+            <div class="feature-card">
+                <h3>Modular Sections</h3>
+                <div class="toggle-ui">
+                    <div class="toggle-row">Projects <div class="toggle-switch on"></div></div>
+                    <div class="toggle-row">Achievements <div class="toggle-switch on"></div></div>
+                    <div class="toggle-row">Certifications <div class="toggle-switch"></div></div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <h3>Live Preview</h3>
+                <div class="sketch-ui">
+                    <div class="sketch-left"></div>
+                    <div class="sketch-right"></div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <h3>One-Click PDF Export</h3>
+                <div style="text-align: center;">
+                    <button class="btn btn-purple" style="width: 100%; justify-content: center; margin-bottom: 12px;">⬇ Export PDF</button>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Generated client-side. No server. No uploads.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- [5] HOW IT WORKS -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>Three steps. Zero friction.</h2>
+            </div>
+            <div class="steps">
+                <div class="step-card active" onclick="activateStep(this)">
+                    <div class="step-num">1</div>
+                    <h4>Choose a layout</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 8px;">Select from professional templates.</p>
+                    <div class="layout-thumbs">
+                        <div class="thumb" style="border-color: var(--purple);"></div>
+                        <div class="thumb"></div>
+                    </div>
+                </div>
+                <div class="step-card" onclick="activateStep(this)">
+                    <div class="step-num">2</div>
+                    <h4>Fill your data</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 8px;">Focus on content, we handle format.</p>
+                    <div class="mini-input"></div>
+                </div>
+                <div class="step-card" onclick="activateStep(this)">
+                    <div class="step-num">3</div>
+                    <h4>Export your PDF</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 8px;">Download instantly in your browser.</p>
+                    <button class="btn btn-purple" style="padding: 6px 12px; font-size: 0.75rem; margin-top: 12px;">Download</button>
+                    <br>
+                    <span class="badge-p">Ctrl+P supported</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- [6] STATS ROW -->
+    <section class="container stats">
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-val">12</div>
+                <div class="stat-label">Structured resume fields</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">3</div>
+                <div class="stat-label">ATS-ready templates</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">0ms</div>
+                <div class="stat-label">Server roundtrip (client-side)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">100%</div>
+                <div class="stat-label">Free and open source</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- [7] CTA SECTION -->
+    <section class="container cta">
+        <div class="cta-card">
+            <h2>Start building. No account needed.</h2>
+            <p>Open source. Yours to fork, yours to own.</p>
+            <div class="btn-row">
+                <button class="btn btn-purple" style="background: #1e1b4b;">Launch Editor →</button>
+                <button class="btn btn-outline" style="border-color: #1e1b4b; color: #1e1b4b;">Star on GitHub ⭐</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- [8] FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo footer-logo">📄 RESUMECRAFT</div>
+                    <p class="footer-desc">The utilitarian resume builder for engineers.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li>Editor</li>
+                        <li>Templates</li>
+                        <li>Pricing</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Developer</h4>
+                    <ul>
+                        <li>GitHub</li>
+                        <li>Changelog</li>
+                        <li>Roadmap</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li>Privacy Policy</li>
+                        <li>Terms</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2025 ResumeCraft · Built by Samaksh · MIT License</span>
+                <a href="#top" style="color: var(--purple); font-weight: 700;">Back to top ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-btn');
+            body.classList.toggle('light');
+            
+            if (body.classList.contains('light')) {
+                btn.innerHTML = '☀️';
+                localStorage.setItem('theme', 'light');
+            } else {
+                btn.innerHTML = '🌙';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Initialize Theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light');
+            document.getElementById('theme-btn').innerHTML = '☀️';
+        }
+
+        // How it Works Step Toggle
+        function activateStep(element) {
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

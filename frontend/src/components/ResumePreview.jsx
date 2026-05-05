@@ -2,8 +2,12 @@ import React, { forwardRef } from 'react';
 import { useResumeData } from '../hooks/useResumeData';
 import { Mail, Phone, Linkedin, Github, Globe } from 'lucide-react';
 
-const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
-    const { resumeData } = useResumeData();
+const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref) => {
+    const { resumeData: contextData } = useResumeData();
+    
+    // Use data from props if available (for samples), otherwise use context data
+    const activeData = propData || contextData;
+
     const {
         personalInfo = {},
         education = [],
@@ -14,7 +18,7 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
         certificates = [],
         extracurricular = [],
         languages = [],
-    } = resumeData || {};
+    } = activeData || {};
 
     const HeaderBlock = ({ align = 'center' }) => (
         <div className={`${align === 'left' ? 'text-left' : 'text-center'} mb-6`}>
@@ -63,6 +67,14 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
 
     const SectionsBlock = ({ headingClass }) => (
         <div className="space-y-4 text-sm">
+            {/* Summary */}
+            {personalInfo?.summary && (
+                <section>
+                    <h2 className={headingClass}>Professional Summary</h2>
+                    <p className="text-text leading-relaxed text-justify mt-2">{personalInfo.summary}</p>
+                </section>
+            )}
+
             {/* Education */}
             {education && education.length > 0 && (
                 <section>
@@ -76,7 +88,7 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     <div className="font-medium text-heading whitespace-nowrap">
-                                        {edu.startDate} – {edu.endDate}
+                                        {edu.startDate}
                                     </div>
                                     {edu.score && <div className="text-subtext">{edu.score}</div>}
                                 </div>
@@ -100,10 +112,10 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                 </section>
             )}
 
-            {/* Internships */}
+            {/* Experience */}
             {internships && internships.length > 0 && (
                 <section>
-                    <h2 className={headingClass}>Internships</h2>
+                    <h2 className={headingClass}>Experience</h2>
                     <div className="space-y-3">
                         {internships.map((intern) => (
                             <div key={intern.id}>
@@ -115,7 +127,7 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                                     </div>
                                     <div className="text-right flex-shrink-0">
                                         <div className="font-medium text-heading whitespace-nowrap">
-                                            {intern.startDate} – {intern.endDate}
+                                            {intern.duration}
                                         </div>
                                         {intern.location && (
                                             <div className="text-xs font-normal text-subtext">{intern.location}</div>
@@ -166,7 +178,11 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                     <ul className="list-disc list-outside ml-4 space-y-0.5 text-text">
                         {achievements.map((ach, index) => (
                             <li key={index}>
-                                {ach}
+                                {typeof ach === 'string' ? ach : (
+                                    <span>
+                                        <span className="font-bold">{ach.title}:</span> {ach.description}
+                                    </span>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -192,43 +208,16 @@ const ResumePreview = forwardRef(({ template = 'classic' }, ref) => {
                 </section>
             )}
 
-            {/* Extracurricular */}
-            {extracurricular && extracurricular.length > 0 && (
-                <section>
-                    <h2 className={headingClass}>Extracurricular</h2>
-                    <div className="space-y-2">
-                        {extracurricular.map((extra) => (
-                            <div key={extra.id}>
-                                <div className="grid grid-cols-[1fr_auto] gap-4 items-start mb-1">
-                                    <div className="min-w-0">
-                                        <span className="font-bold text-heading">{extra.role}</span>
-                                        <span className="mx-1 text-subtext">|</span>
-                                        <span className="italic text-subtext">{extra.organization}</span>
-                                    </div>
-                                    <div className="font-medium text-heading whitespace-nowrap text-right">{extra.date}</div>
-                                </div>
-                                {extra.description && (
-                                    <ul className="list-disc list-outside ml-4 text-text space-y-0.5">
-                                        {extra.description.map((desc, i) => (
-                                            <li key={i}>{desc}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            )}
-
             {/* Languages */}
             {languages && languages.length > 0 && (
-                <section className="mt-4">
+                <section>
                     <h2 className={headingClass}>Languages</h2>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                    <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1">
                         {languages.map((lang, index) => (
-                            <span key={index} className="text-text">
-                                {lang}{index < languages.length - 1 ? ',' : ''}
-                            </span>
+                            <div key={index} className="text-text flex items-center gap-2">
+                                <span className="font-bold">{lang.name}</span>
+                                <span className="text-subtext text-xs">({lang.proficiency})</span>
+                            </div>
                         ))}
                     </div>
                 </section>

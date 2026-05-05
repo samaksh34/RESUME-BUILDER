@@ -1,18 +1,37 @@
 import Resume from '../models/Resume.js';
 
 /**
- * @desc    Get user's resume
+ * @desc    Get all user resumes
  * @route   GET /api/resumes
  * @access  Private
  */
-export const getResume = async (req, res, next) => {
+export const getResumes = async (req, res, next) => {
     try {
-        const resume = await Resume.findOne({ user: req.user._id }).sort({ updatedAt: -1 });
+        const resumes = await Resume.find({ user: req.user._id }).sort({ updatedAt: -1 });
         
+        res.status(200).json({
+            success: true,
+            count: resumes.length,
+            data: resumes,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get specific resume by ID
+ * @route   GET /api/resumes/:id
+ * @access  Private
+ */
+export const getResumeById = async (req, res, next) => {
+    try {
+        const resume = await Resume.findOne({ _id: req.params.id, user: req.user._id });
+
         if (!resume) {
-            return res.status(200).json({
-                success: true,
-                data: null,
+            return res.status(404).json({
+                success: false,
+                message: 'Resume not found',
             });
         }
 
@@ -26,11 +45,11 @@ export const getResume = async (req, res, next) => {
 };
 
 /**
- * @desc    Save or update user's resume
+ * @desc    Create a new resume
  * @route   POST /api/resumes
  * @access  Private
  */
-export const saveResume = async (req, res, next) => {
+export const createResume = async (req, res, next) => {
     try {
         const { data, title } = req.body;
 
@@ -41,25 +60,74 @@ export const saveResume = async (req, res, next) => {
             });
         }
 
-        // We only support one resume per user for now
-        let resume = await Resume.findOne({ user: req.user._id });
+        const resume = await Resume.create({
+            user: req.user._id,
+            data,
+            title: title || 'Untitled Resume',
+        });
 
-        if (resume) {
-            resume.data = data;
-            if (title) resume.title = title;
-            await resume.save();
-        } else {
-            resume = await Resume.create({
-                user: req.user._id,
-                data,
-                title: title || 'My Resume',
+        res.status(201).json({
+            success: true,
+            message: 'Resume created successfully',
+            data: resume,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Update a resume
+ * @route   PUT /api/resumes/:id
+ * @access  Private
+ */
+export const updateResume = async (req, res, next) => {
+    try {
+        const { data, title } = req.body;
+        
+        let resume = await Resume.findOne({ _id: req.params.id, user: req.user._id });
+
+        if (!resume) {
+            return res.status(404).json({
+                success: false,
+                message: 'Resume not found',
+            });
+        }
+
+        if (data) resume.data = data;
+        if (title) resume.title = title;
+        
+        await resume.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Resume updated successfully',
+            data: resume,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete a resume
+ * @route   DELETE /api/resumes/:id
+ * @access  Private
+ */
+export const deleteResume = async (req, res, next) => {
+    try {
+        const resume = await Resume.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+
+        if (!resume) {
+            return res.status(404).json({
+                success: false,
+                message: 'Resume not found',
             });
         }
 
         res.status(200).json({
             success: true,
-            message: 'Resume saved successfully',
-            data: resume,
+            message: 'Resume deleted successfully',
         });
     } catch (error) {
         next(error);

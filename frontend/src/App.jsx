@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ResumeProvider } from './context/ResumeContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -12,10 +12,12 @@ import Register from './pages/Register';
 import VerifyOTP from './pages/VerifyOTP';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Dashboard from './pages/Dashboard';
 
 // Protected route wrapper — redirects to login if not authenticated
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, loading } = useContext(AuthContext);
+    const location = useLocation();
 
     if (loading) {
         return (
@@ -29,7 +31,7 @@ const ProtectedRoute = ({ children }) => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" replace state={{ from: location }} />;
     }
 
     return children;
@@ -73,6 +75,7 @@ function App() {
                             <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
 
                             {/* Protected routes (require login) */}
+                            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                             <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
 
                             {/* 404 */}

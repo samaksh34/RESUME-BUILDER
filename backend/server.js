@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
@@ -48,9 +49,11 @@ const authLimiter = rateLimit({
 
 // ── Routes ──────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
     res.status(200).json({
         success: true,
         message: '🚀 Resume Builder API is running',
+        database: dbStatus,
         timestamp: new Date().toISOString(),
     });
 });

@@ -8,18 +8,18 @@ export default {
     theme: {
         extend: {
             colors: {
-                background: "var(--color-background)",
-                surface: "var(--color-surface)",
-                "surface-highlight": "var(--color-surface-highlight)",
+                background: "rgb(var(--color-background) / <alpha-value>)",
+                surface: "rgb(var(--color-surface) / <alpha-value>)",
+                "surface-highlight": "rgb(var(--color-surface-highlight) / <alpha-value>)",
                 primary: "#8056FF",         // Electric Purple (same for both)
                 "primary-dark": "#6D4BFF",  // Gradient Start
                 "primary-light": "#8A63FF", // Gradient End
                 secondary: "#3CE3FF",       // Cyan Glow (same for both)
-                heading: "var(--color-heading)",
-                text: "var(--color-text)",
-                subtext: "var(--color-subtext)",
-                border: "var(--color-border)",
-                "input-bg": "var(--color-input-bg)",
+                heading: "rgb(var(--color-heading) / <alpha-value>)",
+                text: "rgb(var(--color-text) / <alpha-value>)",
+                subtext: "rgb(var(--color-subtext) / <alpha-value>)",
+                border: "rgb(var(--color-border) / <alpha-value>)",
+                "input-bg": "rgb(var(--color-input-bg) / <alpha-value>)",
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
