@@ -1,101 +1,78 @@
 {
   "personalInfo": {
-    "fullName": "John Doe",
-    "jobTitle": "Your Professional Role",
-    "email": "john.doe@example.com",
-    "phone": "123-456-7890",
+    "fullName": "Your Name",
+    "jobTitle": "Your Professional Title",
+    "email": "your.email@example.com",
+    "phone": "+1 000 000 0000",
     "address": "City, Country",
-    "linkedin": "linkedin.com/in/johndoe",
-    "github": "github.com/johndoe",
-    "portfolio": "portfolio.com",
-    "summary": "Brief professional summary about yourself."
+    "linkedin": "linkedin.com/in/yourusername",
+    "github": "github.com/yourusername",
+    "portfolio": "yourportfolio.com",
+    "summary": "Enter a brief professional summary that highlights your key strengths and career goals."
   },
   "education": [
     {
       "id": "edu_1",
-      "degree": "Your Degree / Course",
-      "school": "University / School Name",
-      "startDate": "Year",
-      "endDate": "Year",
-      "score": "CGPA / Percentage",
-      "location": "Location"
+      "degree": "B.Tech in Computer Science",
+      "school": "ABES Engineering College, Ghaziabad",
+      "startDate": "2020",
+      "endDate": "2024",
+      "score": "CGPA: 8.4",
+      "location": "Ghaziabad, India"
     }
   ],
   "technicalSkills": [
     {
       "id": "ts_1",
-      "category": "Frontend",
-      "skills": "HTML5, CSS3, JavaScript (ES6+), React.js, Tailwind CSS, Bootstrap"
-    },
-    {
-      "id": "ts_2",
-      "category": "Backend",
-      "skills": "Node.js, Express.js, REST APIs, JWT Authentication"
-    },
-    {
-      "id": "ts_3",
-      "category": "Database & Integrations",
-      "skills": "MongoDB, SQL, Firebase, MySQL, PDF Export Tools, Gemini API"
-    },
-    {
-      "id": "ts_4",
-      "category": "Tools & Other",
-      "skills": "Git, GitHub, Postman, npm, VS Code, Responsive Design, NLP Basics, Data Visualization"
+      "category": "Skill Category",
+      "skills": "List your skills here (e.g. React, Node.js, Python)"
     }
   ],
   "internships": [
     {
       "id": "int_1",
-      "role": "Your Role",
-      "company": "Company Name",
-      "startDate": "Month Year",
-      "endDate": "Month Year",
-      "location": "Location",
+      "role": "Your Job Role",
+      "company": "Company or Organization Name",
+      "startDate": "2022",
+      "endDate": "Present",
+      "location": "Location / Remote",
       "description": [
-        "Key achievement or responsibility in this role",
-        "Another significant contribution or skill used"
+        "Key responsibility or major achievement in this position",
+        "Significant contribution or specific skill applied to solve a problem"
       ]
     }
   ],
   "projects": [
     {
       "id": "proj_1",
-      "title": "Project Title",
-      "date": "Year",
+      "title": "Your Project Title",
+      "date": "2023",
       "description": [
-        "Detailed bullet point describing the project goal and technologies used",
-        "Another point highlighting your specific contribution and impact"
+        "Brief description of the project goal and the technologies you used",
+        "Highlight your specific contribution and the final outcome or impact"
       ]
     }
   ],
   "achievements": [
     {
       "id": "ach_1",
-      "title": "Achievement Title",
-      "description": "Short description of the recognition or accomplishment."
+      "title": "Achievement or Honor Name",
+      "description": "A short description of the recognition, award, or accomplishment."
     }
   ],
   "certificates": [
     {
       "id": "cert_1",
-      "name": "Certificate Name",
-      "issuer": "Issuing Organization",
-      "date": "Year"
-    }
-  ],
-  "extracurricular": [
-    {
-      "id": "extra_1",
-      "role": "Role / Position",
-      "organization": "Organization Name",
-      "date": "Duration",
-      "description": [
-        "Description of your activities and impact"
-      ]
+      "name": "Certificate or Course Name",
+      "issuer": "Issuing Organization or Platform",
+      "date": "2023"
     }
   ],
   "languages": [
-    "English",
-    "Hindi"
+    {
+      "id": "lang_1",
+      "name": "Language",
+      "proficiency": "Native / Fluent / Professional"
+    }
   ]
 }

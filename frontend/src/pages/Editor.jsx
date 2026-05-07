@@ -25,9 +25,11 @@ import {
     Trophy,
     Globe2,
     Type,
-    ArrowLeft
+    ArrowLeft,
+    Clock
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import HistorySidebar from '../components/HistorySidebar';
 
 const Editor = () => {
     const { 
@@ -45,6 +47,24 @@ const Editor = () => {
     const [exportSuccess, setExportSuccess] = useState(false);
     const [exportFilename, setExportFilename] = useState('my-resume');
     const [isSaving, setIsSaving] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
+    const [localTitle, setLocalTitle] = useState(activeResumeTitle);
+
+    // Template-specific field configuration
+    const TEMPLATE_CONFIG = {
+        ats: ['personalInfo', 'education', 'technicalSkills', 'projects', 'internships', 'certificates', 'achievements'],
+        classic: ['personalInfo', 'summary', 'education', 'technicalSkills', 'projects', 'internships', 'achievements'],
+        modern: ['personalInfo', 'summary', 'education', 'technicalSkills', 'projects', 'internships', 'certificates', 'languages', 'achievements']
+    };
+
+    const isFieldVisible = (field) => {
+        return TEMPLATE_CONFIG[template]?.includes(field);
+    };
+
+    // Sync local title when active resume changes
+    useEffect(() => {
+        setLocalTitle(activeResumeTitle);
+    }, [activeResumeId]);
 
     // Sync export filename with resume title
     useEffect(() => {
@@ -103,19 +123,79 @@ const Editor = () => {
     const handleExportPDF = useCallback(async () => {
         if (!resumeRef.current || exporting) return;
         setExporting(true);
+        
         try {
-            const html2pdf = (await import('html2pdf.js')).default;
+            // 1. Wait for fonts with a timeout to prevent hanging
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(resolve => setTimeout(resolve, 2000))
+            ]);
+            
+            const html2canvas = (await import('html2canvas')).default;
+            const { jsPDF } = await import('jspdf');
             const element = resumeRef.current;
+            
+            // A4 dimensions in mm
+            const A4_W = 210;
+            const A4_H = 297;
+            
+            // 2. Prepare for capture
+            const zoomWrapper = element.parentElement;
+            const origTransform = zoomWrapper.style.transform;
+            zoomWrapper.style.transform = 'scale(1)';
+            
+            // Force reflow
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            
+            // 3. Capture with html2canvas
+            // We'll use a hidden clone to ensure a clean capture environment
+            const clone = element.cloneNode(true);
+            clone.style.transform = 'none';
+            clone.style.boxShadow = 'none';
+            clone.style.margin = '0';
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0';
+            document.body.appendChild(clone);
+            
+            const canvas = await html2canvas(clone, {
+                scale: 2, // Standard high quality
+                useCORS: true,
+                backgroundColor: '#FFFFFF',
+                logging: false,
+                width: element.offsetWidth,
+                windowWidth: element.offsetWidth,
+            });
+            
+            // Clean up clone and restore zoom
+            document.body.removeChild(clone);
+            zoomWrapper.style.transform = origTransform;
+            
+            // 4. Create PDF and add pages
+            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+            
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const imgWidth = A4_W;
+            const imgHeight = (canvas.height * A4_W) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Add first page
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+            heightLeft -= A4_H;
+
+            // Add subsequent pages if content overflows
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+                heightLeft -= A4_H;
+            }
+            
             const filename = (exportFilename.trim() || 'resume') + '.pdf';
-            const opt = {
-                margin: 0,
-                filename,
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#FFFFFF' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all'] },
-            };
-            await html2pdf().from(element).set(opt).save();
+            pdf.save(filename);
+            
             setExportSuccess(true);
             setTimeout(() => {
                 setExportSuccess(false);
@@ -123,10 +203,13 @@ const Editor = () => {
             }, 2000);
         } catch (error) {
             console.error('PDF export failed:', error);
+            alert('Export failed. Please try again.');
         } finally {
             setExporting(false);
         }
     }, [exporting, exportFilename]);
+
+
 
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden text-text selection:bg-primary/20">
@@ -143,8 +226,11 @@ const Editor = () => {
                         <span className="text-[10px] font-black text-subtext uppercase tracking-widest leading-tight">Resume Name</span>
                         <input 
                             className="bg-transparent border-none p-0 text-sm font-bold text-heading focus:ring-0 w-48 hover:bg-surface-highlight rounded px-1 transition-colors outline-none cursor-text"
-                            value={activeResumeTitle}
-                            onChange={(e) => updateResumeTitle(e.target.value)}
+                            value={localTitle}
+                            onChange={(e) => {
+                                setLocalTitle(e.target.value);
+                                updateResumeTitle(e.target.value);
+                            }}
                             placeholder="Untitled Resume"
                             title="Click to rename"
                         />
@@ -160,6 +246,14 @@ const Editor = () => {
                             All changes saved
                         </div>
                     )}
+                    
+                    <button 
+                        onClick={() => setShowHistory(true)}
+                        className="flex items-center gap-2 text-[10px] font-bold text-heading uppercase tracking-widest bg-background hover:bg-surface-highlight px-3 py-1.5 rounded-lg border border-border transition-all ml-2"
+                    >
+                        <Clock size={12} className="text-primary" />
+                        Drafts History
+                    </button>
                 </div>
                 
                 <div className="flex items-center gap-4">
@@ -188,7 +282,7 @@ const Editor = () => {
                 <main className="flex-1 max-w-2xl mx-auto xl:max-w-3xl overflow-y-auto custom-scrollbar p-8 space-y-4">
                     
                     {/* Personal Info */}
-                    <FormSection title="Personal Information" icon={User} defaultOpen={true} summary={personalInfo.email}>
+                    <FormSection title="Personal Information" icon={User} defaultOpen={true}>
                         <div className="grid grid-cols-2 gap-6">
                             <InputField label="Full Name" value={personalInfo.fullName || ''} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="e.g. John Doe" />
                             <InputField label="Professional Title" value={personalInfo.jobTitle || ''} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="e.g. Senior Software Engineer" />
@@ -201,182 +295,214 @@ const Editor = () => {
                     </FormSection>
 
                     {/* Summary */}
-                    <FormSection title="Professional Summary" icon={Type} summary="A brief overview of your professional background">
-                        <InputField 
-                            label="Summary" 
-                            multiline 
-                            value={personalInfo.summary || ''} 
-                            onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)} 
-                            placeholder="Experienced engineer with a focus on..." 
-                        />
-                    </FormSection>
+                    {isFieldVisible('summary') && (
+                        <FormSection title="Professional Summary" icon={Type}>
+                            <InputField 
+                                label="Summary" 
+                                multiline 
+                                value={personalInfo.summary || ''} 
+                                onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)} 
+                                placeholder="Experienced engineer with a focus on..." 
+                            />
+                        </FormSection>
+                    )}
 
                     {/* Experience */}
-                    <FormSection 
-                        title="Work Experience" 
-                        icon={Briefcase} 
-                        items={internships}
-                        onAdd={(action, id) => action === 'add' ? addItem('internships', { company: '', role: '', duration: '', location: '', description: [''] }) : removeItem('internships', id)}
-                        renderItem={(exp, index) => (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <InputField label="Organization" value={exp.company} onChange={(e) => handleArrayChange('internships', index, 'company', e.target.value)} placeholder="Company Name" />
-                                    <InputField label="Job Title" value={exp.role} onChange={(e) => handleArrayChange('internships', index, 'role', e.target.value)} placeholder="Your Role" />
-                                    <InputField label="Period" value={exp.duration} onChange={(e) => handleArrayChange('internships', index, 'duration', e.target.value)} placeholder="Jan 2022 — Present" />
-                                    <InputField label="Location" value={exp.location} onChange={(e) => handleArrayChange('internships', index, 'location', e.target.value)} placeholder="Remote / City" />
+                    {isFieldVisible('internships') && (
+                        <FormSection 
+                            title="Work Experience" 
+                            icon={Briefcase} 
+                            items={internships}
+                            onAdd={(action, id) => action === 'add' ? addItem('internships', { company: '', role: '', duration: '', location: '', description: [''] }) : removeItem('internships', id)}
+                            renderItem={(exp, index) => (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <InputField label="Organization" value={exp.company} onChange={(e) => handleArrayChange('internships', index, 'company', e.target.value)} placeholder="Company Name" />
+                                        <InputField label="Job Title" value={exp.role} onChange={(e) => handleArrayChange('internships', index, 'role', e.target.value)} placeholder="Your Role" />
+                                        <InputField label="Period" value={exp.duration} onChange={(e) => handleArrayChange('internships', index, 'duration', e.target.value)} placeholder="Jan 2022 — Present" />
+                                        <InputField label="Location" value={exp.location} onChange={(e) => handleArrayChange('internships', index, 'location', e.target.value)} placeholder="Remote / City" />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Key Responsibilities</label>
+                                        {(exp.description || []).map((bullet, bIndex) => (
+                                            <div key={bIndex} className="flex gap-2 group/bullet">
+                                                <input 
+                                                    className="input-base text-xs flex-1" 
+                                                    value={bullet} 
+                                                    onChange={(e) => {
+                                                        const newExp = [...internships];
+                                                        newExp[index].description[bIndex] = e.target.value;
+                                                        updateResumeData('internships', newExp);
+                                                    }}
+                                                    placeholder="• Achieved X result using Y technology..."
+                                                />
+                                                <button 
+                                                    onClick={() => {
+                                                        const newExp = [...internships];
+                                                        newExp[index].description = newExp[index].description.filter((_, i) => i !== bIndex);
+                                                        updateResumeData('internships', newExp);
+                                                    }}
+                                                    className="p-2 text-subtext hover:text-red-500 opacity-0 group-hover/bullet:opacity-100"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button 
+                                            onClick={() => {
+                                                const newExp = [...internships];
+                                                newExp[index].description = [...(newExp[index].description || []), ''];
+                                                updateResumeData('internships', newExp);
+                                            }}
+                                            className="text-[10px] font-black text-primary uppercase mt-2 hover:underline inline-flex items-center gap-1"
+                                        >
+                                            + Add Achievement
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Key Responsibilities</label>
-                                    {(exp.description || []).map((bullet, bIndex) => (
-                                        <div key={bIndex} className="flex gap-2 group/bullet">
-                                            <input 
-                                                className="input-base text-xs flex-1" 
-                                                value={bullet} 
-                                                onChange={(e) => {
-                                                    const newExp = [...internships];
-                                                    newExp[index].description[bIndex] = e.target.value;
-                                                    updateResumeData('internships', newExp);
-                                                }}
-                                                placeholder="• Achieved X result using Y technology..."
-                                            />
-                                            <button 
-                                                onClick={() => {
-                                                    const newExp = [...internships];
-                                                    newExp[index].description = newExp[index].description.filter((_, i) => i !== bIndex);
-                                                    updateResumeData('internships', newExp);
-                                                }}
-                                                className="p-2 text-subtext hover:text-red-500 opacity-0 group-hover/bullet:opacity-100"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                    <button 
-                                        onClick={() => {
-                                            const newExp = [...internships];
-                                            newExp[index].description = [...(newExp[index].description || []), ''];
-                                            updateResumeData('internships', newExp);
-                                        }}
-                                        className="text-[10px] font-black text-primary uppercase mt-2 hover:underline inline-flex items-center gap-1"
-                                    >
-                                        + Add Achievement
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    />
+                            )}
+                        />
+                    )}
 
                     {/* Education */}
-                    <FormSection 
-                        title="Education" 
-                        icon={GraduationCap} 
-                        items={education}
-                        onAdd={(action, id) => action === 'add' ? addItem('education', { school: '', degree: '', startDate: '', score: '', location: '' }) : removeItem('education', id)}
-                        renderItem={(edu, index) => (
-                            <div className="grid grid-cols-2 gap-6">
-                                <InputField label="Institution" value={edu.school} onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} />
-                                <InputField label="Degree / Major" value={edu.degree} onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} />
-                                <InputField label="Completion Date" value={edu.startDate} onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)} />
-                                <InputField label="GPA / Distinction" value={edu.score} onChange={(e) => handleArrayChange('education', index, 'score', e.target.value)} />
-                            </div>
-                        )}
-                    />
+                    {isFieldVisible('education') && (
+                        <FormSection 
+                            title="Education" 
+                            icon={GraduationCap} 
+                            items={education}
+                            onAdd={(action, id) => action === 'add' ? addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' }) : removeItem('education', id)}
+                            renderItem={(edu, index) => (
+                                <div className="grid grid-cols-2 gap-6">
+                                    <InputField label="Institution" value={edu.school} onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} placeholder="e.g. University of Technology" />
+                                    <InputField label="Degree / Major" value={edu.degree} onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} placeholder="e.g. B.Tech in CS" />
+                                    <InputField label="Start Date" value={edu.startDate} onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)} placeholder="e.g. 2020" />
+                                    <InputField label="End Date / Completion" value={edu.endDate} onChange={(e) => handleArrayChange('education', index, 'endDate', e.target.value)} placeholder="e.g. 2024" />
+                                    <InputField label="GPA / Distinction" value={edu.score} onChange={(e) => handleArrayChange('education', index, 'score', e.target.value)} placeholder="e.g. 8.5 CGPA" />
+                                    <InputField label="Location" value={edu.location} onChange={(e) => handleArrayChange('education', index, 'location', e.target.value)} placeholder="e.g. Ghaziabad, India" />
+                                </div>
+                            )}
+                        />
+                    )}
 
                     {/* Skills */}
-                    <FormSection 
-                        title="Expertise & Tools" 
-                        icon={Code2} 
-                        items={technicalSkills}
-                        onAdd={(action, id) => action === 'add' ? addItem('technicalSkills', { category: '', skills: '' }) : removeItem('technicalSkills', id)}
-                        renderItem={(skill, index) => (
-                            <div className="grid grid-cols-2 gap-6">
-                                <InputField label="Skill Group" value={skill.category} onChange={(e) => handleArrayChange('technicalSkills', index, 'category', e.target.value)} placeholder="e.g. Languages" />
-                                <InputField label="Expertise" value={skill.skills} onChange={(e) => handleArrayChange('technicalSkills', index, 'skills', e.target.value)} placeholder="e.g. Python, JS, C++" />
-                            </div>
-                        )}
-                    />
+                    {isFieldVisible('technicalSkills') && (
+                        <FormSection 
+                            title="Expertise & Tools" 
+                            icon={Code2} 
+                            items={technicalSkills}
+                            onAdd={(action, id) => action === 'add' ? addItem('technicalSkills', { category: '', skills: '' }) : removeItem('technicalSkills', id)}
+                            renderItem={(skill, index) => (
+                                <div className="grid grid-cols-2 gap-6">
+                                    <InputField label="Skill Group" value={skill.category} onChange={(e) => handleArrayChange('technicalSkills', index, 'category', e.target.value)} placeholder="e.g. Languages" />
+                                    <InputField label="Expertise" value={skill.skills} onChange={(e) => handleArrayChange('technicalSkills', index, 'skills', e.target.value)} placeholder="e.g. Python, JS, C++" />
+                                </div>
+                            )}
+                        />
+                    )}
 
                     {/* Projects */}
-                    <FormSection 
-                        title="Key Projects" 
-                        icon={FolderGit2} 
-                        items={projects}
-                        onAdd={(action, id) => action === 'add' ? addItem('projects', { title: '', date: '', description: [''] }) : removeItem('projects', id)}
-                        renderItem={(proj, index) => (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <InputField label="Project Name" value={proj.title} onChange={(e) => handleArrayChange('projects', index, 'title', e.target.value)} />
-                                    <InputField label="Period / Date" value={proj.date} onChange={(e) => handleArrayChange('projects', index, 'date', e.target.value)} />
+                    {isFieldVisible('projects') && (
+                        <FormSection 
+                            title="Key Projects" 
+                            icon={FolderGit2} 
+                            items={projects}
+                            onAdd={(action, id) => action === 'add' ? addItem('projects', { title: '', date: '', description: [''] }) : removeItem('projects', id)}
+                            renderItem={(proj, index) => (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <InputField label="Project Name" value={proj.title} onChange={(e) => handleArrayChange('projects', index, 'title', e.target.value)} />
+                                        <InputField label="Period / Date" value={proj.date} onChange={(e) => handleArrayChange('projects', index, 'date', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Impact Bullets</label>
+                                        {(proj.description || []).map((bullet, bIndex) => (
+                                            <div key={bIndex} className="flex gap-2 group/bullet">
+                                                <input 
+                                                    className="input-base text-xs flex-1" 
+                                                    value={bullet} 
+                                                    onChange={(e) => {
+                                                        const newProj = [...projects];
+                                                        newProj[index].description[bIndex] = e.target.value;
+                                                        updateResumeData('projects', newProj);
+                                                    }}
+                                                    placeholder="• Developed X to solve Y..."
+                                                />
+                                                <button 
+                                                    onClick={() => {
+                                                        const newProj = [...projects];
+                                                        newProj[index].description = newProj[index].description.filter((_, i) => i !== bIndex);
+                                                        updateResumeData('projects', newProj);
+                                                    }}
+                                                    className="p-2 text-subtext hover:text-red-500 opacity-0 group-hover/bullet:opacity-100"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button 
+                                            onClick={() => {
+                                                const newProj = [...projects];
+                                                newProj[index].description = [...(newProj[index].description || []), ''];
+                                                updateResumeData('projects', newProj);
+                                            }}
+                                            className="text-[10px] font-black text-primary uppercase mt-2 hover:underline inline-flex items-center gap-1"
+                                        >
+                                            + Add Detail
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Impact Bullets</label>
-                                    {(proj.description || []).map((bullet, bIndex) => (
-                                        <div key={bIndex} className="flex gap-2 group/bullet">
-                                            <input 
-                                                className="input-base text-xs flex-1" 
-                                                value={bullet} 
-                                                onChange={(e) => {
-                                                    const newProj = [...projects];
-                                                    newProj[index].description[bIndex] = e.target.value;
-                                                    updateResumeData('projects', newProj);
-                                                }}
-                                                placeholder="• Developed X to solve Y..."
-                                            />
-                                            <button 
-                                                onClick={() => {
-                                                    const newProj = [...projects];
-                                                    newProj[index].description = newProj[index].description.filter((_, i) => i !== bIndex);
-                                                    updateResumeData('projects', newProj);
-                                                }}
-                                                className="p-2 text-subtext hover:text-red-500 opacity-0 group-hover/bullet:opacity-100"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                    <button 
-                                        onClick={() => {
-                                            const newProj = [...projects];
-                                            newProj[index].description = [...(newProj[index].description || []), ''];
-                                            updateResumeData('projects', newProj);
-                                        }}
-                                        className="text-[10px] font-black text-primary uppercase mt-2 hover:underline inline-flex items-center gap-1"
-                                    >
-                                        + Add Detail
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    />
+                            )}
+                        />
+                    )}
 
                     {/* Certifications */}
-                    <FormSection 
-                        title="Certifications" 
-                        icon={Award} 
-                        items={certificates}
-                        onAdd={(action, id) => action === 'add' ? addItem('certificates', { name: '', issuer: '', date: '' }) : removeItem('certificates', id)}
-                        renderItem={(cert, index) => (
-                            <div className="grid grid-cols-3 gap-4">
-                                <InputField label="Title" value={cert.name} onChange={(e) => handleArrayChange('certificates', index, 'name', e.target.value)} />
-                                <InputField label="Issuer" value={cert.issuer} onChange={(e) => handleArrayChange('certificates', index, 'issuer', e.target.value)} />
-                                <InputField label="Date" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} />
-                            </div>
-                        )}
-                    />
+                    {isFieldVisible('certificates') && (
+                        <FormSection 
+                            title="Certifications" 
+                            icon={Award} 
+                            items={certificates}
+                            onAdd={(action, id) => action === 'add' ? addItem('certificates', { name: '', issuer: '', date: '' }) : removeItem('certificates', id)}
+                            renderItem={(cert, index) => (
+                                <div className="grid grid-cols-3 gap-4">
+                                    <InputField label="Title" value={cert.name} onChange={(e) => handleArrayChange('certificates', index, 'name', e.target.value)} />
+                                    <InputField label="Issuer" value={cert.issuer} onChange={(e) => handleArrayChange('certificates', index, 'issuer', e.target.value)} />
+                                    <InputField label="Date" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} />
+                                </div>
+                            )}
+                        />
+                    )}
 
                     {/* Languages */}
-                    <FormSection 
-                        title="Languages" 
-                        icon={Globe2} 
-                        items={languages}
-                        onAdd={(action, id) => action === 'add' ? addItem('languages', { name: '', proficiency: '' }) : removeItem('languages', id)}
-                        renderItem={(lang, index) => (
-                            <div className="grid grid-cols-2 gap-6">
-                                <InputField label="Language" value={lang.name} onChange={(e) => handleArrayChange('languages', index, 'name', e.target.value)} placeholder="e.g. English" />
-                                <InputField label="Proficiency" value={lang.proficiency} onChange={(e) => handleArrayChange('languages', index, 'proficiency', e.target.value)} placeholder="e.g. Native / Fluent" />
-                            </div>
-                        )}
-                    />
+                    {isFieldVisible('languages') && (
+                        <FormSection 
+                            title="Languages" 
+                            icon={Globe2} 
+                            items={languages}
+                            onAdd={(action, id) => action === 'add' ? addItem('languages', { name: '', proficiency: '' }) : removeItem('languages', id)}
+                            renderItem={(lang, index) => (
+                                <div className="grid grid-cols-2 gap-6">
+                                    <InputField label="Language" value={lang.name} onChange={(e) => handleArrayChange('languages', index, 'name', e.target.value)} placeholder="e.g. English" />
+                                    <InputField label="Proficiency" value={lang.proficiency} onChange={(e) => handleArrayChange('languages', index, 'proficiency', e.target.value)} placeholder="e.g. Native / Fluent" />
+                                </div>
+                            )}
+                        />
+                    )}
+
+                    {/* Achievements */}
+                    {isFieldVisible('achievements') && (
+                        <FormSection 
+                            title="Achievements" 
+                            icon={Trophy} 
+                            items={achievements}
+                            onAdd={(action, id) => action === 'add' ? addItem('achievements', { title: '', description: '' }) : removeItem('achievements', id)}
+                            renderItem={(ach, index) => (
+                                <div className="space-y-4">
+                                    <InputField label="Achievement Title" value={ach.title} onChange={(e) => handleArrayChange('achievements', index, 'title', e.target.value)} placeholder="e.g. Dean's List" />
+                                    <InputField label="Description" value={ach.description} onChange={(e) => handleArrayChange('achievements', index, 'description', e.target.value)} multiline placeholder="Describe the achievement..." />
+                                </div>
+                            )}
+                        />
+                    )}
                 </main>
 
                 {/* 2. Preview Pane (Right) */}
@@ -478,6 +604,11 @@ const Editor = () => {
                     </div>
                 </div>
             )}
+            {/* History Sidebar */}
+            <HistorySidebar 
+                isOpen={showHistory} 
+                onClose={() => setShowHistory(false)} 
+            />
         </div>
     );
 };

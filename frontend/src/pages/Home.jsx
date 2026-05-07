@@ -110,7 +110,7 @@ const Home = () => {
                                 </motion.p>
 
                                 <motion.div variants={fadeIn} className="flex flex-wrap items-center gap-4">
-                                    <Link to={isAuthenticated ? "/editor" : "/register"} className="btn-primary px-10 py-4 text-sm font-bold rounded-xl group">
+                                    <Link to="/editor" className="btn-primary px-10 py-4 text-sm font-bold rounded-xl group">
                                         {isAuthenticated ? 'Continue Building' : 'Create Your Resume'}
                                         <Zap size={16} className="group-hover:fill-current transition-all" />
                                     </Link>
@@ -219,7 +219,7 @@ const Home = () => {
                                         Ready for your <span className="text-primary">next chapter?</span>
                                     </h2>
                                     <div className="flex flex-col sm:flex-row items-center gap-4">
-                                        <Link to={isAuthenticated ? "/editor" : "/register"} className="w-full sm:w-auto px-8 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-primary-dark transition-all text-center">
+                                        <Link to="/editor" className="w-full sm:w-auto px-8 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-primary-dark transition-all text-center">
                                             {isAuthenticated ? 'Continue Building' : 'Get Started Now'}
                                         </Link>
                                         <Link to="/templates" className="w-full sm:w-auto px-8 py-3 border border-border text-heading text-[10px] font-bold uppercase tracking-widest hover:bg-surface-highlight transition-all text-center">

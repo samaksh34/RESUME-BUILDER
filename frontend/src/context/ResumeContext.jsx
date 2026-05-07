@@ -55,6 +55,7 @@ export const ResumeProvider = ({ children }) => {
 
     const { isAuthenticated } = useContext(AuthContext);
     const saveTimeoutRef = useRef(null);
+    const titleSaveTimeoutRef = useRef(null);
 
     // Fetch all resumes for the user
     const fetchUserResumes = async () => {
@@ -69,6 +70,10 @@ export const ResumeProvider = ({ children }) => {
             if (activeResumeId) {
                 const active = resumes.find(r => r._id === activeResumeId);
                 if (active) setActiveResumeTitle(active.title);
+            } else if (resumes.length > 0) {
+                // Automatically load the most recent resume if none is active
+                const mostRecent = resumes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
+                loadResume(mostRecent._id);
             }
         } catch (error) {
             console.error('Failed to fetch resumes:', error);
@@ -115,6 +120,7 @@ export const ResumeProvider = ({ children }) => {
 
         return () => {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+            if (titleSaveTimeoutRef.current) clearTimeout(titleSaveTimeoutRef.current);
         };
     }, [resumeData, activeResumeId, isAuthenticated]);
 
@@ -161,14 +167,19 @@ export const ResumeProvider = ({ children }) => {
 
     const updateResumeTitle = async (newTitle) => {
         setActiveResumeTitle(newTitle);
+        
+        // Update the list locally so other parts of the UI (HistorySidebar) see it instantly
+        setUserResumes(prev => prev.map(r => r._id === activeResumeId ? { ...r, title: newTitle } : r));
+
         if (isAuthenticated && activeResumeId) {
-            try {
-                await resumeAPI.update(activeResumeId, undefined, newTitle); // Wait, I need to check API service
-                // Actually, let's fix the API service to accept title separately
-                fetchUserResumes();
-            } catch (error) {
-                console.error('Failed to update title:', error);
-            }
+            if (titleSaveTimeoutRef.current) clearTimeout(titleSaveTimeoutRef.current);
+            titleSaveTimeoutRef.current = setTimeout(async () => {
+                try {
+                    await resumeAPI.update(activeResumeId, undefined, newTitle);
+                } catch (error) {
+                    console.error('Failed to update title:', error);
+                }
+            }, 1000); // 1s debounce for title
         }
     };
 

@@ -88,7 +88,7 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
                                 </div>
                                 <div className="text-right flex-shrink-0">
                                     <div className="font-medium text-heading whitespace-nowrap">
-                                        {edu.startDate}
+                                        {edu.startDate} {edu.endDate ? `– ${edu.endDate}` : ''}
                                     </div>
                                     {edu.score && <div className="text-subtext">{edu.score}</div>}
                                 </div>
@@ -281,7 +281,7 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
     }
 
     // Boxed template: soft grey background with white cards for each section
-    if (template === 'boxed') {
+    if (template === 'boxed' || template === 'modern') {
         return (
             <div
                 ref={ref}
@@ -324,23 +324,29 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
                     {personalInfo?.fullName || 'YOUR NAME'}
                 </h1>
                 
-                {/* Contacts - LaTeX \small is ~9pt for 10pt base, but user wants 10pt mostly */}
-                <div className="flex flex-wrap justify-center text-[10pt] text-black mb-4 w-full leading-tight">
-                    <div className="flex items-center mx-3 whitespace-nowrap">
-                        <Phone size={11} className="mr-1.5" />
+                <div className="flex flex-wrap justify-center text-[10pt] text-black mb-4 w-full leading-tight gap-y-1">
+                    {personalInfo?.address && (
+                        <div className="flex items-center px-3 whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center mr-1.5" data-icon="globe"><Globe size={11} /></span>
+                            <span>{personalInfo.address}</span>
+                        </div>
+                    )}
+
+                    <div className="flex items-center px-3 whitespace-nowrap">
+                        <span className="inline-flex items-center justify-center mr-1.5" data-icon="phone"><Phone size={11} /></span>
                         <span>{personalInfo?.phone || '1234567890'}</span>
                     </div>
                     
-                    <div className="flex items-center mx-3 whitespace-nowrap">
-                        <Mail size={11} className="mr-1.5" />
+                    <div className="flex items-center px-3 whitespace-nowrap">
+                        <span className="inline-flex items-center justify-center mr-1.5" data-icon="mail"><Mail size={11} /></span>
                         <a href={`mailto:${personalInfo?.email || 'email@example.com'}`} className="text-black no-underline">
                             {personalInfo?.email || 'email@example.com'}
                         </a>
                     </div>
                     
                     {personalInfo?.linkedin && (
-                        <div className="flex items-center mx-3 whitespace-nowrap">
-                            <Linkedin size={11} className="mr-1.5" />
+                        <div className="flex items-center px-3 whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center mr-1.5" data-icon="linkedin"><Linkedin size={11} /></span>
                             <a 
                                 href={personalInfo.linkedin.startsWith('http') ? personalInfo.linkedin : `https://${personalInfo.linkedin}`}
                                 className="text-black no-underline"
@@ -351,8 +357,8 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
                     )}
                     
                     {personalInfo?.github && (
-                        <div className="flex items-center mx-3 whitespace-nowrap">
-                            <Github size={11} className="mr-1.5" />
+                        <div className="flex items-center px-3 whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center mr-1.5" data-icon="github"><Github size={11} /></span>
                             <a 
                                 href={personalInfo.github.startsWith('http') ? personalInfo.github : `https://${personalInfo.github}`}
                                 className="text-black no-underline"
@@ -380,7 +386,7 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
                                         <span className="font-bold text-[10pt] leading-none">{edu.startDate} {edu.endDate ? `– ${edu.endDate}` : ''}</span>
                                     </div>
                                     <div className="text-[10pt] text-black">
-                                        {edu.school} {edu.location && ` --- ${edu.location}`} {edu.score && ` --- ${edu.score}`}
+                                        {edu.school} {edu.score && ` --- ${edu.score}`}
                                     </div>
                                 </div>
                             ))}
@@ -449,6 +455,9 @@ const ResumePreview = forwardRef(({ template = 'classic', data: propData }, ref)
                                         <span className="font-bold text-[10pt] leading-none">{intern.role} | {intern.company}</span>
                                         <span className="font-bold text-[10pt] leading-none">{intern.startDate} – {intern.endDate}</span>
                                     </div>
+                                    {intern.location && (
+                                        <div className="text-[10pt] text-black italic leading-none mb-1">{intern.location}</div>
+                                    )}
                                     {intern.description && (
                                         <ul className="list-none ml-2 space-y-0.5 text-[10pt] text-black text-justify leading-tight">
                                             {intern.description.map((desc, i) => (

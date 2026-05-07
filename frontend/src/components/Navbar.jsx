@@ -60,11 +60,9 @@ const Navbar = () => {
                 <div className="hidden md:flex items-center gap-6">
                     <NavLink to="/templates" active={location.pathname === '/templates'}>Templates</NavLink>
                     {isAuthenticated && (
-                        <>
-                            <NavLink to="/dashboard" active={location.pathname === '/dashboard'}>History</NavLink>
-                            <NavLink to="/editor" active={location.pathname === '/editor'}>Editor</NavLink>
-                        </>
+                        <NavLink to="/dashboard" active={location.pathname === '/dashboard'}>History</NavLink>
                     )}
+                    <NavLink to="/editor" active={location.pathname === '/editor'}>Editor</NavLink>
                 </div>
 
                 {/* Right Side Actions */}
