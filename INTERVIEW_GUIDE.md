@@ -13,7 +13,7 @@ This guide is designed to help you ace technical interviews by explaining the ar
 
 | Layer | Technology | Why this choice? |
 | :--- | :--- | :--- |
-| **Frontend** | React (Vite) | Chosen for component reusability and fast HMR (Hot Module Replacement) during development. |
+| **Frontend** | React (Vite) | Chosen for component reusability and fast HMR (Hot Module Replacement) a crucial web development technique that updates individual modules (like JS or CSS) in a running application instantly without a full page reload during development. |
 | **Styling** | Tailwind CSS | Allows for rapid UI prototyping and consistent design tokens (colors, spacing) without writing bulky CSS. |
 | **Backend** | Node.js + Express | Single-language stack (JavaScript) allows for shared logic/types and handles asynchronous I/O efficiently. |
 | **Database** | MongoDB + Mongoose | Flexible schema design is perfect for resumes where sections (Education, Experience) can vary wildly in structure. |
