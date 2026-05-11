@@ -18,7 +18,15 @@ connectDB();
 // ── Global Middleware ───────────────────────────────────────────────
 // ── Global Middleware ───────────────────────────────────────────────
 const allowedOrigins = process.env.CLIENT_URL 
-    ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, '')) 
+    ? process.env.CLIENT_URL.split(',').map(url => {
+        try {
+            const parsed = new URL(url.trim());
+            return `${parsed.protocol}//${parsed.host}`;
+        } catch (e) {
+            // Fallback for non-standard or malformed URLs
+            return url.trim().replace(/\/$/, '');
+        }
+    })
     : ['http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
