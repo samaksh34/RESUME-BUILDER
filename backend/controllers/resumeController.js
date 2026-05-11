@@ -41,8 +41,12 @@ export const exportPDF = async (req, res, next) => {
         // 2. Set content and wait for it to render
         await page.setContent(html, { 
             waitUntil: 'networkidle',
-            timeout: 8000 // 8s timeout for rendering
+            timeout: 15000 // 15s timeout for rendering
         });
+
+        // Additional wait to ensure fonts and tailwind are fully processed
+        await page.waitForTimeout(1000); 
+        await page.evaluateHandle('document.fonts.ready');
 
         // 3. Generate PDF
         const pdfBuffer = await page.pdf({

@@ -138,10 +138,43 @@ const Editor = () => {
                 <head>
                     <meta charset="utf-8">
                     <title>${activeResumeTitle || 'Resume'}</title>
+                    
+                    <!-- Load all required fonts -->
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+                    
+                    <!-- Tailwind CDN -->
                     <script src="https://cdn.tailwindcss.com"></script>
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+                    
+                    <script>
+                        tailwind.config = {
+                            theme: {
+                                extend: {
+                                    colors: {
+                                        background: "rgb(var(--color-background) / <alpha-value>)",
+                                        surface: "rgb(var(--color-surface) / <alpha-value>)",
+                                        "surface-highlight": "rgb(var(--color-surface-highlight) / <alpha-value>)",
+                                        primary: "#4F46E5",
+                                        heading: "rgb(var(--color-heading) / <alpha-value>)",
+                                        text: "rgb(var(--color-text) / <alpha-value>)",
+                                        subtext: "rgb(var(--color-subtext) / <alpha-value>)",
+                                        border: "rgb(var(--color-border) / <alpha-value>)",
+                                    },
+                                    fontFamily: {
+                                        sans: ['Inter', 'sans-serif'],
+                                        serif: ['Merriweather', 'serif'],
+                                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                                    }
+                                }
+                            }
+                        }
+                    </script>
+
                     <style>
                         :root {
+                            /* Force Light Mode variables for PDF */
+                            --color-background: 255 255 255;
+                            --color-surface: 249 250 251;
+                            --color-surface-highlight: 243 244 246;
                             --color-heading: 15 23 42;
                             --color-text: 51 65 85;
                             --color-subtext: 71 85 105;
@@ -153,23 +186,27 @@ const Editor = () => {
                             margin: 0; 
                             padding: 0; 
                             -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                             background-color: white;
+                            font-family: 'Inter', sans-serif;
                         }
 
-                        /* Helper classes to resolve CSS variables in Tailwind */
-                        .text-heading { color: rgb(var(--color-heading)); }
-                        .text-text { color: rgb(var(--color-text)); }
-                        .text-subtext { color: rgb(var(--color-subtext)); }
-                        .border-border { border-color: rgb(var(--color-border)); }
-                        .text-primary { color: var(--primary); }
-                        .bg-primary { background-color: var(--primary); }
-
-                        /* Ensure the preview container looks right in PDF */
+                        /* Ensure the resume-preview fills the A4 page correctly */
                         #resume-preview {
                             box-shadow: none !important;
-                            margin: 0 auto !important;
+                            margin: 0 !important;
                             border: none !important;
                             transform: scale(1) !important;
+                            width: 210mm !important;
+                            min-height: 297mm !important;
+                            background-color: white !important;
+                            page-break-after: always;
+                        }
+
+                        /* Fix for Lucide icons rendering in some PDF engines */
+                        svg {
+                            display: inline-block;
+                            vertical-align: middle;
                         }
 
                         @media print {
@@ -177,6 +214,7 @@ const Editor = () => {
                                 size: A4;
                                 margin: 0;
                             }
+                            body { margin: 0; }
                         }
                     </style>
                 </head>
