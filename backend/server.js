@@ -17,9 +17,13 @@ connectDB();
 
 // ── Global Middleware ───────────────────────────────────────────────
 app.use(cors({
-    origin: true, // Allow all origins for diagnostic
+    origin: (origin, callback) => {
+        // Allow all origins for diagnostic, reflecting the origin header
+        callback(null, true);
+    },
     credentials: true, // Allow cookies
 }));
+
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// HARDCODED FOR PRODUCTION DIAGNOSTIC
-const API_BASE_URL = 'https://resume-builder-backend-six-lac.vercel.app/api';
+// Use environment variable with a robust fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://resume-builder-backend-six-lac.vercel.app/api';
+
 
 // Create axios instance with defaults
 const api = axios.create({
