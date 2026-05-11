@@ -41,12 +41,26 @@ export const exportPDF = async (req, res, next) => {
         // 2. Set content and wait for it to render
         await page.setContent(html, { 
             waitUntil: 'networkidle',
-            timeout: 15000 // 15s timeout for rendering
+            timeout: 20000 // Increased timeout for better stability
         });
 
-        // Additional wait to ensure fonts and tailwind are fully processed
-        await page.waitForTimeout(1000); 
-        await page.evaluateHandle('document.fonts.ready');
+        // Robust font loading wait
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+            // Additional check for Google Fonts link tags
+            const links = Array.from(document.querySelectorAll('link[href*="fonts.googleapis.com"]'));
+            await Promise.all(links.map(link => {
+                if (link.sheet) return Promise.resolve();
+                return new Promise(resolve => {
+                    link.onload = resolve;
+                    link.onerror = resolve; // Continue even on error
+                });
+            }));
+        });
+        
+        // Final short delay to ensure layout shifts are settled
+        await page.waitForTimeout(500);
+
 
         // 3. Generate PDF
         const pdfBuffer = await page.pdf({

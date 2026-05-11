@@ -140,7 +140,7 @@ const Editor = () => {
                     <title>${activeResumeTitle || 'Resume'}</title>
                     
                     <!-- Load all required fonts -->
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
                     
                     <!-- Tailwind CDN -->
                     <script src="https://cdn.tailwindcss.com"></script>
@@ -150,19 +150,20 @@ const Editor = () => {
                             theme: {
                                 extend: {
                                     colors: {
-                                        background: "rgb(var(--color-background) / <alpha-value>)",
-                                        surface: "rgb(var(--color-surface) / <alpha-value>)",
-                                        "surface-highlight": "rgb(var(--color-surface-highlight) / <alpha-value>)",
+                                        background: "255 255 255",
+                                        surface: "249 250 251",
+                                        "surface-highlight": "243 244 246",
                                         primary: "#4F46E5",
-                                        heading: "rgb(var(--color-heading) / <alpha-value>)",
-                                        text: "rgb(var(--color-text) / <alpha-value>)",
-                                        subtext: "rgb(var(--color-subtext) / <alpha-value>)",
-                                        border: "rgb(var(--color-border) / <alpha-value>)",
+                                        heading: "15 23 42",
+                                        text: "51 65 85",
+                                        subtext: "71 85 105",
+                                        border: "203 213 225",
                                     },
                                     fontFamily: {
                                         sans: ['Inter', 'sans-serif'],
                                         serif: ['Merriweather', 'serif'],
                                         display: ['Plus Jakarta Sans', 'sans-serif'],
+                                        ats: ['"EB Garamond"', 'serif'],
                                     }
                                 }
                             }
@@ -189,6 +190,7 @@ const Editor = () => {
                             print-color-adjust: exact;
                             background-color: white;
                             font-family: 'Inter', sans-serif;
+                            color: #334155;
                         }
 
                         /* Ensure the resume-preview fills the A4 page correctly */
@@ -201,6 +203,12 @@ const Editor = () => {
                             min-height: 297mm !important;
                             background-color: white !important;
                             page-break-after: always;
+                            box-sizing: border-box !important;
+                        }
+
+                        /* ATS Template specific overrides for PDF rendering */
+                        #resume-preview[style*="EB Garamond"] {
+                            font-family: "EB Garamond", serif !important;
                         }
 
                         /* Fix for Lucide icons rendering in some PDF engines */
@@ -222,6 +230,7 @@ const Editor = () => {
                     ${resumeHtml}
                 </body>
                 </html>
+
             `;
 
             // 3. Send to backend for Playwright conversion
