@@ -93,8 +93,8 @@ export const verifyOTP = async (req, res, next) => {
         // Set refresh token as httpOnly cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            secure: true, // Always true for HTTPS (Vercel)
+            sameSite: 'none', // Required for cross-site cookies
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
@@ -177,8 +177,8 @@ export const login = async (req, res, next) => {
         // Set refresh token as httpOnly cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -258,8 +258,8 @@ export const refreshAccessToken = async (req, res, next) => {
         // Set new refresh token cookie
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 

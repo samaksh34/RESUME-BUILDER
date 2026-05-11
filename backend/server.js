@@ -23,8 +23,9 @@ app.use(cors({
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
+            // Log the blocked origin for easier debugging
+            console.warn(`⚠️ Blocked by CORS: ${origin}`);
+            return callback(null, false); // Don't return an error, just block
         }
         return callback(null, true);
     },
@@ -48,12 +49,39 @@ const authLimiter = rateLimit({
 });
 
 // ── Routes ──────────────────────────────────────────────────────────
+// ── Root Route ──────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: '👋 Welcome to the Resume Builder API',
+        status: 'online',
+        endpoints: {
+            health: '/api/health',
+            auth: '/api/auth',
+            resumes: '/api/resumes'
+        }
+    });
+});
+
 app.get('/api/health', (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    const dbStatus = mongoose.connection.readyState;
+    const dbStatusMap = {
+        0: 'disconnected',
+        1: 'connected',
+        2: 'connecting',
+        3: 'disconnecting'
+    };
+    
     res.status(200).json({
         success: true,
         message: '🚀 Resume Builder API is running',
-        database: dbStatus,
+        database: {
+            status: dbStatusMap[dbStatus] || 'unknown',
+            host: mongoose.connection.host || 'none',
+            connected: dbStatus === 1
+        },
+        environment: process.env.NODE_ENV,
+        vercel: !!process.env.VERCEL,
         timestamp: new Date().toISOString(),
     });
 });
@@ -73,7 +101,8 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ── Start Server ────────────────────────────────────────────────────
-if (process.env.NODE_ENV !== 'production') {
+// Only start the server if we're not running in a Vercel environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log('');
         console.log('╔══════════════════════════════════════════════╗');
