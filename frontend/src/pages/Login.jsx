@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, FileText } from 'lucide-react';
 
 const Login = () => {
@@ -38,7 +39,7 @@ const Login = () => {
 
             // More descriptive error messages for debugging
             if (!err.response) {
-                setError(`Connection Error: Backend is unreachable. Please check VITE_API_URL.`);
+                setError(`Connection Error: Unreachable at ${api.defaults.baseURL}. Check VITE_API_URL.`);
             } else {
                 setError(data?.message || 'Login failed. Please try again.');
             }
