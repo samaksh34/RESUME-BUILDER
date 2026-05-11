@@ -63,7 +63,10 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    // Force a connection attempt if not connected
+    await connectDB();
+    
     const dbStatus = mongoose.connection.readyState;
     const dbStatusMap = {
         0: 'disconnected',
