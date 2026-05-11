@@ -31,6 +31,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// ── Database Connectivity Middleware ───────────────────────────────
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(503).json({ success: false, message: 'Database unavailable' });
+    }
+});
+
 // ── Routes ──────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
     res.status(200).json({
@@ -41,6 +52,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', async (req, res) => {
+    await connectDB();
     const dbStatus = mongoose.connection.readyState;
     const dbStatusMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
     
