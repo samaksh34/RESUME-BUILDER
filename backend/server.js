@@ -17,87 +17,35 @@ connectDB();
 
 // ── Global Middleware ───────────────────────────────────────────────
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow all origins for diagnostic, reflecting the origin header
-        callback(null, true);
-    },
-    credentials: true, // Allow cookies
+    origin: 'https://resume-builder-eight-ochre.vercel.app',
+    credentials: true,
 }));
-
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ── Database Connectivity Middleware ───────────────────────────────
-// Ensures the DB is connected before any route is handled (Serverless fix)
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        console.error('Database connection middleware error:', error);
-        res.status(503).json({
-            success: false,
-            message: 'Database is temporarily unavailable. Please try again in a few seconds.',
-        });
-    }
-});
-
-// ── Rate Limiting (auth routes) ─────────────────────────────────────
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Increased to 100 requests for smoother development
-    message: {
-        success: false,
-        message: 'Too many requests — please try again after 15 minutes',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
 // ── Routes ──────────────────────────────────────────────────────────
-// ── Root Route ──────────────────────────────────────────────────────
 app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
         message: '👋 Welcome to the Resume Builder API',
         status: 'online',
-        endpoints: {
-            health: '/api/health',
-            auth: '/api/auth',
-            resumes: '/api/resumes'
-        }
     });
 });
 
 app.get('/api/health', async (req, res) => {
-    // Force a connection attempt if not connected
-    await connectDB();
-    
     const dbStatus = mongoose.connection.readyState;
-    const dbStatusMap = {
-        0: 'disconnected',
-        1: 'connected',
-        2: 'connecting',
-        3: 'disconnecting'
-    };
+    const dbStatusMap = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
     
     res.status(200).json({
         success: true,
-        message: '🚀 Resume Builder API is running',
-        database: {
-            status: dbStatusMap[dbStatus] || 'unknown',
-            host: mongoose.connection.host || 'none',
-            connected: dbStatus === 1
-        },
-        environment: process.env.NODE_ENV,
-        vercel: !!process.env.VERCEL,
+        database: { status: dbStatusMap[dbStatus] || 'unknown', connected: dbStatus === 1 },
         timestamp: new Date().toISOString(),
     });
 });
 
-app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 
 // ── 404 Handler ─────────────────────────────────────────────────────
