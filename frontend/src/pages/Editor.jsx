@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HistorySidebar from '../components/HistorySidebar';
+import { resumeAPI } from '../services/api';
 
 const Editor = () => {
     const { 
@@ -125,76 +126,78 @@ const Editor = () => {
         setExporting(true);
         
         try {
-            // 1. Wait for fonts with a timeout to prevent hanging
-            await Promise.race([
-                document.fonts.ready,
-                new Promise(resolve => setTimeout(resolve, 2000))
-            ]);
-            
-            const html2canvas = (await import('html2canvas')).default;
-            const { jsPDF } = await import('jspdf');
             const element = resumeRef.current;
             
-            // A4 dimensions in mm
-            const A4_W = 210;
-            const A4_H = 297;
+            // 1. Get the full HTML (outerHTML preserves the root div's classes and styles)
+            const resumeHtml = element.outerHTML;
             
-            // 2. Prepare for capture
-            const zoomWrapper = element.parentElement;
-            const origTransform = zoomWrapper.style.transform;
-            zoomWrapper.style.transform = 'scale(1)';
-            
-            // Force reflow
-            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-            
-            // 3. Capture with html2canvas
-            // We'll use a hidden clone to ensure a clean capture environment
-            const clone = element.cloneNode(true);
-            clone.style.transform = 'none';
-            clone.style.boxShadow = 'none';
-            clone.style.margin = '0';
-            clone.style.position = 'absolute';
-            clone.style.left = '-9999px';
-            clone.style.top = '0';
-            document.body.appendChild(clone);
-            
-            const canvas = await html2canvas(clone, {
-                scale: 2, // Standard high quality
-                useCORS: true,
-                backgroundColor: '#FFFFFF',
-                logging: false,
-                width: element.offsetWidth,
-                windowWidth: element.offsetWidth,
-            });
-            
-            // Clean up clone and restore zoom
-            document.body.removeChild(clone);
-            zoomWrapper.style.transform = origTransform;
-            
-            // 4. Create PDF and add pages
-            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-            
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const imgWidth = A4_W;
-            const imgHeight = (canvas.height * A4_W) / canvas.width;
-            
-            let heightLeft = imgHeight;
-            let position = 0;
+            // 2. Wrap in a full document with necessary styles
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>${activeResumeTitle || 'Resume'}</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        :root {
+                            --color-heading: 15 23 42;
+                            --color-text: 51 65 85;
+                            --color-subtext: 71 85 105;
+                            --color-border: 203 213 225;
+                            --primary: #4F46E5;
+                        }
 
-            // Add first page
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-            heightLeft -= A4_H;
+                        body { 
+                            margin: 0; 
+                            padding: 0; 
+                            -webkit-print-color-adjust: exact;
+                            background-color: white;
+                        }
 
-            // Add subsequent pages if content overflows
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-                heightLeft -= A4_H;
-            }
+                        /* Helper classes to resolve CSS variables in Tailwind */
+                        .text-heading { color: rgb(var(--color-heading)); }
+                        .text-text { color: rgb(var(--color-text)); }
+                        .text-subtext { color: rgb(var(--color-subtext)); }
+                        .border-border { border-color: rgb(var(--color-border)); }
+                        .text-primary { color: var(--primary); }
+                        .bg-primary { background-color: var(--primary); }
+
+                        /* Ensure the preview container looks right in PDF */
+                        #resume-preview {
+                            box-shadow: none !important;
+                            margin: 0 auto !important;
+                            border: none !important;
+                        }
+
+                        @media print {
+                            @page {
+                                size: A4;
+                                margin: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${resumeHtml}
+                </body>
+                </html>
+            `;
+
+            // 3. Send to backend for Playwright conversion
+            const response = await resumeAPI.exportPDF(fullHtml);
             
-            const filename = (exportFilename.trim() || 'resume') + '.pdf';
-            pdf.save(filename);
+            // 4. Trigger download
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${(exportFilename.trim() || 'resume')}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
             
             setExportSuccess(true);
             setTimeout(() => {
@@ -202,12 +205,12 @@ const Editor = () => {
                 setShowExportModal(false);
             }, 2000);
         } catch (error) {
-            console.error('PDF export failed:', error);
+            console.error('Playwright PDF export failed:', error);
             alert('Export failed. Please try again.');
         } finally {
             setExporting(false);
         }
-    }, [exporting, exportFilename]);
+    }, [exporting, exportFilename, activeResumeTitle]);
 
 
 

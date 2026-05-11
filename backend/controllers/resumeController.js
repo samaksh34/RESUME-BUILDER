@@ -1,4 +1,69 @@
 import Resume from '../models/Resume.js';
+import chromium from '@sparticuz/chromium';
+import { chromium as playwright } from 'playwright-core';
+
+/**
+ * @desc    Export resume as PDF using Playwright
+ * @route   POST /api/resumes/export
+ * @access  Public (or Private if you want to restrict)
+ */
+export const exportPDF = async (req, res, next) => {
+    let browser = null;
+    try {
+        const { html } = req.body;
+
+        if (!html) {
+            return res.status(400).json({
+                success: false,
+                message: 'HTML content is required',
+            });
+        }
+
+        // 1. Launch Browser (optimized for serverless)
+        const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+        
+        browser = await playwright.launch({
+            args: isProd ? chromium.args : [],
+            executablePath: isProd ? await chromium.executablePath() : undefined,
+            headless: isProd ? chromium.headless : true,
+        });
+
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        // 2. Set content and wait for it to render
+        await page.setContent(html, { 
+            waitUntil: 'networkidle',
+            timeout: 8000 // 8s timeout for rendering
+        });
+
+        // 3. Generate PDF
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: '0px', right: '0px', bottom: '0px', left: '0px' },
+            displayHeaderFooter: false,
+            preferCSSPageSize: true
+        });
+
+        // 4. Clean up
+        await browser.close();
+
+        // 5. Send PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=resume.pdf');
+        res.send(pdfBuffer);
+
+    } catch (error) {
+        console.error('PDF Export Error:', error);
+        if (browser) await browser.close();
+        res.status(500).json({
+            success: false,
+            message: 'Failed to generate PDF. Please try again.',
+            error: error.message
+        });
+    }
+};
 
 /**
  * @desc    Get all user resumes

@@ -80,6 +80,7 @@ export const resumeAPI = {
     create: (data) => api.post('/resumes', { data }),
     update: (id, data, title) => api.put(`/resumes/${id}`, { data, title }),
     delete: (id) => api.delete(`/resumes/${id}`),
+    exportPDF: (html) => api.post('/resumes/export', { html }, { responseType: 'blob' }),
 };
 
 export const authAPI = {

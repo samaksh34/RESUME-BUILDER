@@ -5,12 +5,16 @@ import {
     getResumeById, 
     createResume, 
     updateResume, 
-    deleteResume 
+    deleteResume,
+    exportPDF
 } from '../controllers/resumeController.js';
 
 const router = express.Router();
 
-// All resume routes are protected
+// Publicly accessible export (optional, but usually protected)
+router.post('/export', exportPDF);
+
+// All other resume routes are protected
 router.use(protect);
 
 router.get('/', getResumes);
