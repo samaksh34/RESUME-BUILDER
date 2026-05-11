@@ -169,6 +169,7 @@ const Editor = () => {
                             box-shadow: none !important;
                             margin: 0 auto !important;
                             border: none !important;
+                            transform: scale(1) !important;
                         }
 
                         @media print {

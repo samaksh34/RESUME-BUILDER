@@ -79,6 +79,8 @@ export const AuthProvider = ({ children }) => {
             // Ignore errors on logout
         }
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('resumeData');
+        localStorage.removeItem('activeResumeId');
         setUser(null);
     }, []);
 

@@ -53,9 +53,10 @@ export const ResumeProvider = ({ children }) => {
     const [userResumes, setUserResumes] = useState([]);
     const [isLoadingResumes, setIsLoadingResumes] = useState(false);
 
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, user } = useContext(AuthContext);
     const saveTimeoutRef = useRef(null);
     const titleSaveTimeoutRef = useRef(null);
+    const isCreatingRef = useRef(false); // Guard against duplicate creation
 
     // Fetch all resumes for the user
     const fetchUserResumes = async () => {
@@ -66,15 +67,30 @@ export const ResumeProvider = ({ children }) => {
             const resumes = data.data || [];
             setUserResumes(resumes);
             
-            // If we have an active ID, sync the title
+            // If we have an active ID in localStorage, sync its title
             if (activeResumeId) {
                 const active = resumes.find(r => r._id === activeResumeId);
-                if (active) setActiveResumeTitle(active.title);
-            } else if (resumes.length > 0) {
-                // Automatically load the most recent resume if none is active
-                const mostRecent = resumes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
-                loadResume(mostRecent._id);
+                if (active) {
+                    setActiveResumeTitle(active.title);
+                    return;
+                }
             }
+
+            // USER REQUEST: Start fresh if no active resume.
+            // PRO SUGGESTION: Create a "Ghost" resume (local only) to avoid DB bloat.
+            // It will be saved to the DB the moment the user makes their first edit.
+            const nextNumber = resumes.length + 1;
+            const nextTitle = nextNumber === 1 ? "First Resume" : `Resume ${nextNumber}`;
+            
+            // Prepare local state with User's name from AuthContext
+            const freshData = createSafeResumeData(null);
+            if (user?.name) {
+                freshData.personalInfo.fullName = user.name;
+            }
+            
+            setResumeData(freshData);
+            setActiveResumeId(null); // NULL means it's a "Ghost" (not yet in DB)
+            setActiveResumeTitle(nextTitle);
         } catch (error) {
             console.error('Failed to fetch resumes:', error);
         } finally {
@@ -90,6 +106,8 @@ export const ResumeProvider = ({ children }) => {
             setUserResumes([]);
             setActiveResumeId(null);
             setActiveResumeTitle('Untitled Resume');
+            // Reset state to default sample data on logout
+            setResumeData(createSafeResumeData(null));
         }
     }, [isAuthenticated]);
 
@@ -97,21 +115,20 @@ export const ResumeProvider = ({ children }) => {
     useEffect(() => {
         const safeData = createSafeResumeData(resumeData);
         localStorage.setItem('resumeData', JSON.stringify(safeData));
+        
+        // Only save activeResumeId to localStorage if it's a "real" (non-ghost) resume
         if (activeResumeId) {
             localStorage.setItem('activeResumeId', activeResumeId);
         } else {
             localStorage.removeItem('activeResumeId');
         }
 
-        if (isAuthenticated) {
-            // Debounce backend save
+        if (isAuthenticated && activeResumeId) {
+            // Debounce backend save for existing resumes
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = setTimeout(async () => {
                 try {
-                    if (activeResumeId) {
-                        // Update existing
-                        await resumeAPI.update(activeResumeId, safeData);
-                    }
+                    await resumeAPI.update(activeResumeId, safeData);
                 } catch (error) {
                     console.error('Failed to sync resume to backend:', error);
                 }
@@ -139,28 +156,47 @@ export const ResumeProvider = ({ children }) => {
         return false;
     };
 
-    const createNewResume = async (title = 'Untitled Resume') => {
-        const newData = createSafeResumeData(null);
+    const createNewResume = async (title, initialData = null) => {
+        // Determine name if not provided
+        let finalTitle = title;
+        if (!finalTitle) {
+            const nextNumber = userResumes.length + 1;
+            finalTitle = nextNumber === 1 ? "First Resume" : `Resume ${nextNumber}`;
+        }
+
+        const newData = initialData || createSafeResumeData(null);
+        
+        // Ensure user name is in personal info if it's a fresh creation
+        if (!initialData && user?.name && !newData.personalInfo.fullName) {
+            newData.personalInfo.fullName = user.name;
+        }
+
         if (isAuthenticated) {
+            if (isCreatingRef.current) return;
+            isCreatingRef.current = true;
+            
             try {
                 const { data } = await resumeAPI.create({ 
                     data: newData, 
-                    title 
+                    title: finalTitle 
                 });
                 if (data?.data) {
                     setResumeData(newData);
                     setActiveResumeId(data.data._id);
                     setActiveResumeTitle(data.data.title);
-                    fetchUserResumes(); // Refresh list
+                    // Update the list immediately
+                    setUserResumes(prev => [data.data, ...prev]);
                     return data.data._id;
                 }
             } catch (error) {
                 console.error('Failed to create resume:', error);
+            } finally {
+                isCreatingRef.current = false;
             }
         } else {
             setResumeData(newData);
             setActiveResumeId(null);
-            setActiveResumeTitle(title);
+            setActiveResumeTitle(finalTitle);
         }
         return null;
     };
@@ -250,10 +286,23 @@ export const ResumeProvider = ({ children }) => {
     };
 
     const updateResumeData = (section, value) => {
-        setResumeData(prev => ({
-            ...prev,
-            [section]: value
-        }));
+        setResumeData(prev => {
+            const newData = { ...prev, [section]: value };
+            
+            // GHOST REALIZATION: If this is a ghost resume (null ID) and the user is logged in,
+            // create it in the database on the first edit.
+            if (isAuthenticated && !activeResumeId) {
+                // We wrap this in a timeout or just call it immediately
+                // Using a small delay to ensure state is settled
+                setTimeout(() => {
+                    if (!activeResumeId) {
+                        createNewResume(activeResumeTitle, newData);
+                    }
+                }, 100);
+            }
+            
+            return newData;
+        });
     };
 
     return (
