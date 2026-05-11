@@ -139,8 +139,8 @@ const Editor = () => {
                     <meta charset="utf-8">
                     <title>${activeResumeTitle || 'Resume'}</title>
                     
-                    <!-- Load all required fonts -->
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+                    <!-- Load LaTeX-grade professional fonts -->
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
                     
                     <!-- Tailwind CDN -->
                     <script src="https://cdn.tailwindcss.com"></script>
@@ -153,16 +153,12 @@ const Editor = () => {
                                         background: "255 255 255",
                                         surface: "249 250 251",
                                         "surface-highlight": "243 244 246",
-                                        primary: "#4F46E5",
-                                        heading: "15 23 42",
-                                        text: "51 65 85",
-                                        subtext: "71 85 105",
-                                        border: "203 213 225",
+                                        primary: "#000000",
+                                        heading: "#000000",
+                                        text: "#000000",
+                                        border: "#000000",
                                     },
                                     fontFamily: {
-                                        sans: ['Inter', 'sans-serif'],
-                                        serif: ['Merriweather', 'serif'],
-                                        display: ['Plus Jakarta Sans', 'sans-serif'],
                                         ats: ['"EB Garamond"', 'serif'],
                                     }
                                 }
@@ -171,50 +167,50 @@ const Editor = () => {
                     </script>
 
                     <style>
-                        :root {
-                            /* Force Light Mode variables for PDF */
-                            --color-background: 255 255 255;
-                            --color-surface: 249 250 251;
-                            --color-surface-highlight: 243 244 246;
-                            --color-heading: 15 23 42;
-                            --color-text: 51 65 85;
-                            --color-subtext: 71 85 105;
-                            --color-border: 203 213 225;
-                            --primary: #4F46E5;
+                        /* Base Typography Reset for LaTeX feel */
+                        * {
+                            -webkit-font-smoothing: antialiased;
+                            -moz-osx-font-smoothing: grayscale;
+                            text-rendering: geometricPrecision;
                         }
 
                         body { 
                             margin: 0; 
                             padding: 0; 
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
                             background-color: white;
-                            font-family: 'Inter', sans-serif;
-                            color: #334155;
+                            font-family: "EB Garamond", serif;
+                            color: black;
+                            line-height: 1.2;
                         }
 
-                        /* Ensure the resume-preview fills the A4 page correctly */
+                        /* Ensure the resume-preview fills the A4 page with absolute precision */
                         #resume-preview {
-                            box-shadow: none !important;
-                            margin: 0 !important;
-                            border: none !important;
-                            transform: scale(1) !important;
                             width: 210mm !important;
                             min-height: 297mm !important;
-                            background-color: white !important;
-                            page-break-after: always;
+                            height: 297mm !important;
+                            padding: 0.75in !important;
                             box-sizing: border-box !important;
+                            background-color: white !important;
+                            box-shadow: none !important;
+                            margin: 0 !important;
+                            position: relative !important;
+                            font-feature-settings: "liga" 1, "kern" 1 !important;
+                            overflow: hidden !important;
                         }
 
-                        /* ATS Template specific overrides for PDF rendering */
-                        #resume-preview[style*="EB Garamond"] {
-                            font-family: "EB Garamond", serif !important;
+                        /* Force all text to be black and serif for ATS template */
+                        #resume-preview, #resume-preview * {
+                            color: black !important;
+                            border-color: black !important;
                         }
 
-                        /* Fix for Lucide icons rendering in some PDF engines */
-                        svg {
-                            display: inline-block;
-                            vertical-align: middle;
+                        /* Fix for bullet alignment in PDF export */
+                        li.relative.pl-\[14pt\] {
+                            padding-left: 14pt !important;
+                        }
+                        li.relative.pl-\[14pt\] span.absolute.left-0 {
+                            left: 0 !important;
+                            top: 0 !important;
                         }
 
                         @media print {
@@ -230,6 +226,7 @@ const Editor = () => {
                     ${resumeHtml}
                 </body>
                 </html>
+
 
             `;
 

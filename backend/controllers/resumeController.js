@@ -21,7 +21,7 @@ export const exportPDF = async (req, res, next) => {
 
         // 1. Launch Browser (optimized for serverless)
         const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-        
+        // 1. Launch browser
         browser = await playwright.launch({
             args: isProd ? [
                 ...chromium.args,
@@ -30,45 +30,54 @@ export const exportPDF = async (req, res, next) => {
                 '--disable-setuid-sandbox',
                 '--no-sandbox',
                 '--no-zygote',
+                '--font-render-hinting=none', // Ensure clean font rendering
             ] : [],
             executablePath: isProd ? await chromium.executablePath() : undefined,
             headless: isProd ? chromium.headless : true,
         });
 
-        const context = await browser.newContext();
+        const context = await browser.newContext({
+            viewport: { width: 794, height: 1123 }, // A4 at 96 DPI
+            deviceScaleFactor: 2, // High DPI for crisp text
+        });
         const page = await context.newPage();
 
         // 2. Set content and wait for it to render
         await page.setContent(html, { 
             waitUntil: 'networkidle',
-            timeout: 20000 // Increased timeout for better stability
+            timeout: 30000 
         });
 
         // Robust font loading wait
         await page.evaluate(async () => {
             await document.fonts.ready;
-            // Additional check for Google Fonts link tags
-            const links = Array.from(document.querySelectorAll('link[href*="fonts.googleapis.com"]'));
-            await Promise.all(links.map(link => {
+            // Force wait for all Google Fonts link tags to be active
+            const fontLinks = Array.from(document.querySelectorAll('link[href*="fonts.googleapis.com"]'));
+            await Promise.all(fontLinks.map(link => {
                 if (link.sheet) return Promise.resolve();
                 return new Promise(resolve => {
                     link.onload = resolve;
-                    link.onerror = resolve; // Continue even on error
+                    link.onerror = resolve;
                 });
             }));
         });
         
-        // Final short delay to ensure layout shifts are settled
-        await page.waitForTimeout(500);
-
+        // Final settle delay
+        await page.waitForTimeout(1000);
 
         // 3. Generate PDF
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
-            margin: { top: '0px', right: '0px', bottom: '0px', left: '0px' },
+            preferCSSPageSize: true, // Respect the 210mm x 297mm CSS
+            margin: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            },
             displayHeaderFooter: false,
-            preferCSSPageSize: true
+            scale: 1,
         });
 
         // 4. Clean up
