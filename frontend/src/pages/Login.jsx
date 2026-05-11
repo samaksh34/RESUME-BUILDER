@@ -28,12 +28,20 @@ const Login = () => {
             await login(formData.email, formData.password);
             navigate(from, { replace: true });
         } catch (err) {
+            console.error('Login error:', err);
             const data = err.response?.data;
+            
             if (data?.code === 'NOT_VERIFIED') {
                 navigate('/verify-otp', { state: { email: formData.email, purpose: 'verification' } });
                 return;
             }
-            setError(data?.message || 'Login failed. Please try again.');
+
+            // More descriptive error messages for debugging
+            if (!err.response) {
+                setError(`Connection Error: Backend is unreachable. Please check VITE_API_URL.`);
+            } else {
+                setError(data?.message || 'Login failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }

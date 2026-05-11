@@ -34,8 +34,12 @@ app.use(cors({
         }
         
         // Log the blocked origin for easier debugging in Vercel
-        console.warn(`⚠️ CORS Blocked: ${origin}. Allowed Origins: ${allowedOrigins.join(', ')}`);
-        return callback(null, false); 
+        console.error('--------------------------------------------------');
+        console.error(`❌ CORS BLOCK: ${origin}`);
+        console.error(`✅ ALLOWED: ${allowedOrigins.join(', ')}`);
+        console.error('--------------------------------------------------');
+        
+        return callback(new Error('Not allowed by CORS'), false); 
     },
     credentials: true, // Allow cookies
 }));
