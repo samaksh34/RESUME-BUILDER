@@ -1,14 +1,7 @@
 import axios from 'axios';
 
-let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-// Ensure it includes /api and doesn't have a trailing slash
-if (API_BASE_URL.endsWith('/')) {
-    API_BASE_URL = API_BASE_URL.slice(0, -1);
-}
-if (!API_BASE_URL.endsWith('/api')) {
-    API_BASE_URL = `${API_BASE_URL}/api`;
-}
+// HARDCODED FOR PRODUCTION DIAGNOSTIC
+const API_BASE_URL = 'https://resume-builder-backend-six-lac.vercel.app/api';
 
 // Create axios instance with defaults
 const api = axios.create({
