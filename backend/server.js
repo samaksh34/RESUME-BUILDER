@@ -29,6 +29,21 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// ── Database Connectivity Middleware ───────────────────────────────
+// Ensures the DB is connected before any route is handled (Serverless fix)
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection middleware error:', error);
+        res.status(503).json({
+            success: false,
+            message: 'Database is temporarily unavailable. Please try again in a few seconds.',
+        });
+    }
+});
+
 // ── Rate Limiting (auth routes) ─────────────────────────────────────
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

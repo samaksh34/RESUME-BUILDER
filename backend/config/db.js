@@ -22,10 +22,10 @@ const connectDB = async () => {
 
     if (!cached.promise) {
         const opts = {
-            bufferCommands: false,
+            bufferCommands: true, // Re-enabled for better reliability in serverless
             maxPoolSize: 10,
-            serverSelectionTimeoutMS: 5000, // 5s timeout
-            socketTimeoutMS: 45000, // 45s timeout
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
         };
 
         console.log('📡 Connecting to MongoDB...');
