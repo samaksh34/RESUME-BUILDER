@@ -16,18 +16,26 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // ── Global Middleware ───────────────────────────────────────────────
-const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : ['http://localhost:5173'];
+// ── Global Middleware ───────────────────────────────────────────────
+const allowedOrigins = process.env.CLIENT_URL 
+    ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, '')) 
+    : ['http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            // Log the blocked origin for easier debugging
-            console.warn(`⚠️ Blocked by CORS: ${origin}`);
-            return callback(null, false); // Don't return an error, just block
+        
+        // Normalize the origin by removing trailing slashes
+        const normalizedOrigin = origin.replace(/\/$/, '');
+        
+        if (allowedOrigins.indexOf(normalizedOrigin) !== -1) {
+            return callback(null, true);
         }
-        return callback(null, true);
+        
+        // Log the blocked origin for easier debugging in Vercel
+        console.warn(`⚠️ CORS Blocked: ${origin}. Allowed Origins: ${allowedOrigins.join(', ')}`);
+        return callback(null, false); 
     },
     credentials: true, // Allow cookies
 }));
