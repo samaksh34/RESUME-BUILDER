@@ -17,14 +17,16 @@ connectDB();
 // ── Global Middleware (Manual CORS) ────────────────────────────────
 app.use((req, res, next) => {
     const origin = req.headers.origin;
+    const clientUrls = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
     const allowedOrigins = [
         'http://localhost:5173',
         'http://localhost:5174',
-        'https://resume-builder-eight-ochre.vercel.app'
+        'https://resume-builder-eight-ochre.vercel.app',
+        ...clientUrls
     ];
     
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
+    if (allowedOrigins.includes(origin) || !origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
     }
     
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
