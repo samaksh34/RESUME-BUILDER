@@ -1,10 +1,19 @@
 import axios from 'axios';
 
-// Use environment variable or detect local/prod based on browser URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-    ((typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
-        ? 'http://localhost:5000/api' 
-        : 'https://resume-builder-backend-six-lac.vercel.app/api');
+// Environment-aware API URL detection
+const getApiBaseUrl = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+            return 'http://localhost:5000/api';
+        }
+    }
+    return 'https://resume-builder-backend-six-lac.vercel.app/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+console.log('🚀 API Base URL:', API_BASE_URL);
 
 
 // Create axios instance with defaults
