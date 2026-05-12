@@ -1,0 +1,47 @@
+/* src/core/print/page.css */
+
+/* 
+  Force A4 Dimensions with Absolute Precision 
+  A4 = 210mm x 297mm
+*/
+@page {
+    size: A4;
+    margin: 0;
+}
+
+:root {
+    --a4-width: 210mm;
+    --a4-height: 297mm;
+    --print-scale: 1;
+}
+
+/* Global Reset for Print Consistency */
+.resume-page-root {
+    width: var(--a4-width) !important;
+    min-height: var(--a4-height) !important;
+    height: var(--a4-height) !important;
+    background-color: white !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* Ensure no page breaks inside sections */
+.resume-section {
+    page-break-inside: avoid;
+}
+
+@media print {
+    body {
+        background: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}

@@ -42,8 +42,33 @@ export const exportPDF = async (req, res, next) => {
         });
         const page = await context.newPage();
 
-        // 2. Set content and wait for it to render
-        await page.setContent(html, { 
+        // 2. Set content with forced font injection
+        const styledHtml = `
+            <html>
+                <head>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap');
+                        body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
+                        * { 
+                            font-family: 'EB Garamond', serif !important; 
+                            letter-spacing: -0.025em !important;
+                            line-height: 1.1 !important;
+                        }
+                        .resume-page-root { 
+                            width: 210mm !important; 
+                            height: 297mm !important; 
+                            padding: 0.5in !important; 
+                            box-sizing: border-box !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${html}
+                </body>
+            </html>
+        `;
+
+        await page.setContent(styledHtml, { 
             waitUntil: 'networkidle',
             timeout: 30000 
         });

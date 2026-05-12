@@ -4,16 +4,16 @@ import ResumePreview from '../components/ResumePreview';
 import FormSection from '../components/FormSection';
 import InputField from '../components/InputField';
 import Navbar from '../components/Navbar';
-import { 
-    Plus, 
-    Trash2, 
-    ZoomIn, 
-    ZoomOut, 
-    RotateCcw, 
-    Download, 
-    FileText, 
-    Loader2, 
-    X, 
+import {
+    Plus,
+    Trash2,
+    ZoomIn,
+    ZoomOut,
+    RotateCcw,
+    Download,
+    FileText,
+    Loader2,
+    X,
     CheckCircle2,
     Save,
     User,
@@ -33,15 +33,21 @@ import HistorySidebar from '../components/HistorySidebar';
 import { resumeAPI } from '../services/api';
 
 const Editor = () => {
-    const { 
-        resumeData, 
-        updateResumeData, 
-        activeResumeTitle, 
+    const {
+        resumeData,
+        updateResumeData,
+        activeResumeTitle,
         updateResumeTitle,
-        activeResumeId
+        activeResumeId,
+        updateLayoutConfig,
+        resetLayout
     } = useResumeData();
     const [zoom, setZoom] = useState(100);
     const [template, setTemplate] = useState('ats');
+
+    // Map short template names to registry keys
+    const templateMap = { ats: 'ats-overleaf', classic: 'classic', modern: 'modern' };
+    const resolvedTemplate = templateMap[template] || 'ats-overleaf';
     const resumeRef = useRef(null);
     const [exporting, setExporting] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
@@ -124,13 +130,13 @@ const Editor = () => {
     const handleExportPDF = useCallback(async () => {
         if (!resumeRef.current || exporting) return;
         setExporting(true);
-        
+
         try {
             const element = resumeRef.current;
-            
+
             // 1. Get the full HTML (outerHTML preserves the root div's classes and styles)
             const resumeHtml = element.outerHTML;
-            
+
             // 2. Wrap in a full document with necessary styles
             const fullHtml = `
                 <!DOCTYPE html>
@@ -180,7 +186,7 @@ const Editor = () => {
                             background-color: white;
                             font-family: "EB Garamond", serif;
                             color: black;
-                            line-height: 1.2;
+                            line-height: 1.25;
                         }
 
                         /* Ensure the resume-preview fills the A4 page with absolute precision */
@@ -188,7 +194,7 @@ const Editor = () => {
                             width: 210mm !important;
                             min-height: 297mm !important;
                             height: 297mm !important;
-                            padding: 0.75in !important;
+                            padding: 0.5in 0.55in 0.5in 0.55in !important;
                             box-sizing: border-box !important;
                             background-color: white !important;
                             box-shadow: none !important;
@@ -232,7 +238,7 @@ const Editor = () => {
 
             // 3. Send to backend for Playwright conversion
             const response = await resumeAPI.exportPDF(fullHtml);
-            
+
             // 4. Trigger download
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
@@ -243,7 +249,7 @@ const Editor = () => {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-            
+
             setExportSuccess(true);
             setTimeout(() => {
                 setExportSuccess(false);
@@ -262,7 +268,7 @@ const Editor = () => {
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden text-text selection:bg-primary/20">
             <Navbar />
-            
+
             {/* Professional Sub-Header */}
             <div className="h-14 border-b border-border bg-background px-6 flex items-center justify-between flex-shrink-0 z-30">
                 <div className="flex items-center gap-6">
@@ -272,7 +278,7 @@ const Editor = () => {
                     <div className="w-px h-6 bg-border" />
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-subtext uppercase tracking-widest leading-tight">Resume Name</span>
-                        <input 
+                        <input
                             className="bg-transparent border-none p-0 text-sm font-bold text-heading focus:ring-0 w-48 hover:bg-surface-highlight rounded px-1 transition-colors outline-none cursor-text"
                             value={localTitle}
                             onChange={(e) => {
@@ -294,8 +300,8 @@ const Editor = () => {
                             All changes saved
                         </div>
                     )}
-                    
-                    <button 
+
+                    <button
                         onClick={() => setShowHistory(true)}
                         className="flex items-center gap-2 text-[10px] font-bold text-heading uppercase tracking-widest bg-background hover:bg-surface-highlight px-3 py-1.5 rounded-lg border border-border transition-all ml-2"
                     >
@@ -303,7 +309,7 @@ const Editor = () => {
                         Drafts History
                     </button>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1 bg-surface-highlight border border-border p-1 rounded-lg">
                         {['ats', 'classic', 'modern'].map((t) => (
@@ -316,8 +322,8 @@ const Editor = () => {
                             </button>
                         ))}
                     </div>
-                    <button 
-                        onClick={() => setShowExportModal(true)} 
+                    <button
+                        onClick={() => setShowExportModal(true)}
                         className="btn-primary py-2 px-6 text-xs font-bold shadow-lg shadow-primary/20"
                     >
                         <Download size={16} /> Export Resume
@@ -328,9 +334,66 @@ const Editor = () => {
             <div className="flex-1 flex min-h-0 overflow-hidden bg-surface-highlight">
                 {/* 1. Form Pane (Left) */}
                 <main className="flex-1 max-w-2xl mx-auto xl:max-w-3xl overflow-y-auto custom-scrollbar p-8 space-y-4">
-                    
+                    {/* Layout & Fit Controls (Global) */}
+                    <div className="mb-6 p-6 bg-white dark:bg-zinc-800/50 rounded-3xl border border-zinc-200 dark:border-zinc-700/50 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-zinc-900 dark:bg-white rounded-xl shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white dark:text-zinc-900"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-900 dark:text-white">Global Layout</h3>
+                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-tight">Spacing & Margins</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={resetLayout}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-[10px] font-black text-zinc-600 dark:text-zinc-300 rounded-lg transition-colors uppercase tracking-widest"
+                            >
+                                <RotateCcw size={12} /> Reset
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Section Gap</label>
+                                    <span className="text-[10px] font-mono font-black bg-zinc-100 dark:bg-zinc-700 px-2 py-1 rounded-lg text-zinc-900 dark:text-zinc-200">
+                                        {resumeData.layoutConfig?.sectionSpacing || 10}pt
+                                    </span>
+                                </div>
+                                <input 
+                                    type="range" min="4" max="20" step="1" 
+                                    value={resumeData.layoutConfig?.sectionSpacing || 10} 
+                                    onChange={(e) => updateLayoutConfig({ sectionSpacing: parseFloat(e.target.value) })}
+                                    className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-900 dark:accent-white"
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block">V-Margin</label>
+                                <input 
+                                    type="range" min="0.2" max="1.0" step="0.05" 
+                                    value={resumeData.layoutConfig?.marginVertical || 0.5} 
+                                    onChange={(e) => updateLayoutConfig({ marginVertical: parseFloat(e.target.value) })}
+                                    className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-400"
+                                />
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block">H-Margin</label>
+                                <input 
+                                    type="range" min="0.2" max="1.0" step="0.05" 
+                                    value={resumeData.layoutConfig?.marginHorizontal || 0.55} 
+                                    onChange={(e) => updateLayoutConfig({ marginHorizontal: parseFloat(e.target.value) })}
+                                    className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-400"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Personal Info */}
-                    <FormSection title="Personal Information" icon={User} defaultOpen={true}>
+                    <FormSection title="Personal Information" icon={User} defaultOpen={true} sectionKey="personalInfo">
                         <div className="grid grid-cols-2 gap-6">
                             <InputField label="Full Name" value={personalInfo.fullName || ''} onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)} placeholder="e.g. John Doe" />
                             <InputField label="Professional Title" value={personalInfo.jobTitle || ''} onChange={(e) => handleInputChange('personalInfo', 'jobTitle', e.target.value)} placeholder="e.g. Senior Software Engineer" />
@@ -344,22 +407,23 @@ const Editor = () => {
 
                     {/* Summary */}
                     {isFieldVisible('summary') && (
-                        <FormSection title="Professional Summary" icon={Type}>
-                            <InputField 
-                                label="Summary" 
-                                multiline 
-                                value={personalInfo.summary || ''} 
-                                onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)} 
-                                placeholder="Experienced engineer with a focus on..." 
+                        <FormSection title="Professional Summary" icon={Type} sectionKey="summary">
+                            <InputField
+                                label="Summary"
+                                multiline
+                                value={personalInfo.summary || ''}
+                                onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)}
+                                placeholder="Experienced engineer with a focus on..."
                             />
                         </FormSection>
                     )}
 
                     {/* Experience */}
                     {isFieldVisible('internships') && (
-                        <FormSection 
-                            title="Work Experience" 
-                            icon={Briefcase} 
+                        <FormSection
+                            title="Work Experience"
+                            icon={Briefcase}
+                            sectionKey="internships"
                             items={internships}
                             onAdd={(action, id) => action === 'add' ? addItem('internships', { company: '', role: '', duration: '', location: '', description: [''] }) : removeItem('internships', id)}
                             renderItem={(exp, index) => (
@@ -374,9 +438,9 @@ const Editor = () => {
                                         <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Key Responsibilities</label>
                                         {(exp.description || []).map((bullet, bIndex) => (
                                             <div key={bIndex} className="flex gap-2 group/bullet">
-                                                <input 
-                                                    className="input-base text-xs flex-1" 
-                                                    value={bullet} 
+                                                <input
+                                                    className="input-base text-xs flex-1"
+                                                    value={bullet}
                                                     onChange={(e) => {
                                                         const newExp = [...internships];
                                                         newExp[index].description[bIndex] = e.target.value;
@@ -384,7 +448,7 @@ const Editor = () => {
                                                     }}
                                                     placeholder="• Achieved X result using Y technology..."
                                                 />
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         const newExp = [...internships];
                                                         newExp[index].description = newExp[index].description.filter((_, i) => i !== bIndex);
@@ -396,7 +460,7 @@ const Editor = () => {
                                                 </button>
                                             </div>
                                         ))}
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 const newExp = [...internships];
                                                 newExp[index].description = [...(newExp[index].description || []), ''];
@@ -414,9 +478,10 @@ const Editor = () => {
 
                     {/* Education */}
                     {isFieldVisible('education') && (
-                        <FormSection 
-                            title="Education" 
-                            icon={GraduationCap} 
+                        <FormSection
+                            title="Education"
+                            icon={GraduationCap}
+                            sectionKey="education"
                             items={education}
                             onAdd={(action, id) => action === 'add' ? addItem('education', { school: '', degree: '', startDate: '', endDate: '', score: '', location: '' }) : removeItem('education', id)}
                             renderItem={(edu, index) => (
@@ -434,9 +499,10 @@ const Editor = () => {
 
                     {/* Skills */}
                     {isFieldVisible('technicalSkills') && (
-                        <FormSection 
-                            title="Expertise & Tools" 
-                            icon={Code2} 
+                        <FormSection
+                            title="Expertise & Tools"
+                            icon={Code2}
+                            sectionKey="technicalSkills"
                             items={technicalSkills}
                             onAdd={(action, id) => action === 'add' ? addItem('technicalSkills', { category: '', skills: '' }) : removeItem('technicalSkills', id)}
                             renderItem={(skill, index) => (
@@ -450,9 +516,10 @@ const Editor = () => {
 
                     {/* Projects */}
                     {isFieldVisible('projects') && (
-                        <FormSection 
-                            title="Key Projects" 
-                            icon={FolderGit2} 
+                        <FormSection
+                            title="Key Projects"
+                            icon={FolderGit2}
+                            sectionKey="projects"
                             items={projects}
                             onAdd={(action, id) => action === 'add' ? addItem('projects', { title: '', date: '', description: [''] }) : removeItem('projects', id)}
                             renderItem={(proj, index) => (
@@ -465,9 +532,9 @@ const Editor = () => {
                                         <label className="text-[10px] font-black text-subtext uppercase tracking-widest">Impact Bullets</label>
                                         {(proj.description || []).map((bullet, bIndex) => (
                                             <div key={bIndex} className="flex gap-2 group/bullet">
-                                                <input 
-                                                    className="input-base text-xs flex-1" 
-                                                    value={bullet} 
+                                                <input
+                                                    className="input-base text-xs flex-1"
+                                                    value={bullet}
                                                     onChange={(e) => {
                                                         const newProj = [...projects];
                                                         newProj[index].description[bIndex] = e.target.value;
@@ -475,7 +542,7 @@ const Editor = () => {
                                                     }}
                                                     placeholder="• Developed X to solve Y..."
                                                 />
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         const newProj = [...projects];
                                                         newProj[index].description = newProj[index].description.filter((_, i) => i !== bIndex);
@@ -487,7 +554,7 @@ const Editor = () => {
                                                 </button>
                                             </div>
                                         ))}
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 const newProj = [...projects];
                                                 newProj[index].description = [...(newProj[index].description || []), ''];
@@ -505,9 +572,10 @@ const Editor = () => {
 
                     {/* Certifications */}
                     {isFieldVisible('certificates') && (
-                        <FormSection 
-                            title="Certifications" 
-                            icon={Award} 
+                        <FormSection
+                            title="Certifications"
+                            icon={Award}
+                            sectionKey="certificates"
                             items={certificates}
                             onAdd={(action, id) => action === 'add' ? addItem('certificates', { name: '', issuer: '', date: '' }) : removeItem('certificates', id)}
                             renderItem={(cert, index) => (
@@ -522,9 +590,10 @@ const Editor = () => {
 
                     {/* Languages */}
                     {isFieldVisible('languages') && (
-                        <FormSection 
-                            title="Languages" 
-                            icon={Globe2} 
+                        <FormSection
+                            title="Languages"
+                            icon={Globe2}
+                            sectionKey="languages"
                             items={languages}
                             onAdd={(action, id) => action === 'add' ? addItem('languages', { name: '', proficiency: '' }) : removeItem('languages', id)}
                             renderItem={(lang, index) => (
@@ -538,9 +607,10 @@ const Editor = () => {
 
                     {/* Achievements */}
                     {isFieldVisible('achievements') && (
-                        <FormSection 
-                            title="Achievements" 
-                            icon={Trophy} 
+                        <FormSection
+                            title="Achievements"
+                            icon={Trophy}
+                            sectionKey="achievements"
                             items={achievements}
                             onAdd={(action, id) => action === 'add' ? addItem('achievements', { title: '', description: '' }) : removeItem('achievements', id)}
                             renderItem={(ach, index) => (
@@ -572,11 +642,11 @@ const Editor = () => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-12 bg-zinc-200 dark:bg-zinc-900/50 flex justify-center items-start">
-                        <div 
+                        <div
                             className="bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] origin-top transition-transform duration-300"
                             style={{ transform: `scale(${zoom / 100})` }}
                         >
-                            <ResumePreview ref={resumeRef} template={template} />
+                            <ResumePreview ref={resumeRef} template={resolvedTemplate} />
                         </div>
                     </div>
                 </section>
@@ -653,9 +723,9 @@ const Editor = () => {
                 </div>
             )}
             {/* History Sidebar */}
-            <HistorySidebar 
-                isOpen={showHistory} 
-                onClose={() => setShowHistory(false)} 
+            <HistorySidebar
+                isOpen={showHistory}
+                onClose={() => setShowHistory(false)}
             />
         </div>
     );

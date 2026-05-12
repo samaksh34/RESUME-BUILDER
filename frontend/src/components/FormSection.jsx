@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Plus, Trash2, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2, Type, AlignLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useResumeData } from '../hooks/useResumeData';
 
 const FormSection = ({
     title,
@@ -10,9 +11,24 @@ const FormSection = ({
     renderItem,
     defaultOpen = false,
     icon: Icon,
-    summary
+    summary,
+    sectionKey
 }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+    const { resumeData, updateLayoutConfig } = useResumeData();
+
+    const sectionConfig = resumeData.layoutConfig?.sections?.[sectionKey] || {};
+    const globalFontSize = resumeData.layoutConfig?.fontSize || 10;
+    const globalLineHeight = resumeData.layoutConfig?.lineHeight || 1.2;
+
+    const currentFontSize = sectionConfig.fontSize !== undefined ? sectionConfig.fontSize : globalFontSize;
+    const currentLineHeight = sectionConfig.lineHeight !== undefined ? sectionConfig.lineHeight : globalLineHeight;
+
+    const handleSectionUpdate = (field, value) => {
+        const newSections = { ...(resumeData.layoutConfig?.sections || {}) };
+        newSections[sectionKey] = { ...sectionConfig, [field]: value };
+        updateLayoutConfig({ sections: newSections });
+    };
 
     return (
         <div className={`accordion-card ${isOpen ? 'ring-1 ring-primary/20 shadow-lg' : ''}`}>
@@ -53,6 +69,53 @@ const FormSection = ({
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
                         <div className="accordion-card-content pt-6">
+                            {/* Section-Specific Layout Controls */}
+                            {sectionKey && (
+                                <div className="mb-8 p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/30 flex flex-wrap gap-x-8 gap-y-4">
+                                    <div className="flex-1 min-w-[140px] space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-1.5 text-zinc-400">
+                                                <Type size={12} />
+                                                <label className="text-[9px] font-black uppercase tracking-widest">Section Font</label>
+                                            </div>
+                                            <span className="text-[10px] font-mono font-bold text-primary">{currentFontSize}pt</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="8" max="14" step="0.5" 
+                                            value={currentFontSize} 
+                                            onChange={(e) => handleSectionUpdate('fontSize', parseFloat(e.target.value))}
+                                            className="w-full h-1 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-[140px] space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-1.5 text-zinc-400">
+                                                <AlignLeft size={12} />
+                                                <label className="text-[9px] font-black uppercase tracking-widest">Section Line</label>
+                                            </div>
+                                            <span className="text-[10px] font-mono font-bold text-primary">{currentLineHeight}</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1.0" max="1.8" step="0.05" 
+                                            value={currentLineHeight} 
+                                            onChange={(e) => handleSectionUpdate('lineHeight', parseFloat(e.target.value))}
+                                            className="w-full h-1 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const newSections = { ...(resumeData.layoutConfig?.sections || {}) };
+                                            delete newSections[sectionKey];
+                                            updateLayoutConfig({ sections: newSections });
+                                        }}
+                                        className="px-3 py-1 bg-zinc-100 dark:bg-zinc-700/50 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-lg text-[9px] font-black text-zinc-500 hover:text-primary uppercase tracking-widest transition-colors self-end"
+                                    >
+                                        Use Global
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Static content (like personal info fields) */}
                             {children && <div className="mb-6">{children}</div>}
 

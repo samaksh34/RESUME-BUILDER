@@ -28,6 +28,14 @@ const createSafeResumeData = (data) => {
         certificates: Array.isArray(data.certificates) ? data.certificates : fallback.certificates,
         extracurricular: Array.isArray(data.extracurricular) ? data.extracurricular : fallback.extracurricular,
         languages: Array.isArray(data.languages) ? data.languages : fallback.languages,
+        layoutConfig: data.layoutConfig || {
+            fontSize: 10,
+            lineHeight: 1.2,
+            sectionSpacing: 10,
+            marginHorizontal: 0.55,
+            marginVertical: 0.5,
+            sections: {} // Per-section overrides
+        }
     };
 };
 
@@ -289,11 +297,7 @@ export const ResumeProvider = ({ children }) => {
         setResumeData(prev => {
             const newData = { ...prev, [section]: value };
             
-            // GHOST REALIZATION: If this is a ghost resume (null ID) and the user is logged in,
-            // create it in the database on the first edit.
             if (isAuthenticated && !activeResumeId) {
-                // We wrap this in a timeout or just call it immediately
-                // Using a small delay to ensure state is settled
                 setTimeout(() => {
                     if (!activeResumeId) {
                         createNewResume(activeResumeTitle, newData);
@@ -303,6 +307,30 @@ export const ResumeProvider = ({ children }) => {
             
             return newData;
         });
+    };
+
+    const updateLayoutConfig = (newConfig) => {
+        setResumeData(prev => ({
+            ...prev,
+            layoutConfig: {
+                ...prev.layoutConfig,
+                ...newConfig
+            }
+        }));
+    };
+
+    const resetLayout = () => {
+        setResumeData(prev => ({
+            ...prev,
+            layoutConfig: {
+                fontSize: 10,
+                lineHeight: 1.2,
+                sectionSpacing: 10,
+                marginHorizontal: 0.55,
+                marginVertical: 0.5,
+                sections: {}
+            }
+        }));
     };
 
     return (
@@ -325,7 +353,9 @@ export const ResumeProvider = ({ children }) => {
             updateListSection,
             setResumeData,
             updateResumeData,
-            setActiveResumeId
+            setActiveResumeId,
+            updateLayoutConfig,
+            resetLayout
         }}>
             {children}
         </ResumeContext.Provider>
