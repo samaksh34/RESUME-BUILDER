@@ -53,7 +53,7 @@ const Home = () => {
 
             <main>
                 {/* Hero Section */}
-                <section className="relative w-full min-h-[75vh] flex items-center overflow-hidden bg-background border-b border-border/10">
+                <section className="relative w-full overflow-hidden bg-background border-b border-border/10 pt-10 md:pt-16 pb-20 md:pb-28">
                     {/* Interactive Background */}
                     <div className="absolute inset-0 z-0 opacity-40">
                         <DotGrid 
@@ -73,19 +73,22 @@ const Home = () => {
                     <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] glow-bg z-0 pointer-events-none opacity-10" />
 
                     <div className="max-w-[1400px] mx-auto px-6 py-2 relative z-10 w-full">
-                        <div className="grid lg:grid-cols-2 gap-12 items-start pt-20">
+                        <div className="grid lg:grid-cols-2 gap-12 items-start pt-4 md:pt-8">
                             <motion.div 
                                 initial="initial"
                                 animate="animate"
                                 variants={stagger}
                                 className="max-w-[700px] py-6"
                             >
-                                <motion.div variants={fadeIn} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                                    <Sparkles size={12} className="text-primary" />
-                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">The future of ATS-ready resumes</span>
+                                <motion.div 
+                                    variants={fadeIn} 
+                                    className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-surface-highlight/30 hover:bg-surface-highlight/60 border border-border/40 rounded-full text-[10px] font-semibold tracking-wide text-heading select-none cursor-pointer transition-all duration-300 mb-8 group"
+                                >
+                                    <span>The future of ATS-ready resumes</span>
+                                    <span className="text-[10px] text-subtext/60 group-hover:text-heading transition-colors ml-0.5 transition-transform duration-300 transform group-hover:translate-x-0.5">→</span>
                                 </motion.div>
 
-                                <div className="relative mb-6 min-h-[120px] md:min-h-[160px] flex items-center">
+                                <div className="relative w-full mb-6 h-[180px] sm:h-[140px] md:h-[240px] lg:h-[220px] xl:h-[200px] flex items-start">
                                     <AnimatePresence mode="wait">
                                         <motion.h1 
                                             key={textIndex}
@@ -93,7 +96,7 @@ const Home = () => {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -40 }}
                                             transition={{ duration: 0.5, ease: "circOut" }}
-                                            className="text-5xl md:text-7xl font-bold text-heading tracking-tighter leading-[1.1] text-balance"
+                                            className="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-7xl font-bold text-heading tracking-tighter leading-[1.1] text-balance w-full"
                                         >
                                             {phrases[textIndex].split(' ').map((word, i) => (
                                                 <span key={i} className={i >= phrases[textIndex].split(' ').length - 2 ? 'text-primary' : ''}>
@@ -125,7 +128,7 @@ const Home = () => {
                                 initial={{ opacity: 0, scale: 0.9, x: 50 }}
                                 animate={{ opacity: 1, scale: 1, x: -60 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
-                                className="relative hidden lg:flex justify-center items-center h-[500px] w-full overflow-visible translate-y-[-180px]"
+                                className="relative hidden lg:flex justify-center items-center h-[500px] w-full overflow-visible translate-y-[-90px]"
                             >
                                 <ResumeCollage />
                             </motion.div>
@@ -157,22 +160,58 @@ const Home = () => {
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-6">
-                            <motion.div whileHover={{ y: -5 }} className="bento-item group">
-                                <ShieldCheck size={40} className="text-primary mb-8" />
-                                <h3 className="text-xl font-bold text-heading mb-4">ATS-First</h3>
-                                <p className="text-subtext leading-relaxed">Schema-based system ensures your resume passes through enterprise tracking systems with 100% accuracy.</p>
+                            {/* Card 1: ATS-First */}
+                            <motion.div 
+                                whileHover={{ y: -4 }} 
+                                className="bg-surface border border-border border-l-2 border-l-primary p-8 rounded-none flex flex-col justify-between min-h-[270px] transition-all duration-300 hover:border-primary/40 hover:border-l-primary select-none group"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <span className="text-xs font-mono text-primary font-bold tracking-widest">01 PARSER</span>
+                                        <ShieldCheck size={14} className="text-subtext/40 group-hover:text-primary transition-colors" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-heading mb-3 uppercase tracking-wider">ATS-First</h3>
+                                    <p className="text-subtext text-sm leading-relaxed font-medium">Schema-based system ensures your resume passes through enterprise tracking systems with 100% accuracy.</p>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <span className="text-[8px] font-mono text-subtext/40 font-bold uppercase tracking-widest">[ SCHEMA // JSON_VALID ]</span>
+                                </div>
                             </motion.div>
 
-                            <motion.div whileHover={{ y: -5 }} className="bento-item group">
-                                <LayoutGrid size={40} className="text-primary mb-8" />
-                                <h3 className="text-xl font-bold text-heading mb-4">Pro Templates</h3>
-                                <p className="text-subtext leading-relaxed">Utilitarian designs that prioritize information density for technical roles. No fluff, just impact.</p>
+                            {/* Card 2: Pro Templates */}
+                            <motion.div 
+                                whileHover={{ y: -4 }} 
+                                className="bg-surface border border-border border-l-2 border-l-primary p-8 rounded-none flex flex-col justify-between min-h-[270px] transition-all duration-300 hover:border-primary/40 hover:border-l-primary select-none group"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <span className="text-xs font-mono text-primary font-bold tracking-widest">02 LAYOUT</span>
+                                        <LayoutGrid size={14} className="text-subtext/40 group-hover:text-primary transition-colors" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-heading mb-3 uppercase tracking-wider">Pro Templates</h3>
+                                    <p className="text-subtext text-sm leading-relaxed font-medium">Utilitarian designs that prioritize information density for technical roles. No fluff, just impact.</p>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <span className="text-[8px] font-mono text-subtext/40 font-bold uppercase tracking-widest">[ DENSITY // HIGH_MAX ]</span>
+                                </div>
                             </motion.div>
 
-                            <motion.div whileHover={{ y: -5 }} className="bento-item group">
-                                <Download size={40} className="text-primary mb-8" />
-                                <h3 className="text-xl font-bold text-heading mb-4">Vector Export</h3>
-                                <p className="text-subtext leading-relaxed">Instant PDF generation with vectorized text for perfect clarity at any zoom level.</p>
+                            {/* Card 3: Vector Export */}
+                            <motion.div 
+                                whileHover={{ y: -4 }} 
+                                className="bg-surface border border-border border-l-2 border-l-primary p-8 rounded-none flex flex-col justify-between min-h-[270px] transition-all duration-300 hover:border-primary/40 hover:border-l-primary select-none group"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <span className="text-xs font-mono text-primary font-bold tracking-widest">03 EXPORT</span>
+                                        <Download size={14} className="text-subtext/40 group-hover:text-primary transition-colors" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-heading mb-3 uppercase tracking-wider">Vector Export</h3>
+                                    <p className="text-subtext text-sm leading-relaxed font-medium">Instant PDF generation with vectorized text for perfect clarity at any zoom level.</p>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <span className="text-[8px] font-mono text-subtext/40 font-bold uppercase tracking-widest">[ ENGINE // SVG_PDF ]</span>
+                                </div>
                             </motion.div>
                         </div>
                     </section>

@@ -134,14 +134,14 @@ const samples = [
             ],
             education: [{ school: 'Tech University', degree: 'MBA in Technology Management', startDate: '2018' }]
         },
-        position: { top: '-30%', left: '55%', rotate: 15, scale: 0.36, z: 15 },
+        position: { top: '-25%', left: '42%', rotate: 12, scale: 0.33, z: 15 },
         delay: 0.5
     }
 ];
 
 const ResumeCollage = () => {
     return (
-        <div className="relative w-full h-[600px] perspective-2500 overflow-visible py-20 flex items-center justify-center">
+        <div className="relative w-[600px] h-[600px] perspective-2500 overflow-visible py-20 flex items-center justify-center">
             {samples.map((sample) => (
                 <motion.div
                     key={sample.id}
