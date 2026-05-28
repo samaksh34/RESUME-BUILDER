@@ -135,7 +135,7 @@
 }
 
 .accordion-card {
-    @apply bg-background border border-border rounded-xl overflow-hidden mb-4 transition-all duration-300;
+    @apply bg-background border border-border rounded-xl overflow-hidden mb-4 transition-all duration-300 flex-shrink-0;
 }
 
 .accordion-card-header {

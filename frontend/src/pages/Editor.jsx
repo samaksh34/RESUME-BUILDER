@@ -59,6 +59,7 @@ const Editor = () => {
     const [showHistory, setShowHistory] = useState(false);
     const [localTitle, setLocalTitle] = useState(activeResumeTitle);
     const [globalLayoutOpen, setGlobalLayoutOpen] = useState(false);
+    const [mobileView, setMobileView] = useState('preview'); // 'editor' or 'preview'
 
     // Auto-fit preview scaling state
     const [containerWidth, setContainerWidth] = useState(0);
@@ -355,27 +356,27 @@ const Editor = () => {
                 </div>
             </div>
 
-            <div className="flex-1 flex min-h-0 overflow-hidden bg-surface-highlight">
+            <div className="flex-1 flex min-h-0 overflow-hidden bg-surface-highlight relative">
                 {/* 1. Form Pane (Left) */}
-                <main className="flex-1 max-w-2xl mx-auto xl:max-w-3xl overflow-y-auto custom-scrollbar p-2 sm:p-8 space-y-2 sm:space-y-4">
+                <main className={`max-w-2xl mx-auto xl:max-w-3xl overflow-y-auto custom-scrollbar p-3 sm:p-8 space-y-3 sm:space-y-4 ${mobileView === 'editor' ? 'block w-full h-full' : 'hidden sm:block sm:w-1/2 sm:h-full'}`}>
                     {/* Collapsible Layout & Fit Controls (Global) */}
-                    <div className={`accordion-card ${globalLayoutOpen ? 'ring-1 ring-primary/20 shadow-lg' : ''} rounded-lg sm:rounded-xl mb-1.5 sm:mb-4 bg-surface border border-border`}>
+                    <div className={`accordion-card ${globalLayoutOpen ? 'ring-1 ring-primary/20 shadow-lg' : ''} rounded-xl mb-3 sm:mb-4 bg-surface border border-border transition-all duration-300`}>
                         <div 
                             onClick={() => setGlobalLayoutOpen(!globalLayoutOpen)}
-                            className={`accordion-card-header p-1.5 sm:p-4 group cursor-pointer select-none transition-all`}
+                            className="accordion-card-header p-3 sm:p-4 group cursor-pointer select-none"
                         >
-                            <div className="flex items-center gap-2 sm:gap-4">
-                                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded sm:rounded-lg flex items-center justify-center transition-colors ${globalLayoutOpen ? 'bg-primary text-white' : 'bg-surface-highlight text-subtext group-hover:text-heading'}`}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-4 sm:h-4 text-zinc-900 dark:text-white"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${globalLayoutOpen ? 'bg-primary text-white' : 'bg-surface-highlight text-subtext group-hover:text-heading'}`}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-[10px] sm:text-sm font-bold text-heading uppercase tracking-wider leading-tight">Global Layout</h3>
+                                    <h3 className="text-xs sm:text-sm font-bold text-heading uppercase tracking-wider leading-tight">Global Layout</h3>
                                 </div>
                             </div>
                             
-                            <div className="flex items-center gap-1.5 sm:gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 <div className={`text-subtext transition-transform duration-300 ${globalLayoutOpen ? 'rotate-180' : ''}`}>
-                                    <ChevronDown size={12} className="sm:w-[18px] sm:h-[18px]" />
+                                    <ChevronDown size={16} />
                                 </div>
                             </div>
                         </div>
@@ -672,7 +673,7 @@ const Editor = () => {
                 </main>
 
                 {/* 2. Preview Pane (Right) */}
-                <section className="flex flex-1 flex-col border-l border-border relative">
+                <section className={`border-l border-border relative ${mobileView === 'preview' ? 'flex flex-1 w-full h-full flex-col' : 'hidden sm:flex sm:flex-1 sm:w-1/2 sm:h-full sm:flex-col'}`}>
                     {/* View Controls Overlay */}
                     <div className="absolute bottom-3 right-3 sm:top-6 sm:right-6 sm:bottom-auto z-40 flex flex-row sm:flex-col gap-1.5 sm:gap-2 bg-background/95 dark:bg-zinc-800/95 sm:bg-transparent backdrop-blur border border-border/60 sm:border-none p-1 sm:p-0 rounded-full sm:rounded-none shadow-lg sm:shadow-none items-center">
                         <div className="flex items-center gap-1 bg-transparent sm:bg-background sm:border sm:border-border p-0 sm:p-1 rounded-full">
@@ -791,6 +792,22 @@ const Editor = () => {
                 isOpen={showHistory}
                 onClose={() => setShowHistory(false)}
             />
+
+            {/* Mobile Floating View Selector */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex p-1 bg-surface/90 border border-border/60 rounded-full shadow-2xl backdrop-blur-md sm:hidden items-center gap-1">
+                <button 
+                    onClick={() => setMobileView('editor')}
+                    className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${mobileView === 'editor' ? 'bg-primary text-white shadow-md' : 'text-subtext hover:text-heading'}`}
+                >
+                    Editor
+                </button>
+                <button 
+                    onClick={() => setMobileView('preview')}
+                    className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${mobileView === 'preview' ? 'bg-primary text-white shadow-md' : 'text-subtext hover:text-heading'}`}
+                >
+                    Preview
+                </button>
+            </div>
         </div>
     );
 };
