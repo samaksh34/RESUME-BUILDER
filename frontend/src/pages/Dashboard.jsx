@@ -165,11 +165,11 @@ const Dashboard = () => {
                     <div>
                         <div className="flex items-center gap-2 mb-6">
                             <div className="w-6 h-[1px] bg-primary" />
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">History</span>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Dashboard</span>
                         </div>
                         <h1 className="text-4xl font-bold text-heading tracking-tight mb-4">My Resumes.</h1>
                         <p className="text-sm text-subtext max-w-xl leading-relaxed">
-                            Access and manage your professional history. 
+                            Access and manage your professional resumes. 
                             Every version is saved and optimized for high-density 
                             ATS-ready applications.
                         </p>
@@ -180,7 +180,7 @@ const Dashboard = () => {
                         className="px-8 py-3 bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary-dark transition-all flex items-center gap-3"
                     >
                         <Plus size={16} />
-                        New Document
+                        New Resume
                     </button>
                 </header>
 
@@ -251,9 +251,9 @@ const Dashboard = () => {
                         <div className="w-16 h-16 border border-border/80 flex items-center justify-center mb-8">
                             <FileText size={24} className="text-subtext/60" />
                         </div>
-                        <h2 className="text-sm font-bold text-heading mb-2 uppercase tracking-widest">No Documents Found</h2>
+                        <h2 className="text-sm font-bold text-heading mb-2 uppercase tracking-widest">No Resumes Found</h2>
                         <p className="text-[11px] text-subtext text-center max-w-xs mb-8 font-medium">
-                            Your professional history will appear here. Start your first document to begin.
+                            Your professional resumes will appear here. Start your first resume to begin.
                         </p>
                         <button 
                             onClick={handleCreateNew}

@@ -60,7 +60,7 @@ const Navbar = () => {
                 <div className="hidden md:flex items-center gap-6">
                     <NavLink to="/templates" active={location.pathname === '/templates'}>Templates</NavLink>
                     {isAuthenticated && (
-                        <NavLink to="/dashboard" active={location.pathname === '/dashboard'}>History</NavLink>
+                        <NavLink to="/dashboard" active={location.pathname === '/dashboard'}>Dashboard</NavLink>
                     )}
                     <NavLink to="/editor" active={location.pathname === '/editor'}>Editor</NavLink>
                 </div>
@@ -84,7 +84,7 @@ const Navbar = () => {
                                 className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-primary-dark transition-all"
                             >
                                 <Plus size={14} />
-                                New Document
+                                New Resume
                             </Link>
                             
                             <div className="relative" ref={dropdownRef}>
