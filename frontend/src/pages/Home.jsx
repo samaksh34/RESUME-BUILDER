@@ -56,12 +56,12 @@ const Home = () => {
                 {/* Hero Section */}
                 <section className="relative w-full overflow-hidden bg-background border-b border-border/10 pt-10 md:pt-16 pb-20 md:pb-28">
                     {/* Interactive Background */}
-                    <div className="absolute inset-0 z-0 opacity-40">
+                    <div className="absolute inset-0 z-0 opacity-12">
                         <DotGrid 
                             dotSize={2} 
                             gap={24} 
                             baseColor="#3F3F46" 
-                            activeColor="#4F46E5" 
+                            activeColor="#6366f1" 
                             proximity={140}
                             shockRadius={200}
                             returnDuration={0.8}
@@ -244,8 +244,8 @@ const Home = () => {
                             {/* Right: Final CTA */}
                             <div className="relative p-6 sm:p-10 md:p-16 overflow-hidden bg-surface border border-border">
                                 {/* Decorative Background for CTA */}
-                                <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                                    <DotGrid dotSize={1} gap={20} baseColor="#000000" activeColor="#4F46E5" />
+                                <div className="absolute inset-0 opacity-[0.015] pointer-events-none">
+                                    <DotGrid dotSize={1} gap={20} baseColor="#000000" activeColor="#6366f1" />
                                 </div>
                                 
                                 <div className="relative z-10">

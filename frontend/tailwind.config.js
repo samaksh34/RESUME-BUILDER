@@ -11,10 +11,12 @@ export default {
                 background: "rgb(var(--color-background) / <alpha-value>)",
                 surface: "rgb(var(--color-surface) / <alpha-value>)",
                 "surface-highlight": "rgb(var(--color-surface-highlight) / <alpha-value>)",
-                primary: "#8056FF",         // Electric Purple (same for both)
-                "primary-dark": "#6D4BFF",  // Gradient Start
-                "primary-light": "#8A63FF", // Gradient End
-                secondary: "#3CE3FF",       // Cyan Glow (same for both)
+                "surface-elevated": "rgb(var(--color-surface-elevated) / <alpha-value>)",
+                primary: "#6366f1",         // Muted Indigo
+                "primary-dark": "#4f46e5",  // Dark Indigo
+                "primary-light": "#7376ff", // Light Indigo
+                "accent-hover": "#7376ff",  // Indigo Hover
+                secondary: "#71717a",       // Muted Zinc
                 heading: "rgb(var(--color-heading) / <alpha-value>)",
                 text: "rgb(var(--color-text) / <alpha-value>)",
                 subtext: "rgb(var(--color-subtext) / <alpha-value>)",
@@ -30,8 +32,8 @@ export default {
                 'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
                 'card': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                 'card-dark': '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)',
-                'glow': '0 0 20px rgba(128, 86, 255, 0.15)',
-                'glow-cyan': '0 0 15px rgba(60, 227, 255, 0.3)',
+                'glow': '0 0 8px rgba(99, 102, 241, 0.05)',
+                'glow-cyan': 'none',
                 'button': '0 2px 4px 0 rgba(0, 0, 0, 0.1)',
             },
             borderRadius: {

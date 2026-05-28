@@ -104,10 +104,9 @@ const ATSWarningsPanel = ({ resumeData, template }) => {
     }, [resumeData, template]);
 
     return (
-        <div className="bg-surface backdrop-blur-xl border border-white/[0.05] rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300">
+        <div className="bg-surface border border-border rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300">
             {/* Header with Circular Score */}
-            <div className="p-6 border-b border-white/[0.05] bg-gradient-to-br from-primary/10 via-transparent to-transparent relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+            <div className="p-6 border-b border-border bg-surface-highlight/30 relative overflow-hidden">
                 
                 <div className="flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-4">
@@ -221,14 +220,14 @@ const ATSWarningsPanel = ({ resumeData, template }) => {
                 {analysis.tips.length > 0 && (
                     <div className="space-y-4">
                         <h4 className="text-[11px] font-black text-subtext uppercase tracking-[0.2em] px-1">Expert Strategies</h4>
-                        <div className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/10 rounded-2xl p-5 relative overflow-hidden">
-                            <div className="absolute bottom-0 right-0 p-4 opacity-5 pointer-events-none">
+                        <div className="bg-surface border border-border rounded-2xl p-5 relative overflow-hidden">
+                            <div className="absolute bottom-0 right-0 p-4 opacity-[0.02] pointer-events-none text-primary">
                                 <Zap size={80} />
                             </div>
                             <ul className="space-y-4 relative z-10">
                                 {analysis.tips.map((item, i) => (
                                     <li key={i} className="flex gap-3">
-                                        <div className="mt-0.5 p-1 rounded-md bg-blue-500/10 text-blue-400">
+                                        <div className="mt-0.5 p-1 rounded-md bg-primary/10 text-primary">
                                             {item.icon}
                                         </div>
                                         <div className="text-xs">
