@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileText, Sun, Moon, LogOut, ChevronDown, Plus } from 'lucide-react';
+import { FileText, Sun, Moon, LogOut, ChevronDown, Plus, Menu, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
 
@@ -24,6 +24,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [showDropdown, setShowDropdown] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
@@ -66,7 +67,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Right Side Actions */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <button
                         onClick={toggleTheme}
                         className="p-2 text-subtext hover:text-heading transition-colors"
@@ -76,6 +77,17 @@ const Navbar = () => {
                     </button>
 
                     <div className="w-px h-4 bg-border/60"></div>
+
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="p-2 text-subtext hover:text-heading md:hidden transition-colors flex items-center justify-center"
+                        aria-label="Toggle navigation menu"
+                    >
+                        {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+                    </button>
+
+                    <div className="w-px h-4 bg-border/60 md:hidden"></div>
 
                     {isAuthenticated ? (
                         <div className="flex items-center gap-4">
@@ -136,6 +148,45 @@ const Navbar = () => {
                     )}
                 </div>
             </div>
+
+            {/* Mobile Navigation Drawer */}
+            {mobileMenuOpen && (
+                <div className="md:hidden border-b border-border bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 z-40 p-6 flex flex-col gap-4 shadow-lg animate-fade-in">
+                    <Link 
+                        to="/templates" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`text-xs font-bold uppercase tracking-[0.2em] py-2 border-b border-border/30 ${location.pathname === '/templates' ? 'text-primary' : 'text-subtext'}`}
+                    >
+                        Templates
+                    </Link>
+                    {isAuthenticated && (
+                        <Link 
+                            to="/dashboard" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={`text-xs font-bold uppercase tracking-[0.2em] py-2 border-b border-border/30 ${location.pathname === '/dashboard' ? 'text-primary' : 'text-subtext'}`}
+                        >
+                            Dashboard
+                        </Link>
+                    )}
+                    <Link 
+                        to="/editor" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`text-xs font-bold uppercase tracking-[0.2em] py-2 border-b border-border/30 ${location.pathname === '/editor' ? 'text-primary' : 'text-subtext'}`}
+                    >
+                        Editor
+                    </Link>
+                    {isAuthenticated && (
+                        <Link 
+                            to="/editor" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-primary-dark transition-all mt-2"
+                        >
+                            <Plus size={14} />
+                            New Resume
+                        </Link>
+                    )}
+                </div>
+            )}
         </nav>
     );
 };

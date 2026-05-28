@@ -242,7 +242,7 @@ const Home = () => {
                             </div>
 
                             {/* Right: Final CTA */}
-                            <div className="relative p-10 md:p-16 overflow-hidden bg-surface border border-border">
+                            <div className="relative p-6 sm:p-10 md:p-16 overflow-hidden bg-surface border border-border">
                                 {/* Decorative Background for CTA */}
                                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                                     <DotGrid dotSize={1} gap={20} baseColor="#000000" activeColor="#4F46E5" />
