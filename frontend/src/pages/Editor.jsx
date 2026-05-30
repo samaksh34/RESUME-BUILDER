@@ -361,19 +361,19 @@ const Editor = () => {
                 <main className={`max-w-2xl mx-auto xl:max-w-3xl overflow-y-auto custom-scrollbar p-3 sm:p-8 space-y-3 sm:space-y-4 ${mobileView === 'editor' ? 'block w-full h-full' : 'hidden sm:block sm:w-1/2 sm:h-full'}`}>
                     {/* Collapsible Layout & Fit Controls (Global) */}
                     <div className={`accordion-card ${globalLayoutOpen ? 'ring-1 ring-primary/20 shadow-lg' : ''} rounded-xl mb-3 sm:mb-4 bg-surface border border-border transition-all duration-300`}>
-                        <div 
+                        <div
                             onClick={() => setGlobalLayoutOpen(!globalLayoutOpen)}
                             className="accordion-card-header p-3 sm:p-4 group cursor-pointer select-none"
                         >
                             <div className="flex items-center gap-3 sm:gap-4">
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${globalLayoutOpen ? 'bg-primary text-white' : 'bg-surface-highlight text-subtext group-hover:text-heading'}`}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M7 7h10" /><path d="M7 12h10" /><path d="M7 17h10" /></svg>
                                 </div>
                                 <div>
                                     <h3 className="text-xs sm:text-sm font-bold text-heading uppercase tracking-wider leading-tight">Global Layout</h3>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className={`text-subtext transition-transform duration-300 ${globalLayoutOpen ? 'rotate-180' : ''}`}>
                                     <ChevronDown size={16} />
@@ -383,7 +383,7 @@ const Editor = () => {
 
                         <AnimatePresence>
                             {globalLayoutOpen && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
@@ -391,7 +391,7 @@ const Editor = () => {
                                 >
                                     <div className="accordion-card-content p-3 sm:p-6 border-t border-border pt-4 bg-background">
                                         <div className="flex justify-end mb-4">
-                                            <button 
+                                            <button
                                                 onClick={(e) => { e.stopPropagation(); resetLayout(); }}
                                                 className="flex items-center gap-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-[8px] sm:text-[10px] font-black text-zinc-600 dark:text-zinc-300 rounded-lg transition-colors uppercase tracking-widest whitespace-nowrap"
                                                 title="Reset Global Spacing"
@@ -407,9 +407,9 @@ const Editor = () => {
                                                         {resumeData.layoutConfig?.sectionSpacing || 10}pt
                                                     </span>
                                                 </div>
-                                                <input 
-                                                    type="range" min="4" max="20" step="1" 
-                                                    value={resumeData.layoutConfig?.sectionSpacing || 10} 
+                                                <input
+                                                    type="range" min="4" max="20" step="1"
+                                                    value={resumeData.layoutConfig?.sectionSpacing || 10}
                                                     onChange={(e) => updateLayoutConfig({ sectionSpacing: parseFloat(e.target.value) })}
                                                     className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
                                                 />
@@ -417,19 +417,19 @@ const Editor = () => {
 
                                             <div className="space-y-3">
                                                 <label className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest block">V-Margin</label>
-                                                <input 
-                                                    type="range" min="0.2" max="1.0" step="0.05" 
-                                                    value={resumeData.layoutConfig?.marginVertical || 0.5} 
+                                                <input
+                                                    type="range" min="0.2" max="1.0" step="0.05"
+                                                    value={resumeData.layoutConfig?.marginVertical || 0.5}
                                                     onChange={(e) => updateLayoutConfig({ marginVertical: parseFloat(e.target.value) })}
                                                     className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
                                                 />
                                             </div>
-                                            
+
                                             <div className="space-y-3">
                                                 <label className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest block">H-Margin</label>
-                                                <input 
-                                                    type="range" min="0.2" max="1.0" step="0.05" 
-                                                    value={resumeData.layoutConfig?.marginHorizontal || 0.55} 
+                                                <input
+                                                    type="range" min="0.2" max="1.0" step="0.05"
+                                                    value={resumeData.layoutConfig?.marginHorizontal || 0.55}
                                                     onChange={(e) => updateLayoutConfig({ marginHorizontal: parseFloat(e.target.value) })}
                                                     className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
                                                 />
@@ -675,7 +675,7 @@ const Editor = () => {
                 {/* 2. Preview Pane (Right) */}
                 <section className={`border-l border-border relative ${mobileView === 'preview' ? 'flex flex-1 w-full h-full flex-col' : 'hidden sm:flex sm:flex-1 sm:w-1/2 sm:h-full sm:flex-col'}`}>
                     {/* View Controls Overlay */}
-                    <div className="absolute bottom-3 right-3 sm:top-6 sm:right-6 sm:bottom-auto z-40 flex flex-row sm:flex-col gap-1.5 sm:gap-2 bg-surface dark:bg-surface sm:bg-transparent sm:dark:bg-transparent border border-border sm:border-none p-1 sm:p-0 rounded-full sm:rounded-none shadow-md sm:shadow-none items-center">
+                    <div className="absolute bottom-3 right-3 sm:top-6 sm:right-6 sm:bottom-auto z-40 flex flex-row sm:flex-col gap-1.5 sm:gap-2 max-sm:bg-surface max-sm:dark:bg-surface max-sm:border max-sm:border-border max-sm:p-1 max-sm:rounded-full max-sm:shadow-md items-center">
                         <div className="flex items-center gap-1 bg-transparent sm:bg-background sm:border sm:border-border p-0 sm:p-1 rounded-full">
                             <button onClick={handleZoomOut} className="p-1 sm:p-2 hover:bg-surface-highlight rounded-full text-subtext" title="Zoom Out">
                                 <ZoomOut size={12} className="sm:w-4 sm:h-4" />
@@ -690,11 +690,11 @@ const Editor = () => {
                         </button>
                     </div>
 
-                    <div 
+                    <div
                         ref={previewContainerRef}
                         className="flex-1 overflow-y-auto custom-scrollbar p-1 sm:p-6 md:p-8 bg-zinc-200 dark:bg-zinc-900/50 flex justify-center items-start"
                     >
-                        <div 
+                        <div
                             style={{
                                 width: `${794 * activeZoom}px`,
                                 height: `${1123 * activeZoom}px`,
@@ -704,7 +704,7 @@ const Editor = () => {
                         >
                             <div
                                 className="bg-white origin-top-left"
-                                style={{ 
+                                style={{
                                     transform: `scale(${activeZoom})`,
                                     width: '794px',
                                     height: '1123px'
@@ -795,13 +795,13 @@ const Editor = () => {
 
             {/* Mobile Floating View Selector */}
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex p-1 bg-surface/90 border border-border/60 rounded-full shadow-2xl backdrop-blur-md sm:hidden items-center gap-1">
-                <button 
+                <button
                     onClick={() => setMobileView('editor')}
                     className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${mobileView === 'editor' ? 'bg-primary text-white shadow-md' : 'text-subtext hover:text-heading'}`}
                 >
                     Editor
                 </button>
-                <button 
+                <button
                     onClick={() => setMobileView('preview')}
                     className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${mobileView === 'preview' ? 'bg-primary text-white shadow-md' : 'text-subtext hover:text-heading'}`}
                 >
