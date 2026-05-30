@@ -675,7 +675,7 @@ const Editor = () => {
                 {/* 2. Preview Pane (Right) */}
                 <section className={`border-l border-border relative ${mobileView === 'preview' ? 'flex flex-1 w-full h-full flex-col' : 'hidden sm:flex sm:flex-1 sm:w-1/2 sm:h-full sm:flex-col'}`}>
                     {/* View Controls Overlay */}
-                    <div className="absolute bottom-3 right-3 sm:top-6 sm:right-6 sm:bottom-auto z-40 flex flex-row sm:flex-col gap-1.5 sm:gap-2 bg-surface dark:bg-surface sm:bg-transparent border border-border sm:border-none p-1 sm:p-0 rounded-full sm:rounded-none shadow-md sm:shadow-none items-center">
+                    <div className="absolute bottom-3 right-3 sm:top-6 sm:right-6 sm:bottom-auto z-40 flex flex-row sm:flex-col gap-1.5 sm:gap-2 bg-surface dark:bg-surface sm:bg-transparent sm:dark:bg-transparent border border-border sm:border-none p-1 sm:p-0 rounded-full sm:rounded-none shadow-md sm:shadow-none items-center">
                         <div className="flex items-center gap-1 bg-transparent sm:bg-background sm:border sm:border-border p-0 sm:p-1 rounded-full">
                             <button onClick={handleZoomOut} className="p-1 sm:p-2 hover:bg-surface-highlight rounded-full text-subtext" title="Zoom Out">
                                 <ZoomOut size={12} className="sm:w-4 sm:h-4" />
