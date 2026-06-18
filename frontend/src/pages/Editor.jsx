@@ -27,12 +27,17 @@ import {
     Type,
     ArrowLeft,
     Clock,
-    ChevronDown
+    ChevronDown,
+    Cpu,
+    Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import HistorySidebar from '../components/HistorySidebar';
+import AISidebar from '../components/AISidebar';
+import BulletOptimizerModal from '../components/BulletOptimizerModal';
 import { resumeAPI } from '../services/api';
+
 
 const Editor = () => {
     const {
@@ -60,6 +65,18 @@ const Editor = () => {
     const [localTitle, setLocalTitle] = useState(activeResumeTitle);
     const [globalLayoutOpen, setGlobalLayoutOpen] = useState(false);
     const [mobileView, setMobileView] = useState('preview'); // 'editor' or 'preview'
+    const [showAI, setShowAI] = useState(false);
+    const [optimizerOpen, setOptimizerOpen] = useState(false);
+    const [activeBullet, setActiveBullet] = useState('');
+    const [onApplyOptimizer, setOnApplyOptimizer] = useState(() => () => {});
+
+    // Open bullet optimizer with active bullet and apply callback
+    const handleOptimizeClick = (bulletText, applyCallback) => {
+        setActiveBullet(bulletText);
+        setOnApplyOptimizer(() => applyCallback);
+        setOptimizerOpen(true);
+    };
+
 
     // Auto-fit preview scaling state
     const [containerWidth, setContainerWidth] = useState(0);
@@ -333,7 +350,18 @@ const Editor = () => {
                         <Clock size={12} className="text-primary" />
                         <span className="hidden md:inline">Drafts History</span>
                     </button>
+
+                    <button
+                        onClick={() => setShowAI(true)}
+                        className="flex items-center gap-2 text-[10px] font-bold text-heading uppercase tracking-widest bg-background hover:bg-surface-highlight px-2 sm:px-3 py-1.5 rounded-lg border border-border hover:border-primary/40 hover:text-primary transition-all ml-1 sm:ml-2 relative group overflow-hidden"
+                        title="AI Copilot & ATS"
+                    >
+                        <Cpu size={12} className="text-primary animate-pulse" />
+                        <span className="hidden md:inline">AI Copilot & ATS</span>
+                        <span className="absolute bottom-0 left-0 w-full h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                    </button>
                 </div>
+
 
                 <div className="flex items-center gap-2 sm:gap-4">
                     <div className="hidden sm:flex items-center gap-1 bg-surface-highlight border border-border p-1 rounded-lg">
@@ -498,6 +526,20 @@ const Editor = () => {
                                                     placeholder="• Achieved X result using Y technology..."
                                                 />
                                                 <button
+                                                    type="button"
+                                                    disabled={!bullet.trim()}
+                                                    onClick={() => handleOptimizeClick(bullet, (newVal) => {
+                                                        const newExp = [...internships];
+                                                        newExp[index].description[bIndex] = newVal;
+                                                        updateResumeData('internships', newExp);
+                                                        simulateAutoSave();
+                                                    })}
+                                                    className={`p-2 transition-all ${bullet.trim() ? 'text-subtext hover:text-primary opacity-100 sm:opacity-0 sm:group-hover/bullet:opacity-100' : 'opacity-0 cursor-not-allowed'}`}
+                                                    title="Optimize bullet with AI"
+                                                >
+                                                    <Sparkles size={14} />
+                                                </button>
+                                                <button
                                                     onClick={() => {
                                                         const newExp = [...internships];
                                                         newExp[index].description = newExp[index].description.filter((_, i) => i !== bIndex);
@@ -507,6 +549,7 @@ const Editor = () => {
                                                 >
                                                     <X size={14} />
                                                 </button>
+
                                             </div>
                                         ))}
                                         <button
@@ -592,6 +635,20 @@ const Editor = () => {
                                                     placeholder="• Developed X to solve Y..."
                                                 />
                                                 <button
+                                                    type="button"
+                                                    disabled={!bullet.trim()}
+                                                    onClick={() => handleOptimizeClick(bullet, (newVal) => {
+                                                        const newProj = [...projects];
+                                                        newProj[index].description[bIndex] = newVal;
+                                                        updateResumeData('projects', newProj);
+                                                        simulateAutoSave();
+                                                    })}
+                                                    className={`p-2 transition-all ${bullet.trim() ? 'text-subtext hover:text-primary opacity-100 sm:opacity-0 sm:group-hover/bullet:opacity-100' : 'opacity-0 cursor-not-allowed'}`}
+                                                    title="Optimize bullet with AI"
+                                                >
+                                                    <Sparkles size={14} />
+                                                </button>
+                                                <button
                                                     onClick={() => {
                                                         const newProj = [...projects];
                                                         newProj[index].description = newProj[index].description.filter((_, i) => i !== bIndex);
@@ -601,6 +658,7 @@ const Editor = () => {
                                                 >
                                                     <X size={14} />
                                                 </button>
+
                                             </div>
                                         ))}
                                         <button
@@ -792,6 +850,23 @@ const Editor = () => {
                 isOpen={showHistory}
                 onClose={() => setShowHistory(false)}
             />
+
+            {/* AI Assistant Drawer */}
+            <AISidebar
+                isOpen={showAI}
+                onClose={() => setShowAI(false)}
+                resumeData={resumeData}
+                template={template}
+            />
+
+            {/* AI Bullet Optimizer Modal */}
+            <BulletOptimizerModal
+                isOpen={optimizerOpen}
+                onClose={() => setOptimizerOpen(false)}
+                bulletText={activeBullet}
+                onApply={onApplyOptimizer}
+            />
+
 
             {/* Mobile Floating View Selector */}
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex p-1 bg-surface/90 border border-border/60 rounded-full shadow-2xl backdrop-blur-md sm:hidden items-center gap-1">

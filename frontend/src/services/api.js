@@ -101,4 +101,72 @@ export const authAPI = {
     getMe: () => api.get('/auth/me'),
 };
 
+export const aiAPI = {
+
+    analyze: (resumeData, jobDescription) => api.post('/ai/analyze', { resumeData, jobDescription }),
+    optimizeBullet: (bulletPoint, jobDescription) => api.post('/ai/optimize-bullet', { bulletPoint, jobDescription }),
+    generateCoverLetterStream: async (resumeData, jobDescription, onChunk, onError, onDone) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/ai/generate-cover-letter`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : '',
+                },
+                body: JSON.stringify({ resumeData, jobDescription }),
+            });
+
+            if (!response.ok) {
+                const errJson = await response.json().catch(() => ({}));
+                throw new Error(errJson.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // Keep trailing partial line in the buffer
+
+                for (const line of lines) {
+                    const cleaned = line.trim();
+                    if (!cleaned) continue;
+                    
+                    if (cleaned.startsWith('data: ')) {
+                        const dataStr = cleaned.slice(6);
+                        if (dataStr === '[DONE]') {
+                            onDone();
+                            return;
+                        }
+                        
+                        try {
+                            const parsed = JSON.parse(dataStr);
+                            if (parsed.error) {
+                                onError(new Error(parsed.error));
+                                return;
+                            }
+                            if (parsed.chunk) {
+                                onChunk(parsed.chunk);
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse SSE line:', cleaned, e);
+                        }
+                    }
+                }
+            }
+            onDone();
+        } catch (error) {
+            onError(error);
+        }
+    }
+};
+
 export default api;
+
