@@ -95,7 +95,7 @@ Serverless environments use `@sparticuz/chromium`; local environments use standa
 
 A centralized dashboard to view, search, load, and delete saved drafts. `updatedAt` timestamps are humanized — displayed as `"2 hours ago"`, `"Yesterday"`, etc. — for natural readability.
 
-![Dashboard](.\frontend\src\assets\images\dashboard history.PNG)
+![Dashboard](./frontend/src/assets/images/dashboard.PNG)
 *Resume dashboard — version history with humanized timestamps and search*
 
 ### ✅ ATS Guardrails
