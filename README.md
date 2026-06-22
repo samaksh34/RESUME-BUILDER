@@ -18,7 +18,7 @@
 
 ResumeCraft is a decoupled monorepo full-stack application delivering a real-time split-screen resume editor, Playwright-powered pixel-perfect PDF exports, a Gemini 2.5 Flash-powered AI assistant (for local audits, semantic job matching, streaming cover letters, and STAR bullet optimizations), a dual-token JWT auth system with session rotation and reuse detection, and a decoupled template engine — architected to produce resumes that clear ATS parsing algorithms with 100% fidelity.
 
-![ResumeCraft Editor](./frontend/src/assets/images/homepage.PNG)
+![ResumeCraft Landingpage](./frontend/src/assets/images/homepage.PNG)
 *Landing page - with call to action buttons*
 
 </div>
@@ -95,7 +95,7 @@ Serverless environments use `@sparticuz/chromium`; local environments use standa
 
 A centralized dashboard to view, search, load, and delete saved drafts. `updatedAt` timestamps are humanized — displayed as `"2 hours ago"`, `"Yesterday"`, etc. — for natural readability.
 
-![Dashboard](./frontend/src/assets/images/dashboard.PNG)
+![Dashboard](.\frontend\src\assets\images\dashboard history.PNG)
 *Resume dashboard — version history with humanized timestamps and search*
 
 ### ✅ ATS Guardrails
