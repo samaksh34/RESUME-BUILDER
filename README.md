@@ -17,8 +17,8 @@
 
 ResumeCraft is a decoupled monorepo full-stack application delivering a real-time split-screen resume editor, Playwright-powered pixel-perfect PDF exports, a dual-token JWT auth system with session rotation and reuse detection, and a decoupled template engine — architected to produce resumes that clear ATS parsing algorithms with 100% fidelity.
 
-![ResumeCraft Editor](./frontend/src/assets/images/editor.PNG)
-*Live split-screen editor — form controls with instant preview rendering*
+![ResumeCraft Editor](./frontend/src/assets/images/homepage.PNG)
+*Landing page - with call to action buttons*
 
 </div>
 
@@ -45,7 +45,7 @@ ResumeCraft is a decoupled monorepo full-stack application delivering a real-tim
 
 A dual-pane editing interface with form controls — Personal Info, Experience, Education, Skills — on the left and an instant-rendering live preview on the right. Layout dimension sliders let users dynamically tune font sizes, margins, and section gaps without breaking the print canvas geometry.
 
-![Split Screen Editor](docs/assets/split-screen-detail.png)
+![Split Screen Editor](./frontend/src/assets/images/editor.PNG)
 *Form pane and live preview rendering in lockstep*
 
 ### ☁️ Auto-Save to Cloud (Debounced)
