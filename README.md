@@ -11,11 +11,12 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Playwright](https://img.shields.io/badge/Playwright-PDF_Engine-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 [![JWT](https://img.shields.io/badge/Auth-Dual--Token_JWT-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
 
 <br/>
 
-ResumeCraft is a decoupled monorepo full-stack application delivering a real-time split-screen resume editor, Playwright-powered pixel-perfect PDF exports, a dual-token JWT auth system with session rotation and reuse detection, and a decoupled template engine — architected to produce resumes that clear ATS parsing algorithms with 100% fidelity.
+ResumeCraft is a decoupled monorepo full-stack application delivering a real-time split-screen resume editor, Playwright-powered pixel-perfect PDF exports, a Gemini 2.5 Flash-powered AI assistant (for local audits, semantic job matching, streaming cover letters, and STAR bullet optimizations), a dual-token JWT auth system with session rotation and reuse detection, and a decoupled template engine — architected to produce resumes that clear ATS parsing algorithms with 100% fidelity.
 
 ![ResumeCraft Editor](./frontend/src/assets/images/homepage.PNG)
 *Landing page - with call to action buttons*
@@ -94,12 +95,29 @@ Serverless environments use `@sparticuz/chromium`; local environments use standa
 
 A centralized dashboard to view, search, load, and delete saved drafts. `updatedAt` timestamps are humanized — displayed as `"2 hours ago"`, `"Yesterday"`, etc. — for natural readability.
 
-![Dashboard](docs/assets/dashboard.png)
+![Dashboard](./frontend/src/assets/images/dashboard.PNG)
 *Resume dashboard — version history with humanized timestamps and search*
 
 ### ✅ ATS Guardrails
 
 The HTML output structure is deliberately engineered for ATS parser compatibility: semantic heading order, no floats or complex CSS grid in exported markup, plain-text-extractable content, and font-safe fallback stacks. Resumes pass through ATS algorithms with **100% parsing fidelity**.
+
+### 🤖 AI Copilot Workspace & Optimizer (Gemini-Powered)
+
+An intelligent, real-time AI assistant integrated directly into the editor canvas, powered by **Gemini 2.5 Flash** (with fallback static heuristics for offline use):
+
+- **Local Resume Audit (Zero-Cost):** Analyzes layout structures, contact info formats, color palettes, and keyword counts locally. Returns a *Static Audit Score* with warnings and tips.
+- **AI Job Matcher (ATS Analyzer):** Matches the candidate's resume against a target job description. The backend uses Gemini 2.5 Flash to perform a semantic comparison and returns:
+  1. An **AI ATS Score** rating semantic alignment.
+  2. **Matched Keywords** and **Missing Keywords** to guide optimization.
+  3. **Semantic Synonyms** detailing syntactic equivalencies (e.g. mapping `"building REST APIs"` in a job description to `"Express backend endpoints"` in a resume) with explanations.
+  4. An actionable **Optimization Audit Checklist**.
+- **AI Cover Letter Generator (SSE-Streamed):** Generates a tailored, professional 3-4 paragraph cover letter aligning user achievements to target job requirements. Using **Server-Sent Events (SSE)**, the letter streams in real-time, eliminating perceived wait times. Includes a one-click copy helper.
+- **AI Bullet Optimizer (STAR Methodology):** Rephrases individual resume bullet points into three highly professional variations using the **STAR methodology** (Situation, Task, Action, Result) with context-aware, realistic metrics:
+  * *Metric Focused:* Accentuates quantifiable results, latency savings, or efficiency gains.
+  * *Action & Leadership:* Focuses on technical architecture, leadership, and problem-solving.
+  * *Concise:* A high-density, quick-scanning punchy format.
+  Each variation includes a detailed STAR component analysis showing how the prompt was structured.
 
 ---
 
@@ -173,6 +191,7 @@ ResumeCraft separates **rendering logic** (immutable) from **visual style** (con
 | **Email** | Nodemailer | OTP dispatch for verification and password recovery |
 | **PDF Engine** | Playwright v1.59.1 | Headless browser PDF generation |
 | **Serverless PDF** | `@sparticuz/chromium` | Chromium binary optimized for serverless environments |
+| **AI Integration** | `@google/generative-ai` | Interface with Gemini 2.5 Flash for resume analysis, optimization, and cover letters |
 | **Security** | Helmet, `express-rate-limit` | HTTP header hardening, API rate limiting |
 | **Cookies** | `cookie-parser` | `HttpOnly` cookie management for refresh tokens |
 
@@ -280,6 +299,7 @@ sequenceDiagram
 │   │
 │   ├── 📁 controllers/
 │   │   ├── authController.js       # Register, login, refresh, logout, OTP flows
+│   │   ├── aiController.js         # Gemini-powered analysis, optimization, cover letters
 │   │   └── resumeController.js     # CRUD + PDF export orchestration
 │   │
 │   ├── 📁 middleware/
@@ -292,10 +312,12 @@ sequenceDiagram
 │   │
 │   ├── 📁 routes/
 │   │   ├── authRoutes.js           # /api/auth/* route definitions
+│   │   ├── aiRoutes.js             # /api/ai/* route definitions with cost rate-limiting
 │   │   └── resumeRoutes.js         # /api/resumes/* route definitions
 │   │
 │   ├── 📁 services/
-│   │   └── emailService.js         # Nodemailer transport — OTP & recovery emails
+│   │   ├── emailService.js         # Nodemailer transport — OTP & recovery emails
+│   │   └── aiService.js            # Gemini API integration: resume matching, STAR, cover letters
 │   │
 │   ├── 📁 utils/
 │   │   ├── generateToken.js        # JWT signing helpers (access + refresh)
@@ -307,6 +329,9 @@ sequenceDiagram
     └── 📁 src/
         ├── 📁 components/
         │   ├── Navbar.jsx           # Authenticated navigation shell
+        │   ├── AISidebar.jsx           # AI Copilot slide-over container
+        │   ├── AIAssistantPanel.jsx    # Real-time local audit, job matching, cover letter tabs
+        │   ├── BulletOptimizerModal.jsx # STAR methodology interactive bullet rewriter
         │   ├── ResumePreview.jsx    # Live-rendered A4 canvas component
         │   └── InputField.jsx       # Reusable controlled input primitive
         │
@@ -363,6 +388,14 @@ sequenceDiagram
 | `POST` | `/` | 🔒 Protected | `{ title, data }` | `201` Created resume object |
 | `PUT` | `/:id` | 🔒 Protected | `{ title, data }` | `200` Updated resume object |
 | `DELETE` | `/:id` | 🔒 Protected | — | `200` Deletion confirmation |
+
+### AI Services — `/api/ai`
+
+| Method | Endpoint | Access | Request Body | Response |
+|---|---|---|---|---|
+| `POST` | `/analyze` | 🔒 Protected | `{ resumeData, jobDescription }` | `200` Structured AI ATS analysis JSON |
+| `POST` | `/optimize-bullet` | 🔒 Protected | `{ bulletPoint, jobDescription }` | `200` Three STAR optimized variations |
+| `POST` | `/generate-cover-letter` | 🔒 Protected | `{ resumeData, jobDescription }` | `200` Text event-stream (SSE chunks) |
 
 > [!NOTE]
 > All `🔒 Protected` endpoints require a valid `Authorization: Bearer <accessToken>` header. Expired tokens are rejected with `401 TOKEN_EXPIRED`, triggering the silent refresh flow on the client.
@@ -433,6 +466,9 @@ REFRESH_TOKEN_EXPIRE=7d
 EMAIL_SERVICE=gmail
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password      # Use App Password, not account password
+
+# ─── AI Service (Google Gemini) ────────────────────────────────────
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # ─── Server ────────────────────────────────────────────────────────
 NODE_ENV=development
